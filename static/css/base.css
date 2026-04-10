@@ -365,10 +365,11 @@ select:focus {
     font-size: 14px;
     display: block;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .dropdown-menu a:hover {
-    background: #f1f5f9;
+    background: #f3f4f6;
 }
 
 .nav-dropdown .dropdown-menu a {
@@ -398,11 +399,15 @@ select:focus {
 }
 
 .home-page .dropdown-menu a:hover {
-    background: #e2e8f0; /* по-тъмен hover */
+    background: #f3f4f6; /* неутрален hover без син оттенък */
     color: #0f172a !important;
 }
 
 .home-page .navbar-modern .nav-links > a,
 .home-page .navbar-modern .logo span {
     color: white !important;
+}
+/* Keep dropdown menu links dark on home navbar */
+.home-page .navbar-modern .nav-dropdown .dropdown-menu a {
+    color: #0f172a !important;
 }
