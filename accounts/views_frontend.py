@@ -18,6 +18,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
+from django.core.paginator import Paginator
+from django.db.models import Q
 from internships.models import Report, Application, Favorite
 from internships.models import InternOffer
 from django.shortcuts import render, redirect
@@ -264,27 +266,104 @@ def mentor_dashboard(request):
     mentor = request.user.mentor
     section = request.GET.get("section", "students")
 
+    if request.method == "POST":
+        action = request.POST.get("action")
+        student_id = request.POST.get("student_id")
+
+        if action == "assign_student" and student_id:
+            student = get_object_or_404(Student, id=student_id)
+            student.mentor = mentor
+            student.save(update_fields=["mentor"])
+            messages.success(request, "Студентът е назначен успешно.")
+            return redirect(f"{request.path}?section=assign")
+
+        if action == "unassign_student" and student_id:
+            student = get_object_or_404(Student, id=student_id, mentor=mentor)
+            student.mentor = None
+            student.save(update_fields=["mentor"])
+            messages.success(request, "Студентът е премахнат от твоите студенти.")
+            return redirect(f"{request.path}?section=students")
+
     students = Student.objects.filter(
         mentor=mentor
     ).select_related("user", "specialty")
+
+    all_students = Student.objects.select_related(
+        "user",
+        "specialty"
+    ).order_by("faculty_number")
+
+    unassigned_or_other_students = all_students.exclude(mentor=mentor)
+
+    applications = Application.objects.filter(
+        student__mentor=mentor
+    ).select_related(
+        "student",
+        "student__user",
+        "offer",
+        "offer__company",
+    ).order_by("-submitted_at")
+
+    latest_status_by_student = {}
+    for app in applications.order_by("student_id", "-submitted_at"):
+        if app.student_id not in latest_status_by_student:
+            latest_status_by_student[app.student_id] = app.get_status_display()
+
+    for student in students:
+        student.latest_status_display = latest_status_by_student.get(
+            student.id,
+            "Няма кандидатура"
+        )
 
     reports = Report.objects.filter(
         student__mentor=mentor
     ).select_related("student", "student__user")
 
     total_students = students.count()
+    students_with_internship = students.filter(
+        application__status__in=[
+            Application.Status.SELECTED,
+            Application.Status.SEEN,
+        ]
+    ).distinct().count()
+    students_without_internship = total_students - students_with_internship
     total_reports = reports.count()
 
     context = {
         "mentor": mentor,
         "section": section,
         "students": students,
+        "available_students": unassigned_or_other_students,
+        "applications": applications,
         "reports": reports,
         "total_students": total_students,
-        "total_reports": total_reports
+        "students_with_internship": students_with_internship,
+        "students_without_internship": students_without_internship,
+        "total_reports": total_reports,
     }
 
     return render(request, "mentor/dashboard.html", context)
+@login_required
+def mentor_approve_internship(request, application_id):
+    if request.user.role.name != "MENTOR":
+        return redirect("home")
+    if not hasattr(request.user, "mentor"):
+        return redirect("home")
+
+    application = get_object_or_404(
+        Application.objects.select_related("student"),
+        id=application_id,
+        student__mentor=request.user.mentor
+    )
+
+    if application.status != Application.Status.SELECTED:
+        messages.error(request, "Менторът може да одобрява само избран от студента стаж.")
+        return redirect("mentor_dashboard")
+
+    application.status = Application.Status.SEEN
+    application.save(update_fields=["status"])
+    messages.success(request, "Стажът е одобрен от ментора.")
+    return redirect("mentor_dashboard?section=applications")
 
 @login_required
 def mentor_applications(request):
@@ -348,10 +427,43 @@ def mentor_offers(request):
 
     offers = InternOffer.objects.filter(
         status=InternOffer.Status.ACTIVE
-    ).select_related("company")
+    ).select_related("company", "location")
+
+    search = request.GET.get("search")
+    field = request.GET.get("field")
+    workspace = request.GET.get("workspace")
+    salary = request.GET.get("salary")
+    location = request.GET.get("location")
+
+    if field:
+        offers = offers.filter(field=field)
+
+    if workspace:
+        offers = offers.filter(workspace_type=workspace)
+
+    if salary:
+        offers = offers.filter(salary_type=salary)
+
+    if location:
+        offers = offers.filter(location_id=location)
+
+    if search:
+        offers = offers.filter(
+            Q(title__icontains=search) |
+            Q(description__icontains=search) |
+            Q(company__name__icontains=search)
+        )
+
+    locations = Location.objects.all()
+
+    paginator = Paginator(offers, 5)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     return render(request, "mentor/offers.html", {
-        "offers": offers
+        "offers": page_obj,
+        "locations": locations,
+        "page_obj": page_obj,
     })
 
 @login_required

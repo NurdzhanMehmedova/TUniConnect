@@ -38,7 +38,7 @@ from accounts.views_frontend import (
     approve_application,
     reject_application, company_dashboard, company_offers, edit_offer, create_offer, company_applications,
     company_approve_application,
-    company_reject_application, quick_apply
+    company_reject_application, quick_apply, mentor_approve_internship
 )
 
 # ================= FRONTEND =================
@@ -107,6 +107,7 @@ urlpatterns = [
     path("mentor/applications/", mentor_applications, name="mentor_applications"),
     path("mentor/applications/<int:application_id>/approve/", approve_application, name="approve_application"),
     path("mentor/applications/<int:application_id>/reject/", reject_application, name="reject_application"),
+    path("mentor/applications/<int:application_id>/approve-internship/", mentor_approve_internship, name="mentor_approve_internship"),
     path("mentor/offers/", views_frontend.mentor_offers, name="mentor_offers"),
     path("mentor/all-students/", views_frontend.mentor_all_students, name="mentor_all_students"),
     path("mentor/students-no-internship/", views_frontend.mentor_students_without_internship, name="mentor_students_without_internship"),

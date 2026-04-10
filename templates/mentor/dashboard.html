@@ -30,6 +30,16 @@ class="{% if section == 'reports' %}active{% endif %}">
 Доклади
 </a>
 
+    <a href="?section=applications"
+class="{% if section == 'applications' %}active{% endif %}">
+Кандидатури
+</a>
+
+<a href="?section=assign"
+class="{% if section == 'assign' %}active{% endif %}">
+Назначаване
+</a>
+
 </nav>
 
 </div>
@@ -80,6 +90,8 @@ class="{% if section == 'reports' %}active{% endif %}">
 <th>Фак. номер</th>
 <th>Специалност</th>
 <th>Курс</th>
+    <th>Прогрес</th>
+<th>Действие</th>
 </tr>
 </thead>
 
@@ -105,12 +117,24 @@ class="{% if section == 'reports' %}active{% endif %}">
 {{ student.year_of_study }}
 </td>
 
+    <td>
+{{ student.latest_status_display }}
+</td>
+
+<td>
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="unassign_student">
+    <input type="hidden" name="student_id" value="{{ student.id }}">
+    <button type="submit" class="btn-reject">Премахни</button>
+</form>
+</td>
 </tr>
 
 {% empty %}
 
 <tr>
-<td colspan="4">
+<td colspan="6">
 Няма назначени студенти
 </td>
 </tr>
@@ -123,6 +147,72 @@ class="{% if section == 'reports' %}active{% endif %}">
 
 {% endif %}
 
+
+    {% if section == "assign" %}
+
+<h2>Назначаване на студенти</h2>
+
+<form method="post" class="assign-form">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="assign_student">
+
+    <label for="student_id">Избери студент</label>
+    <select name="student_id" id="student_id" required>
+        <option value="">-- Избери --</option>
+        {% for s in available_students %}
+            <option value="{{ s.id }}">
+                {{ s.user.first_name }} {{ s.user.last_name }} (ФН: {{ s.faculty_number }})
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="btn-approve">Назначи</button>
+</form>
+
+{% endif %}
+
+{% if section == "applications" %}
+
+<h2>Кандидатури на моите студенти</h2>
+
+<table class="app-table">
+<thead>
+<tr>
+<th>Студент</th>
+<th>Компания</th>
+<th>Обява</th>
+<th>Статус</th>
+<th>Действие</th>
+</tr>
+</thead>
+<tbody>
+{% for app in applications %}
+<tr>
+<td>{{ app.student.user.first_name }} {{ app.student.user.last_name }}</td>
+<td>{{ app.offer.company.name }}</td>
+<td>{{ app.offer.title }}</td>
+<td>{{ app.get_status_display }}</td>
+<td>
+    {% if app.status == "Selected" %}
+        <a class="btn-approve" href="{% url 'mentor_approve_internship' app.id %}">
+            Одобри стаж
+        </a>
+    {% elif app.status == "Seen" %}
+        Одобрен от ментор
+    {% else %}
+        —
+    {% endif %}
+</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5">Няма кандидатури</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endif %}
 {% if section == "reports" %}
 
 <h2>Доклади</h2>
@@ -133,7 +223,9 @@ class="{% if section == 'reports' %}active{% endif %}">
 <tr>
 <th>Студент</th>
 <th>Фак. номер</th>
+<th>Обява</th>
 <th>Дата</th>
+<th>Файл</th>
 </tr>
 </thead>
 
@@ -153,7 +245,15 @@ class="{% if section == 'reports' %}active{% endif %}">
 </td>
 
 <td>
-{{ report.created_at|date:"d.m.Y" }}
+{% if report.company %}{{ report.company.name }}{% else %}—{% endif %}
+</td>
+
+<td>
+{{ report.submitted_at|date:"d.m.Y" }}
+</td>
+
+<td>
+<a href="{{ report.report_file.url }}" target="_blank" class="btn-approve">Преглед</a>
 </td>
 
 </tr>
@@ -161,7 +261,7 @@ class="{% if section == 'reports' %}active{% endif %}">
 {% empty %}
 
 <tr>
-<td colspan="3">
+<td colspan="5">
 Няма качени доклади
 </td>
 </tr>
