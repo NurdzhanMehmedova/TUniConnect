@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/student.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<h2>Моите доклади</h2>
+
+{% if reports %}
+    {% for report in reports %}
+        <div class="card">
+            <p>Оценка: {{ report.grade }}</p>
+            <p>Коментар: {{ report.comments }}</p>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Нямате качени доклади.</p>
+{% endif %}
+
+{% endblock %}

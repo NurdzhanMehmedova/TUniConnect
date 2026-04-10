@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<div class="about-hero">
+
+    <img src="{% static 'images/tu_varna.jpg' %}" class="about-bg">
+
+    <div class="about-overlay"></div>
+
+    <div class="about-hero-content">
+        <h1>Технически университет – Варна</h1>
+        <p>Образование. Иновации. Бъдеще.</p>
+    </div>
+
+</div>
+
+
+<!-- ABOUT -->
+<div class="about-section">
+
+    <div class="about-container">
+
+        <h2>За университета</h2>
+
+        <p class="about-text">
+            Технически университет – Варна е водещо висше училище в България,
+            предлагащо висококачествено инженерно образование и научни изследвания.
+        </p>
+
+        <p class="about-text">
+            Университетът подготвя специалисти в областите на информационните технологии,
+            електрониката, машиностроенето, корабостроенето и много други.
+        </p>
+
+        <!-- CARDS -->
+        <div class="mission-container">
+
+            <div class="mission-card">
+                <h3>Мисия</h3>
+                <p>Да подготвя висококвалифицирани инженери...</p>
+            </div>
+
+            <div class="mission-card">
+                <h3>Визия</h3>
+                <p>Да бъде иновативен център...</p>
+            </div>
+
+            <div class="mission-card">
+                <h3>Партньорства</h3>
+                <p>Сътрудничество с водещи компании...</p>
+            </div>
+
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-wrapper">
+
+            <div class="about-stats">
+
+                <div class="stat-box">
+                    <h3>8000+</h3>
+                    <p>Студенти</p>
+                </div>
+
+                <div class="stat-box">
+                    <h3>50+</h3>
+                    <p>Специалности</p>
+                </div>
+
+                <div class="stat-box">
+                    <h3>100+</h3>
+                    <p>Партньори</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

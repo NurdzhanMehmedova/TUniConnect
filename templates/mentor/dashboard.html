@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/mentor.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+<div class="app-layout">
+
+<!-- SIDEBAR -->
+
+<aside class="app-sidebar">
+
+<div class="sidebar-card">
+
+<h3>Ментор панел</h3>
+
+<nav class="sidebar-menu">
+
+<a href="?section=students"
+class="{% if section == 'students' %}active{% endif %}">
+Моите студенти
+</a>
+
+<a href="?section=reports"
+class="{% if section == 'reports' %}active{% endif %}">
+Доклади
+</a>
+
+</nav>
+
+</div>
+
+</aside>
+
+<!-- MAIN CONTENT -->
+
+<main class="app-content">
+
+<div class="content-card">
+
+<!-- DASHBOARD STATS -->
+
+<div class="stats-grid">
+
+<div class="stat-card">
+<h3>Всички студенти</h3>
+<p>{{ total_students }}</p>
+</div>
+
+<div class="stat-card">
+<h3>Със стаж</h3>
+<p>{{ students_with_internship }}</p>
+</div>
+
+<div class="stat-card">
+<h3>Без стаж</h3>
+<p>{{ students_without_internship }}</p>
+</div>
+
+<div class="stat-card">
+<h3>Доклади</h3>
+<p>{{ total_reports }}</p>
+</div>
+
+</div>
+
+{% if section == "students" %}
+
+<h2>Моите студенти</h2>
+
+<table class="app-table">
+
+<thead>
+<tr>
+<th>Име</th>
+<th>Фак. номер</th>
+<th>Специалност</th>
+<th>Курс</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for student in students %}
+
+<tr>
+
+<td>
+{{ student.user.first_name }} {{ student.user.last_name }}
+</td>
+
+<td>
+{{ student.faculty_number }}
+</td>
+
+<td>
+{{ student.specialty.name }}
+</td>
+
+<td>
+{{ student.year_of_study }}
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="4">
+Няма назначени студенти
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endif %}
+
+{% if section == "reports" %}
+
+<h2>Доклади</h2>
+
+<table class="app-table">
+
+<thead>
+<tr>
+<th>Студент</th>
+<th>Фак. номер</th>
+<th>Дата</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for report in reports %}
+
+<tr>
+
+<td>
+{{ report.student.user.first_name }}
+{{ report.student.user.last_name }}
+</td>
+
+<td>
+{{ report.student.faculty_number }}
+</td>
+
+<td>
+{{ report.created_at|date:"d.m.Y" }}
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="3">
+Няма качени доклади
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endif %}
+
+</div>
+
+</main>
+
+</div>
+</div>
+
+{% endblock %}

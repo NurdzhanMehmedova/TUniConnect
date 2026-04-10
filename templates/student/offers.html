@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% load static %}
+{% load time_filters %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/student.css' %}">
+{% endblock %}
+
+{% block title %}Обяви за стаж{% endblock %}
+
+{% block content %}
+
+<div class="offers-wrapper">
+
+    <!-- SEARCH -->
+    <div class="offers-search">
+
+        <form method="get">
+            <div class="search-box">
+                <span class="search-icon">🔍︎</span>
+
+                <input
+                type="text"
+                name="search"
+                placeholder="Търсене на обяви"
+                value="{{ request.GET.search }}"
+                >
+            </div>
+        </form>
+
+    </div>
+
+
+<!-- PAGE LAYOUT -->
+<div class="offers-page">
+
+    <!-- SIDEBAR -->
+    <div class="filters-card">
+
+        <form method="get">
+
+            <label>Поле</label>
+            <select name="field">
+                <option value="">Всички</option>
+                <option value="IT">ИТ</option>
+                <option value="Marketing">Маркетинг</option>
+                <option value="Finance">Финанси</option>
+            </select>
+
+            <label>Тип работа</label>
+            <select name="workspace">
+                <option value="">Всички</option>
+                <option value="Remote">Дистанционно</option>
+                <option value="Onsite">Присъствено</option>
+                <option value="Hybrid">Хибридно</option>
+            </select>
+
+            <label>Тип заплащане</label>
+            <select name="salary">
+                <option value="">Всички</option>
+                <option value="Paid">Платен</option>
+                <option value="Unpaid">Неплатен</option>
+            </select>
+
+            <label>Локация</label>
+            <select name="location">
+                <option value="">Всички</option>
+
+                {% for loc in locations %}
+                <option value="{{ loc.id }}">{{ loc.city }}</option>
+                {% endfor %}
+
+            </select>
+
+            <button type="submit" class="btn-primary">
+                Филтрирай
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- OFFERS -->
+    <div class="offers-list">
+
+        {% for offer in offers %}
+
+        <div class="offer-card"
+             onclick="window.location.href='{% url 'offer_detail' offer.id %}'">
+
+            <!-- LEFT: LOGO -->
+            <div class="offer-logo">
+                <img src="{{ offer.company.image_url|default:'/static/images/logo_placeholder.png' }}">
+            </div>
+
+            <!-- CENTER -->
+            <div class="offer-content">
+
+                <div class="offer-company">
+                    {{ offer.company.name }}
+                </div>
+
+                <div class="offer-title">
+                    {{ offer.title }}
+                </div>
+
+                <div class="offer-meta-row">
+                    📅 {{ offer.start_date }}
+                    &nbsp;&nbsp;•&nbsp;&nbsp;
+                    📍 {{ offer.location }}
+                    🕒 {{ offer.created_at|time_since }}
+                </div>
+
+                <div class="offer-tags">
+                    <span class="tag">{{ offer.get_field_display }}</span>
+                    <span class="tag">{{ offer.get_workspace_type_display }}</span>
+                    <span class="tag salary">{{ offer.get_salary_type_display }}</span>
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="offer-actions">
+
+                {% if user.is_authenticated and user.role.name == "STUDENT" %}
+
+                    {% if offer.id in applied_offers %}
+
+                        <button class="btn-primary full"
+                                onclick="event.stopPropagation();"
+                                disabled>
+                            ✔ Вече кандидатства
+                        </button>
+
+                    {% else %}
+
+                        <a href="{% url 'apply_for_offer' offer.id %}"
+                           class="apply-btn"
+                           onclick="event.stopPropagation();">
+                           Кандидатствай
+                        </a>
+
+                    {% endif %}
+
+                {% else %}
+
+                    <a href="{% url 'login' %}"
+                       class="apply-btn"
+                       onclick="event.stopPropagation();">
+                       Кандидатствай
+                    </a>
+
+                {% endif %}
+
+                <div class="save-btn"
+                     data-id="{{ offer.id }}"
+                     onclick="event.stopPropagation(); toggleSave(this)">
+
+                    {% if offer.id in favorites %}
+                        ❤️
+                    {% else %}
+                        🤍
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+            <div class="no-offers">
+                Няма намерени обяви
+            </div>
+        {% endfor %}
+
+    </div>
+
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">⬅</a>
+        {% endif %}
+
+        <span>
+            Страница {{ page_obj.number }} от {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">➡</a>
+        {% endif %}
+
+    </div>
+
+</div>
+</div>
+
+<script>
+function getCSRFToken() {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+}
+
+function toggleSave(el) {
+
+    const offerId = el.getAttribute("data-id");
+
+    fetch(`/student/favorite/${offerId}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCSRFToken()
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.saved) {
+            el.innerHTML = "❤️";
+        } else {
+            el.innerHTML = "🤍";
+        }
+    });
+}
+</script>
+
+{% endblock %}

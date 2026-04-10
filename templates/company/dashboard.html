@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/company.css' %}">
+{% endblock %}
+
+{% block title %}Company Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper-modern">
+
+    <div class="app-layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar-card">
+
+            <div class="sidebar-header">
+                <h3 class="sidebar-title">
+                    {{ company.name }}
+                </h3>
+            </div>
+
+            <div class="sidebar-menu">
+
+                <a href="{% url 'company_dashboard' %}" class="active">
+                    Дашборд
+                </a>
+
+                <a href="{% url 'company_offers' %}">
+                    Моите обяви
+                </a>
+
+                <a href="{% url 'company_applications' %}">
+                    Кандидатури
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content-card">
+
+            <h2>Company Dashboard</h2>
+
+            <!-- STATS -->
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <h3>Обяви</h3>
+                    <p>{{ total_offers }}</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Активни</h3>
+                    <p>{{ active_offers }}</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Кандидатури</h3>
+                    <p>{{ total_applications }}</p>
+                </div>
+
+            </div>
+
+            <!-- LAST OFFERS -->
+            <h3 class="section-title">Последни обяви</h3>
+
+            <div class="table-card">
+
+                <table class="app-table">
+
+                    <thead>
+                        <tr>
+                            <th>Заглавие</th>
+                            <th>Поле</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for offer in offers %}
+                            <tr>
+                                <td>{{ offer.title }}</td>
+                                <td>{{ offer.field }}</td>
+                                <td>
+                                    <span class="status-badge {{ offer.status|lower }}">
+                                        {{ offer.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3">
+                                    Нямате създадени обяви.
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

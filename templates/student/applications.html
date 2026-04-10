@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+{% load time_filters %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/student.css' %}">
+{% endblock %}
+
+{% block title %}Моите кандидатури{% endblock %}
+
+{% block content %}
+
+<div class="offers-wrapper">
+
+    <h2 style="margin-bottom:20px;">Моите кандидатури</h2>
+
+    {% if applications %}
+
+        <div class="offers-list">
+
+            {% for app in applications %}
+
+            <div class="offer-card"
+                 onclick="window.location.href='{% url 'offer_detail' app.offer.id %}'">
+
+                <!-- LOGO -->
+                <div class="offer-logo">
+                    <img src="{{ app.offer.company.image_url|default:'/static/images/logo_placeholder.png' }}">
+                </div>
+
+                <!-- CONTENT -->
+                <div class="offer-content">
+
+                    <div class="offer-company">
+                        {{ app.offer.company.name }}
+                    </div>
+
+                    <div class="offer-title">
+                        {{ app.offer.title }}
+                    </div>
+
+                    <div class="offer-meta-row">
+                        📅 {{ app.offer.start_date }}
+                        &nbsp;&nbsp;•&nbsp;&nbsp;
+                        📍 {{ app.offer.location }}
+                        &nbsp;&nbsp;•&nbsp;&nbsp;
+                        🕒 {{ app.offer.created_at|time_since }}
+                    </div>
+
+                    <div class="offer-tags">
+                        <span class="tag">{{ app.offer.get_field_display }}</span>
+                        <span class="tag">{{ app.offer.get_workspace_type_display }}</span>
+                        <span class="tag salary">{{ app.offer.get_salary_type_display }}</span>
+                    </div>
+
+                </div>
+
+                <!-- STATUS -->
+                <div class="offer-actions">
+
+                    <span class="status-badge
+                        {% if app.status == 'Approved' %}approved
+                        {% elif app.get_status_display == 'Rejected' %}rejected
+                        {% elif app.get_status_display == 'Selected' %}approved
+                        {% else %}pending
+                        {% endif %}">
+
+                        {% if app.get_status_display == 'Approved' %}
+                            ✔ Одобрена
+                        {% elif app.get_status_display == 'Rejected' %}
+                            ❌ Отхвърлена
+                        {% elif app.get_status_display == 'Selected' %}
+                            🎯 Избрана
+                        {% else %}
+                            ⏳ В изчакване
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            Нямаш кандидатури все още.
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

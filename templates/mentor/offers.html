@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/mentor.css' %}">
+{% endblock %}
+
+{% block title %}Активни стажове{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-wrapper">
+
+    <div class="content-card offers-page">
+
+        <div class="offers-header">
+            <h2>Активни стажове</h2>
+        </div>
+
+        <div class="offers-list">
+
+        {% if offers %}
+
+            {% for offer in offers %}
+
+            <div class="offer-row"
+                onclick="window.location.href='{% url 'offer_detail' offer.id %}'">
+
+                    <div class="offer-info">
+
+                        <div class="offer-title">
+                            {{ offer.title }}
+                        </div>
+
+                        <div class="offer-meta">
+                            <strong>Компания:</strong> {{ offer.company.name }}
+                        </div>
+
+                        <div class="offer-meta">
+                            {{ offer.get_field_display }} •
+                            {{ offer.get_workspace_type_display }} •
+                            {{ offer.get_salary_type_display }}
+                        </div>
+
+                        <div class="offer-meta">
+                            {{ offer.start_date }} → {{ offer.end_date }}
+                        </div>
+
+                    </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>Няма активни стажове.</p>
+
+        {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

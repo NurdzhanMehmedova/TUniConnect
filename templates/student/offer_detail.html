@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/student.css' %}">
+{% endblock %}
+
+{% block title %}{{ offer.title }}{% endblock %}
+
+{% block content %}
+
+<div class="job-container">
+
+    <!-- 🔥 HERO БАНЕР -->
+    <div class="job-hero">
+        <div class="job-save-btn"
+             data-id="{{ offer.id }}"
+             onclick="toggleSave(this)">
+            {% if is_favorite %}
+                ❤️
+            {% else %}
+                🤍
+            {% endif %}
+        </div>
+
+        <div class="job-hero-bg">
+            <img src="{{ offer.company.banner_url|default:'/static/images/default-banner.png' }}">
+        </div>
+
+        <div class="job-hero-overlay"></div>
+
+        <div class="job-hero-content">
+
+            <div class="job-hero-logo">
+                <img src="{{ offer.company.image_url|default:'/static/images/logo_placeholder.png' }}">
+            </div>
+
+            <div class="job-hero-info">
+                <h1>{{ offer.title }}</h1>
+
+                <p class="job-company">
+                    {{ offer.company.name }} • {{ offer.location }}
+                </p>
+
+                <div class="job-tags">
+                    <span>📅 {{ offer.start_date }} → {{ offer.end_date }}</span>
+                    <span>💼 {{ offer.get_workspace_type_display }}</span>
+                    <span>💰 {{ offer.get_salary_type_display }}</span>
+                    <span>👁️ {{ offer.views }} гледания</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 🔥 MAIN CONTENT -->
+    <div class="job-body">
+
+        <!-- LEFT (широка секция) -->
+        <div class="job-main-wide">
+
+            <div class="job-section">
+                <h3>📄 Описание</h3>
+                <div class="job-text">
+                    {{ offer.description|linebreaks }}
+                </div>
+            </div>
+
+            {% if offer.responsibilities %}
+            <div class="job-section">
+                <h3>🧠 Отговорности</h3>
+                <ul class="job-list">
+                    {% for item in offer.responsibilities.splitlines %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if offer.requirements %}
+            <div class="job-section">
+                <h3>🎯 Изисквания</h3>
+                <ul class="job-list">
+                    {% for item in offer.requirements.splitlines %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if offer.benefits %}
+            <div class="job-section">
+                <h3>🎁 Какво предлагаме</h3>
+                <ul class="job-list">
+                    {% for item in offer.benefits.splitlines %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="job-sidebar">
+
+            <div class="sidebar-card sticky">
+
+                <div class="company-box">
+                    <img src="{{ offer.company.image_url|default:'/static/images/logo_placeholder.png' }}">
+                    <h4>{{ offer.company.name }}</h4>
+                </div>
+
+                <div class="sidebar-info">
+                    <p><strong>Локация:</strong> {{ offer.location }}</p>
+                    <p><strong>Поле:</strong> {{ offer.get_field_display }}</p>
+                    <p><strong>Тип:</strong> {{ offer.get_workspace_type_display }}</p>
+                </div>
+
+                {% if user.is_authenticated and user.role.name == "STUDENT" %}
+
+                    {% if has_applied %}
+
+                        <button class="btn-primary full" disabled>
+                            Вече кандидатства
+                        </button>
+
+                        <button class="btn-secondary full" disabled>
+                            Кандидатствай с форма
+                        </button>
+
+                    {% else %}
+
+                        <a href="{% url 'quick_apply' offer.id %}" class="btn-primary full">
+                            Кандидатствай с твоето CV
+                        </a>
+
+                        <a href="{% url 'apply_for_offer' offer.id %}" class="btn-secondary full">
+                            Кандидатствай с форма
+                        </a>
+
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function getCSRFToken() {
+    return document.cookie.split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+}
+
+function toggleSave(el) {
+
+    const offerId = el.getAttribute("data-id");
+
+    fetch(`/student/favorite/${offerId}/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCSRFToken()
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.saved) {
+            el.innerHTML = "❤️";
+        } else {
+            el.innerHTML = "🤍";
+        }
+    });
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/student.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="content-wide">
+
+<h2>Кандидатстване за стаж</h2>
+
+<div class="card">
+
+<h3>{{ offer.title }}</h3>
+<p>{{ offer.company.name }}</p>
+
+<form method="post" enctype="multipart/form-data">
+
+{% csrf_token %}
+
+<label>
+    <input type="radio" name="cv_type" value="profile" checked>
+    Използвай моето CV
+</label>
+
+<label>
+    <input type="radio" name="cv_type" value="upload">
+    Качи файл
+</label>
+<input type="file" name="cv_file" required>
+
+<label>Мотивационно писмо</label>
+<textarea name="motivation_letter" rows="5" required></textarea>
+
+<button type="submit" class="btn-primary">
+Изпрати кандидатура
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

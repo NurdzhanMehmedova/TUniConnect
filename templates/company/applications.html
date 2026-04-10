@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="content-wide">
+
+<h2 class="page-title">Кандидатури</h2>
+
+<div class="table-card">
+
+<table class="app-table">
+
+<thead>
+<tr>
+<th>Студент</th>
+<th>Обява</th>
+<th>CV</th>
+<th>Статус</th>
+<th>Действия</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for app in applications %}
+
+<tr>
+
+<td>
+{{ app.student.user.first_name }}
+{{ app.student.user.last_name }}
+</td>
+
+<td>
+{{ app.offer.title }}
+</td>
+
+<td>
+<a href="{{ app.cv_file.url }}">Изтегли CV</a>
+</td>
+
+<td>
+<span class="status-badge {{ app.status|lower }}">
+    {{ app.get_status_display }}
+</span>
+</td>
+
+<td>
+
+{% if app.status == "Waiting" or app.status == "Seen" %}
+
+<a href="{% url 'company_approve_application' app.id %}"
+class="btn-primary">
+Одобри
+</a>
+
+<a href="{% url 'company_reject_application' app.id %}"
+class="btn-outline">
+Отхвърли
+</a>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+<td colspan="5">Няма кандидатури</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

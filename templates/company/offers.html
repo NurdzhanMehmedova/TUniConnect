@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}">
+{% endblock %}
+
+{% block title %}Моите обяви{% endblock %}
+
+{% block content %}
+
+<div class="offers-wrapper">
+
+    <div class="offers-header">
+        <h2>Моите обяви</h2>
+
+        <a href="{% url 'create_offer' %}" class="btn-primary">
+            + Нова обява
+        </a>
+    </div>
+
+    <div class="offers-list">
+
+        {% for offer in offers %}
+
+        <div class="offer-card">
+
+            <!-- LEFT -->
+            <div class="offer-logo">
+                <img src="{{ offer.company.image_url|default:'/static/images/logo_placeholder.png' }}">
+            </div>
+
+            <!-- CENTER -->
+            <div class="offer-content">
+
+                <div class="offer-company">
+                    {{ offer.company.name }}
+                </div>
+
+                <div class="offer-title">
+                    {{ offer.title }}
+                </div>
+
+                <div class="offer-meta-row">
+                    📅 {{ offer.start_date }} → {{ offer.end_date }}
+                </div>
+
+                <div class="offer-tags">
+                    <span class="tag">{{ offer.get_field_display }}</span>
+                    <span class="tag">{{ offer.get_workspace_type_display }}</span>
+                    <span class="tag salary">{{ offer.get_salary_type_display }}</span>
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="offer-actions">
+
+                <span class="status-badge {{ offer.status|lower }}">
+                    {{ offer.get_status_display }}
+                </span>
+
+                <a href="{% url 'edit_offer' offer.id %}" class="btn-outline">
+                    Редактирай
+                </a>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+            <p>Нямате създадени обяви.</p>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

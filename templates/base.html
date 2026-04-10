@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}TUniConnect{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+<header class="navbar-modern">
+    <div class="nav-container">
+
+        <div class="logo">
+            <a href="{% url 'home' %}" class="logo-link">
+                <img src="{% static 'images/TU Varna.png' %}" alt="TU Varna" class="logo-img">
+                <span>TUniConnect</span>
+            </a>
+        </div>
+
+        <nav class="nav-links">
+
+            {% if user.is_authenticated %}
+
+                {% if user.role.name == "STUDENT" %}
+                    <a href="{% url 'student_offers' %}">Обяви</a>
+                    <a href="{% url 'saved_offers' %}">Запазени</a>
+                    <a href="{% url 'student_applications' %}">Кандидатури</a>
+                    <a href="{% url 'student_dashboard' %}">Профил</a>
+                {% endif %}
+
+                {% if user.role.name == "MENTOR" %}
+
+                    <div class="nav-dropdown">
+
+                        <span class="dropdown-toggle">
+                            Студенти ▾
+                        </span>
+
+                        <div class="dropdown-menu">
+
+                            <a href="{% url 'mentor_dashboard' %}?section=students">
+                                Моите студенти
+                            </a>
+
+                            <a href="{% url 'mentor_all_students' %}">
+                                Всички студенти
+                            </a>
+
+                            <a href="{% url 'mentor_students_without_internship' %}">
+                                Без стаж
+                            </a>
+
+                            <a href="{% url 'mentor_dashboard' %}?section=reports">
+                                Доклади
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <a href="{% url 'mentor_offers' %}">
+                    Стажове
+                    </a>
+
+                {% endif %}
+
+                {% if user.role.name == "COMPANY" %}
+                    <a href="{% url 'company_dashboard' %}">Dashboard</a>
+                    <a href="{% url 'company_offers' %}">Моите обяви</a>
+                    <a href="{% url 'company_applications' %}">Кандидатури</a>
+                {% endif %}
+
+                {% if user.role.name == "SUPER_ADMIN" %}
+                    <a href="/admin/">Admin</a>
+                {% endif %}
+
+                <a href="{% url 'logout' %}" class="nav-btn-outline">Изход</a>
+
+            {% else %}
+
+                <a href="{% url 'login' %}" class="nav-btn-outline">Вход</a>
+                <a href="{% url 'register' %}" class="nav-btn-gradient">Регистрация</a>
+                <a href="/#contact" class="nav-btn-gradient">Контакти</a>
+                <a href="{% url 'about' %}" class="nav-btn-gradient">За нас</a>
+            {% endif %}
+            </nav>
+
+    </div>
+</header>
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer-modern">
+    <div class="footer-container">
+        <div class="footer-left">
+            © 2026 TUniConnect Internship Management System
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

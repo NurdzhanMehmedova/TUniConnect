@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/company.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper-modern">
+
+    <form method="POST" novalidate>
+
+        {% csrf_token %}
+
+        <div class="auth-card-modern">
+
+            <div class="auth-header">
+                <h2>Нова обява</h2>
+                <p>Добавяне на стажантска позиция</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="form-error-panel">
+                    <strong>Моля, коригирайте грешките:</strong>
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- GRID LIKE REGISTER -->
+            <div class="form-section">
+
+                <div class="form-group">
+                    <label>Заглавие</label>
+                    {{ form.title }}
+                </div>
+
+                <div class="form-group full">
+                    <label>Описание</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="form-group full">
+                    <label>Отговорности</label>
+                    {{ form.responsibilities }}
+                </div>
+
+                <div class="form-group full">
+                    <label>Изисквания</label>
+                    {{ form.requirements }}
+                </div>
+
+                <div class="form-group full">
+                    <label>Какво предлагаме</label>
+                    {{ form.benefits }}
+                </div>
+
+                <div class="form-group">
+                    <label>Поле</label>
+                    {{ form.field }}
+                </div>
+
+                <div class="form-group">
+                    <label>Тип заплащане</label>
+                    {{ form.salary_type }}
+                </div>
+
+                <div class="form-group">
+                    <label>Тип работа</label>
+                    {{ form.workspace_type }}
+                </div>
+
+                <div class="form-group">
+                    <label>Локация</label>
+                    {{ form.location }}
+                </div>
+
+                <div class="form-group">
+                    <label>Начална дата</label>
+                    {{ form.start_date }}
+                </div>
+
+                <div class="form-group">
+                    <label>Крайна дата</label>
+                    {{ form.end_date }}
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn-modern">
+                Публикувай обява
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

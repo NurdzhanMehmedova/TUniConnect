@@ -1,0 +1,257 @@
+/* ===== WRAPPER ===== */
+
+.auth-wrapper-modern {
+    width: 100%;
+    max-width: 1200px;
+    margin: 60px auto;
+}
+
+/* ===== LAYOUT ===== */
+
+.auth-layout {
+    display: flex;
+    gap: 50px;
+    align-items: flex-start;
+}
+
+/* ===== CARD ===== */
+
+.auth-card-modern {
+    flex: 1;
+    background: var(--bg-card);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+}
+
+/* ===== HEADER ===== */
+
+.auth-header h2 {
+    font-size: 26px;
+    margin-bottom: 8px;
+
+    background: linear-gradient(90deg,var(--primary),var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.auth-header p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 25px;
+}
+
+/* ===== FORM GRID ===== */
+
+.form-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+}
+
+.full {
+    grid-column: span 2;
+}
+
+/* ===== FORM GROUP ===== */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* ===== LABEL ===== */
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 15px;
+}
+
+/* ===== INPUT ===== */
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #ffffff;
+
+    font-size: 14px;
+
+    transition: 0.2s;
+    box-sizing: border-box;
+}
+
+/* ===== INPUT FOCUS ===== */
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+}
+
+/* ===== PASSWORD ===== */
+
+.password-group {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 38px;
+    cursor: pointer;
+    color: var(--muted);
+}
+
+.password-toggle:hover {
+    color: var(--primary);
+}
+
+/* ===== PASSWORD STRENGTH ===== */
+
+.password-strength {
+    height: 5px;
+    width: 100%;
+    background: #e5e7eb;
+    border-radius: 5px;
+    margin-top: 8px;
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.strength-text {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* ===== CHECKLIST ===== */
+
+.password-checklist {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+}
+
+/* ===== BUTTON ===== */
+
+.btn-modern {
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+
+    border-radius: 12px;
+    border: none;
+
+    background: linear-gradient(90deg,var(--primary),var(--secondary));
+    color: white;
+
+    font-weight: 600;
+    font-size: 15px;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-modern:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(99,102,241,0.3);
+}
+
+/* ===== ERROR PANEL ===== */
+
+.form-error-panel {
+    background: #fee2e2;
+    border-left: 4px solid #dc2626;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+/* ===== COUNTER ===== */
+
+.char-counter {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+}
+
+/* ===== FOOTER ===== */
+
+.auth-footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.auth-footer a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* ===== VALIDATION ===== */
+
+.input-valid-modern {
+    border: 1.5px solid #16a34a !important;
+}
+
+.input-invalid {
+    border: 1.5px solid #dc2626 !important;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 900px) {
+
+    .auth-layout {
+        flex-direction: column;
+    }
+
+    .form-section {
+        grid-template-columns: 1fr;
+    }
+
+    .full {
+        grid-column: span 1;
+    }
+}
+
+/* ===== ROLE BLOCK ===== */
+
+.role-block {
+    display: none;
+    width: 100%;
+}
+
+/* активният ще се показва от JS */
+.role-block.active {
+    display: contents; /* 🔥 това пази grid layout-а */
+}
+
+/* ===== ROLE TITLE ===== */
+
+#roleTitle {
+    margin-bottom: 15px;
+}
+
+/* ===== FIX за spacing ===== */
+
+#roleFields {
+    margin-top: 10px;
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
