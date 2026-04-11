@@ -5,43 +5,119 @@
 <link rel="stylesheet" href="{% static 'css/student.css' %}">
 {% endblock %}
 
+{% block title %}Кандидатстване{% endblock %}
+
 {% block content %}
+<div class="apply-page">
+    <div class="apply-header">
+        <h2 style="margin-bottom:20px;">Кандидатстване за стаж</h2>
+    </div>
 
-<div class="content-wide">
+    <div class="apply-card">
+        <div class="apply-offer-meta">
+            <h3>{{ offer.title }}</h3>
+            <p>{{ offer.company.name }}</p>
+        </div>
 
-<h2>Кандидатстване за стаж</h2>
+        <form method="post" enctype="multipart/form-data" class="apply-form-modern">
+            {% csrf_token %}
 
-<div class="card">
+            <div class="apply-input-group">
+                <label>Избери CV</label>
+                <div class="cv-choice-group">
+                    <label class="cv-choice-item">
+                        <input type="radio" name="cv_type" value="profile" checked>
+                        <span>Използвай моето CV</span>
+                    </label>
 
-<h3>{{ offer.title }}</h3>
-<p>{{ offer.company.name }}</p>
+                    <label class="cv-choice-item">
+                        <input type="radio" name="cv_type" value="upload">
+                        <span>Качи файл</span>
+                    </label>
+                </div>
 
-<form method="post" enctype="multipart/form-data">
+                <div class="upload-wrap" id="upload-wrap" hidden>
+                    <label for="cv_file">CV файл (PDF / изображение)</label>
+                    <input type="file" id="cv_file" name="cv_file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                </div>
+            </div>
 
-{% csrf_token %}
+            <div class="apply-input-group">
+                <label>Мотивационно писмо</label>
+                <div class="cv-choice-group motivation-choice-group">
+                    <label class="cv-choice-item">
+                        <input type="radio" name="motivation_type" value="text" checked>
+                        <span>Напиши текст</span>
+                    </label>
 
-<label>
-    <input type="radio" name="cv_type" value="profile" checked>
-    Използвай моето CV
-</label>
+                    <label class="cv-choice-item">
+                        <input type="radio" name="motivation_type" value="file">
+                        <span>Качи файл</span>
+                    </label>
+                </div>
 
-<label>
-    <input type="radio" name="cv_type" value="upload">
-    Качи файл
-</label>
-<input type="file" name="cv_file" required>
+                <textarea
+                    id="motivation_letter"
+                    name="motivation_letter"
+                    rows="6"
+                    placeholder="Напиши кратко защо кандидатстваш за тази позиция..."
+                    required></textarea>
 
-<label>Мотивационно писмо</label>
-<textarea name="motivation_letter" rows="5" required></textarea>
+                <div class="upload-wrap" id="motivation-upload-wrap" hidden>
+                    <label for="motivation_file">Мотивационно писмо (PDF / DOC / DOCX / изображение)</label>
+                    <input type="file" id="motivation_file" name="motivation_file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                </div>
+            </div>
 
-<button type="submit" class="btn-primary">
-Изпрати кандидатура
-</button>
-
-</form>
-
+            <div class="apply-actions">
+                <button type="submit" class="btn-primary">Изпрати кандидатура</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-</div>
+<script>
+(function () {
+    const cvTypeInputs = document.querySelectorAll('input[name="cv_type"]');
+    const uploadWrap = document.getElementById('upload-wrap');
+    const fileInput = document.getElementById('cv_file');
+    const motivationTypeInputs = document.querySelectorAll('input[name="motivation_type"]');
+    const motivationText = document.getElementById('motivation_letter');
+    const motivationUploadWrap = document.getElementById('motivation-upload-wrap');
+    const motivationFileInput = document.getElementById('motivation_file');
 
+    function toggleUpload() {
+        const selected = document.querySelector('input[name="cv_type"]:checked');
+        const useUpload = selected && selected.value === 'upload';
+
+        uploadWrap.hidden = !useUpload;
+        fileInput.required = useUpload;
+
+        if (!useUpload) {
+            fileInput.value = '';
+        }
+    }
+
+    function toggleMotivationInput() {
+        const selected = document.querySelector('input[name="motivation_type"]:checked');
+        const useFile = selected && selected.value === 'file';
+
+        motivationUploadWrap.hidden = !useFile;
+        motivationFileInput.required = useFile;
+        motivationText.required = !useFile;
+        motivationText.hidden = useFile;
+
+        if (useFile) {
+            motivationText.value = '';
+        } else {
+            motivationFileInput.value = '';
+        }
+    }
+
+    cvTypeInputs.forEach((input) => input.addEventListener('change', toggleUpload));
+    motivationTypeInputs.forEach((input) => input.addEventListener('change', toggleMotivationInput));
+    toggleUpload();
+    toggleMotivationInput();
+})();
+</script>
 {% endblock %}

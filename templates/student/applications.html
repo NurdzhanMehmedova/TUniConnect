@@ -61,18 +61,18 @@
                     <span class="status-badge
                         {% if app.status == 'Approved' %}approved
                         {% elif app.status == 'Seen' %}seen
-                        {% elif app.get_status_display == 'Rejected' %}rejected
-                        {% elif app.get_status_display == 'Selected' %}approved
+                        {% elif app.status == 'Rejected' %}rejected
+                        {% elif app.status == 'Selected' %}approved
                         {% else %}pending
                         {% endif %}">
 
-                        {% if app.get_status_display == 'Approved' %}
+                        {% if app.status == 'Approved' %}
                             ✔ Одобрена
-                        {% elif app.get_status_display == 'Seen' %}
+                        {% elif app.status == 'Seen' %}
                             👀 Прочетена
-                        {% elif app.get_status_display == 'Rejected' %}
+                        {% elif app.status == 'Rejected' %}
                             ❌ Отхвърлена
-                        {% elif app.get_status_display == 'Selected' %}
+                        {% elif app.status == 'Selected' %}
                             🎯 Избрана
                         {% else %}
                             ⏳ В изчакване

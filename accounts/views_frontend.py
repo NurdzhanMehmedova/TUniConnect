@@ -732,7 +732,12 @@ def apply_for_offer(request, offer_id):
     if request.method == "POST":
 
         cv_type = request.POST.get("cv_type")
-        motivation = request.POST.get("motivation_letter")
+        motivation_type = request.POST.get("motivation_type", "text")
+        motivation = (request.POST.get("motivation_letter") or "").strip()
+        motivation_file = request.FILES.get("motivation_file")
+
+        if motivation_type == "file":
+            motivation = ""
 
         # ✅ ако ползва CV от профила
         if cv_type == "profile":
@@ -746,6 +751,7 @@ def apply_for_offer(request, offer_id):
                         (cv.skills or "") + "\n\n" +
                         (cv.education or ""),
                 motivation_letter=motivation,
+                motivation_file=motivation_file if motivation_type == "file" else None,
                 status=Application.Status.WAITING
             )
 
@@ -758,6 +764,7 @@ def apply_for_offer(request, offer_id):
                 offer=offer,
                 cv_file=file,
                 motivation_letter=motivation,
+                motivation_file=motivation_file if motivation_type == "file" else None,
                 status=Application.Status.WAITING
             )
 

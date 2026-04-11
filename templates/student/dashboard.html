@@ -149,13 +149,13 @@
                         <td>{{ app.offer.title }}</td>
                         <td>
                             <span class="status-badge
-                                {% if app.status == 'APPROVED' %}approved
-                                {% elif app.status == 'REJECTED' %}rejected
+                                {% if app.status == 'Approved' %}approved
+                                {% elif app.status == 'Rejected' %}rejected
                                 {% else %}pending{% endif %}">
                                 {{ app.get_status_display }}
                             </span>
                         </td>
-                        <td>{{ app.created_at|date:"d.m.Y" }}</td>
+                        <td>{{ app.submitted_at|date:"d.m.Y" }}</td>
                     </tr>
                 {% empty %}
                     <tr>

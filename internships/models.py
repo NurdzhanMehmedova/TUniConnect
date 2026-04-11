@@ -80,6 +80,7 @@ class Application(models.Model):
     cv_text = models.TextField(blank=True)
 
     motivation_letter = models.TextField(blank=True)
+    motivation_file = models.FileField(upload_to="motivation_letters/", null=True, blank=True)
 
     submitted_at = models.DateTimeField(auto_now_add=True)
 
