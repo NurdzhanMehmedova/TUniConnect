@@ -620,6 +620,7 @@ def company_applications(request):
     ).select_related("student", "student__user", "offer")
 
     return render(request, "company/applications.html", {
+        "company": company,
         "applications": applications
     })
 

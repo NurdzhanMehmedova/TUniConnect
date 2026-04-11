@@ -7,83 +7,83 @@
 
 {% block content %}
 
-<div class="content-wide">
+<div class="auth-wrapper-modern applications-page">
+    <div class="app-layout">
 
-<h2 class="page-title">Кандидатури</h2>
+        <div class="sidebar-card">
+            <div class="sidebar-header">
+                <h3 class="sidebar-title">{{ company.name }}</h3>
+            </div>
 
-<div class="table-card">
+            <div class="sidebar-menu">
+                <a href="{% url 'company_dashboard' %}">Дашборд</a>
+                <a href="{% url 'company_offers' %}">Моите обяви</a>
+                <a href="{% url 'company_applications' %}" class="active">Кандидатури</a>
+            </div>
+        </div>
 
-<table class="app-table">
+        <div class="content-card">
+            <h2>Кандидатури</h2>
 
-<thead>
-<tr>
-<th>Студент</th>
-<th>Обява</th>
-<th>CV</th>
-<th>Статус</th>
-<th>Действия</th>
-</tr>
-</thead>
+            <div class="table-card">
+                <table class="app-table company-applications-table">
+                    <thead>
+                        <tr>
+                            <th>Студент</th>
+                            <th>Обява</th>
+                            <th>CV</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
 
-<tbody>
+                    <tbody>
+                        {% for app in applications %}
+                            <tr>
+                                <td>
+                                    {{ app.student.user.first_name }}
+                                    {{ app.student.user.last_name }}
+                                </td>
 
-{% for app in applications %}
+                                <td>{{ app.offer.title }}</td>
 
-<tr>
+                                <td>
+                                    {% if app.cv_file %}
+                                        <a href="{{ app.cv_file.url }}">Изтегли CV</a>
+                                    {% elif app.cv_text %}
+                                        <span>CV (текст)</span>
+                                    {% else %}
+                                        <span>Няма прикачено CV</span>
+                                    {% endif %}
+                                </td>
 
-<td>
-{{ app.student.user.first_name }}
-{{ app.student.user.last_name }}
-</td>
+                                <td>
+                                    <span class="status-badge {{ app.status|lower }}">
+                                        {{ app.get_status_display }}
+                                    </span>
+                                </td>
 
-<td>
-{{ app.offer.title }}
-</td>
-
-<td>
-<a href="{{ app.cv_file.url }}">Изтегли CV</a>
-</td>
-
-<td>
-<span class="status-badge {{ app.status|lower }}">
-    {{ app.get_status_display }}
-</span>
-</td>
-
-<td>
-
-{% if app.status == "Waiting" or app.status == "Seen" %}
-
-<a href="{% url 'company_approve_application' app.id %}"
-class="btn-primary">
-Одобри
-</a>
-
-<a href="{% url 'company_reject_application' app.id %}"
-class="btn-outline">
-Отхвърли
-</a>
-
-{% endif %}
-
-</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-<td colspan="5">Няма кандидатури</td>
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
-
+                                <td class="applications-actions">
+                                    {% if app.status == "Waiting" or app.status == "Seen" %}
+                                        <a href="{% url 'company_approve_application' app.id %}" class="btn-primary">
+                                            Одобри
+                                        </a>
+                                        <a href="{% url 'company_reject_application' app.id %}" class="btn-outline">
+                                            Отхвърли
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">Няма кандидатури</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

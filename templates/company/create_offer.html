@@ -10,15 +10,23 @@
 
 <div class="auth-wrapper-modern">
 
-    <form method="POST" novalidate>
+    <form method="POST" novalidate class="offer-form">
 
         {% csrf_token %}
 
         <div class="auth-card-modern">
 
             <div class="auth-header">
-                <h2>Нова обява</h2>
-                <p>Добавяне на стажантска позиция</p>
+                <h2>
+                    {% if is_edit %}Редакция на обява{% else %}Нова обява{% endif %}
+                </h2>
+                <p>
+                    {% if is_edit %}
+                        Обновете детайлите на стажантската позиция
+                    {% else %}
+                        Добавяне на стажантска позиция
+                    {% endif %}
+                </p>
             </div>
 
             {% if form.errors %}
@@ -94,9 +102,17 @@
 
             </div>
 
-            <button type="submit" class="btn-modern">
-                Публикувай обява
-            </button>
+            <div class="form-actions">
+                {% if is_edit %}
+                    <a href="{% url 'company_offers' %}" class="btn-outline btn-cancel">
+                        Отказ
+                    </a>
+                {% endif %}
+
+                <button type="submit" class="btn-modern">
+                    {% if is_edit %}Запази промените{% else %}Публикувай обява{% endif %}
+                </button>
+            </div>
 
         </div>
 

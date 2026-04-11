@@ -34,21 +34,34 @@
         0 20px 50px rgba(0,0,0,0.08),
         0 5px 15px rgba(0,0,0,0.04);
 
-    overflow-x: auto;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #7c8aa0 #e5e7eb;
+}
+
+.table-card::-webkit-scrollbar {
+    height: 12px;
+}
+
+.table-card::-webkit-scrollbar-track {
+    background: #e5e7eb;
+    border-radius: 999px;
+}
+
+.table-card::-webkit-scrollbar-thumb {
+    background: #7c8aa0;
+    border-radius: 999px;
 }
 
 /* TABLE */
-/* 🔥 FORCE FULL WIDTH TABLE */
 .table-card .app-table {
-    width: 100%;
+    width: 900px;
+    min-width: 100%;
     table-layout: fixed;
+    border-collapse: collapse;
 }
 
-/* 🔥 columns да се разпънат равномерно */
-.table-card .app-table th,
-.table-card .app-table td {
-    width: 33.33%;
-}
 /* FORCE override */
 .content-wide .app-table {
     width: 100%;
@@ -81,7 +94,6 @@
 
 .app-table tbody tr:hover {
     background: #f1f5f9;
-    transform: scale(1.01);
 }
 
 .section-title {
@@ -175,7 +187,7 @@
     backdrop-filter: blur(10px);
     background: rgba(255,255,255,0.9);
     margin: 0px;
-    padding: 0 20px;
+    padding: 28px;
     border-radius: 20px;
     box-shadow: 0 15px 40px rgba(0,0,0,0.08);
 }
@@ -183,22 +195,27 @@
 /* HEADER */
 
 .auth-header h2 {
-    margin-bottom: 5px;
+    margin: 0 0 8px 0;
+    font-size: 36px;
 }
 
 .auth-header p {
     color: #6b7280;
     font-size: 14px;
+    margin-bottom: 18px;
 }
 
 /* FORM */
 
 .form-section {
-    margin-top: 20px;
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 18px;
+}
 
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+.form-group.full {
+    grid-column: 1 / -1;
 }
 
 /* ===== FIX FORM ALIGNMENT ===== */
@@ -212,7 +229,7 @@
 /* label винаги над input */
 .form-group label {
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: #6b7280;
 }
 
@@ -223,9 +240,9 @@
     width: 100%;
     padding: 12px 14px;
 
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
-    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #cfd8e3;
+    background: #f8fafc;
 
     font-size: 14px;
 
@@ -286,7 +303,6 @@
 /* BUTTON */
 
 .btn-modern {
-    margin-top: 20px;
     width: 100%;
 
     padding: 12px;
@@ -299,6 +315,32 @@
     color: white;
 
     font-size: 16px;
+}
+
+.offer-form .form-actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.offer-form .form-actions .btn-modern {
+    width: auto;
+    min-width: 220px;
+    padding-inline: 24px;
+}
+
+.offer-form .btn-cancel {
+    border-color: #94a3b8;
+    color: #334155;
+    background: #f8fafc;
+}
+
+.offer-form .btn-cancel:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #64748b;
 }
 
 /* ===== COMPANY DASHBOARD ===== */
@@ -582,4 +624,19 @@
 .form-group textarea {
     min-height: 90px;   /* 🔥 по-малка по default */
     resize: vertical;   /* 🔥 user може да я увеличава */
+}
+
+@media (max-width: 900px) {
+    .form-section {
+        grid-template-columns: 1fr;
+    }
+
+    .offer-form .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .offer-form .form-actions .btn-modern {
+        width: 100%;
+    }
 }
