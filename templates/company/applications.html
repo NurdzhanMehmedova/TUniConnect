@@ -44,20 +44,13 @@
                 </div>
 
                 <div class="offer-actions application-actions">
-                    <span class="status-badge {{ app.status|lower }}">
-                        {{ app.get_status_display }}
-                    </span>
-
-                    <a href="{% url 'company_application_detail' app.id %}" class="btn-outline">
-                        Преглед
-                    </a>
-
-                    {% if app.status == "Waiting" or app.status == "Seen" %}
-                        <a href="{% url 'company_approve_application' app.id %}" class="btn-primary">
-                            Одобри
-                        </a>
-                        <a href="{% url 'company_reject_application' app.id %}" class="btn-outline">
-                            Отхвърли
+                    {% if app.status == "Approved" %}
+                        <span class="btn-status btn-approved">Одобрена</span>
+                    {% elif app.status == "Rejected" %}
+                        <span class="btn-status btn-rejected">Отхвърлена</span>
+                    {% else %}
+                        <a href="{% url 'company_application_detail' app.id %}" class="btn-primary">
+                            Преглед
                         </a>
                     {% endif %}
                 </div>

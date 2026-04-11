@@ -104,7 +104,7 @@
         {% endif %}
 
         {% if application.status == "Waiting" or application.status == "Seen" %}
-            <div class="form-actions">
+            <div class="form-actions application-decision-actions">
                 <a href="{% url 'company_approve_application' application.id %}" class="btn-primary">Одобри</a>
                 <a href="{% url 'company_reject_application' application.id %}" class="btn-danger">Отхвърли</a>
             </div>

@@ -388,16 +388,35 @@
 }
 
 .application-actions {
-    align-items: flex-end;
-    min-width: 190px;
+    justify-content: flex-end;
+    min-width: 160px;
 }
 
 .application-actions .btn-primary,
 .application-actions .btn-outline,
-.application-actions .btn-danger {
+.application-actions .btn-danger,
+.application-actions .btn-status {
     width: 100%;
     text-align: center;
 }
+
+.btn-status {
+    padding: 10px 18px;
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.btn-approved {
+    background: linear-gradient(90deg,#22c55e,#16a34a);
+}
+
+.btn-rejected {
+    background: linear-gradient(90deg,#ef4444,#dc2626);
+}
+
 
 .application-detail-card {
     padding: 24px;
@@ -483,6 +502,17 @@
 
 .application-decision-actions {
     margin-top: 60px !important;
+    align-items: center;
+    gap: 12px;
+}
+
+.application-decision-actions .btn-primary,
+.application-decision-actions .btn-danger {
+    min-width: 130px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ===== COMPANY DASHBOARD ===== */
