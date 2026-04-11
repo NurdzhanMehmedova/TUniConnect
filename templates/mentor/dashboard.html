@@ -157,7 +157,7 @@ class="{% if section == 'assign' %}active{% endif %}">
     <input type="hidden" name="action" value="assign_student">
 
     <label for="student_id">Избери студент</label>
-    <select name="student_id" id="student_id" required>
+    <select name="student_id" id="student_id">
         <option value="">-- Избери --</option>
         {% for s in available_students %}
             <option value="{{ s.id }}">
@@ -165,6 +165,28 @@ class="{% if section == 'assign' %}active{% endif %}">
             </option>
         {% endfor %}
     </select>
+
+    <label for="student_name">Или въведи име ръчно</label>
+    <input
+        type="text"
+        id="student_name"
+        name="student_name"
+        list="students-list"
+        placeholder="Пример: Иван Иванов"
+    >
+    <datalist id="students-list">
+        {% for s in available_students %}
+            <option value="{{ s.user.first_name }} {{ s.user.last_name }}"></option>
+        {% endfor %}
+    </datalist>
+
+    <label for="faculty_number">Факултетен номер (по избор)</label>
+    <input
+        type="text"
+        id="faculty_number"
+        name="faculty_number"
+        placeholder="Пример: 22621610"
+    >
 
     <button type="submit" class="btn-approve">Назначи</button>
 </form>

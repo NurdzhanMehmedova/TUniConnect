@@ -269,12 +269,47 @@ def mentor_dashboard(request):
     if request.method == "POST":
         action = request.POST.get("action")
         student_id = request.POST.get("student_id")
+        manual_student_name = (request.POST.get("student_name") or "").strip()
+        manual_faculty_number = (request.POST.get("faculty_number") or "").strip()
 
         if action == "assign_student" and student_id:
             student = get_object_or_404(Student, id=student_id)
             student.mentor = mentor
             student.save(update_fields=["mentor"])
             messages.success(request, "Студентът е назначен успешно.")
+            return redirect(f"{request.path}?section=assign")
+
+        if action == "assign_student" and manual_student_name:
+            candidates = Student.objects.select_related("user")
+
+            if manual_faculty_number:
+                candidates = candidates.filter(faculty_number=manual_faculty_number)
+
+            for part in manual_student_name.split():
+                candidates = candidates.filter(
+                    Q(user__first_name__icontains=part) |
+                    Q(user__last_name__icontains=part)
+                )
+
+            if candidates.count() == 1:
+                student = candidates.first()
+                student.mentor = mentor
+                student.save(update_fields=["mentor"])
+                messages.success(request, "Студентът е назначен успешно (ръчно търсене).")
+                return redirect(f"{request.path}?section=assign")
+
+            if candidates.count() == 0:
+                messages.error(request, "Не е намерен студент по въведените данни.")
+                return redirect(f"{request.path}?section=assign")
+
+            messages.error(
+                request,
+                "Открити са няколко студента. Добави факултетен номер за точно съвпадение."
+            )
+            return redirect(f"{request.path}?section=assign")
+
+        if action == "assign_student":
+            messages.error(request, "Избери студент от списъка или въведи име ръчно.")
             return redirect(f"{request.path}?section=assign")
 
         if action == "unassign_student" and student_id:
@@ -343,6 +378,7 @@ def mentor_dashboard(request):
     }
 
     return render(request, "mentor/dashboard.html", context)
+
 @login_required
 def mentor_approve_internship(request, application_id):
     if request.user.role.name != "MENTOR":
@@ -419,6 +455,7 @@ def reject_application(request, application_id):
 
     return redirect("mentor_applications")
 
+@login_required
 @login_required
 def mentor_offers(request):
 
