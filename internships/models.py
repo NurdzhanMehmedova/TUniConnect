@@ -81,6 +81,7 @@ class Application(models.Model):
 
     motivation_letter = models.TextField(blank=True)
     motivation_file = models.FileField(upload_to="motivation_letters/", null=True, blank=True)
+    rejection_reason = models.TextField(blank=True, null=True)
 
     submitted_at = models.DateTimeField(auto_now_add=True)
 

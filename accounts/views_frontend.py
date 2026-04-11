@@ -656,6 +656,74 @@ def company_application_detail(request, application_id):
         cv_text and cv_text.lower() not in profile_cv_markers
     )
 
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        student_email = application.student.user.email
+        student_name = application.student.user.first_name
+
+        if action == "approve":
+            application.status = Application.Status.APPROVED
+            application.rejection_reason = ""  # чистим ако има старо
+            application.save()
+
+            # ✉️ EMAIL
+            send_mail(
+                "Промяна в кандидатура - TUniConnect",
+                f"""
+    Здравей, {student_name},
+
+    Твоята кандидатура за:
+    {application.offer.title}
+
+    е ОДОБРЕНА!
+
+    Влез в системата за повече информация.
+
+    Поздрави,
+    TUniConnect
+    """,
+                settings.DEFAULT_FROM_EMAIL,
+                [student_email],
+            )
+
+
+        elif action == "reject":
+            reason = (request.POST.get("rejection_reason") or "").strip()
+
+            if not reason:
+                messages.error(request, "Моля, въведете причина за отказ.")
+                return redirect(request.path)
+
+            application.status = Application.Status.REJECTED
+            application.rejection_reason = reason
+            application.save()
+
+            # ✉️ EMAIL
+            send_mail(
+                "Промяна в кандидатура - TUniConnect",
+                f"""
+    Здравей, {student_name},
+
+    Твоята кандидатура за:
+    {application.offer.title}
+
+    е ОТХВЪРЛЕНА.
+
+    Причина:
+    {reason}
+
+    Можеш да разгледаш други обяви в платформата.
+
+    Поздрави,
+    TUniConnect
+    """,
+                settings.DEFAULT_FROM_EMAIL,
+                [student_email],
+            )
+
+        return redirect("company_applications")
+
     return render(request, "company/application_detail.html", {
         "application": application,
         "student_cv": student_cv,
@@ -739,6 +807,14 @@ def apply_for_offer(request, offer_id):
         if motivation_type == "file":
             motivation = ""
 
+        # 🔴 ТУК СЛАГАШ ПРОВЕРКАТА
+        if cv_type == "profile":
+            cv = StudentCV.objects.filter(student=student).first()
+
+            if not cv or not any([cv.summary, cv.experience, cv.skills, cv.education]):
+                messages.error(request, "Нямате попълнено CV.")
+                return redirect(request.path)
+
         # ✅ ако ползва CV от профила
         if cv_type == "profile":
             cv, created = StudentCV.objects.get_or_create(student=student)
@@ -770,8 +846,15 @@ def apply_for_offer(request, offer_id):
 
         return redirect("student_offers")
 
+    cv = StudentCV.objects.filter(student=student).first()
+
+    has_cv = False
+    if cv and any([cv.summary, cv.experience, cv.skills, cv.education]):
+        has_cv = True
+
     return render(request, "student/apply.html", {
-        "offer": offer
+        "offer": offer,
+        "has_cv": has_cv,
     })
 
 def offer_detail(request, offer_id):
@@ -784,6 +867,14 @@ def offer_detail(request, offer_id):
 
     has_applied = False
     is_favorite = False
+
+    has_cv = False
+
+    if request.user.is_authenticated and hasattr(request.user, "student"):
+        cv = StudentCV.objects.filter(student=request.user.student).first()
+
+        if cv and any([cv.summary, cv.experience, cv.skills, cv.education]):
+            has_cv = True
 
     if request.user.is_authenticated and hasattr(request.user, "student"):
         has_applied = Application.objects.filter(
@@ -804,7 +895,8 @@ def offer_detail(request, offer_id):
     return render(request, "student/offer_detail.html", {
         "offer": offer,
         "has_applied": has_applied,
-        "is_favorite": is_favorite
+        "is_favorite": is_favorite,
+        "has_cv": has_cv,
     })
 
 from django.core.mail import EmailMessage
@@ -928,3 +1020,32 @@ def quick_apply(request, offer_id):
 
     messages.success(request, "Кандидатства успешно 🚀")
     return redirect('offer_detail', offer_id=offer.id)
+
+@login_required
+def company_profile(request):
+    if request.user.role.name != "COMPANY":
+        return redirect("home")
+
+    company = Company.objects.filter(user=request.user).first()
+    offers = InternOffer.objects.filter(company=company)
+
+    if request.method == "POST":
+        company.description = request.POST.get("description")
+        company.history = request.POST.get("history")
+        company.career = request.POST.get("career")
+        company.employees_count = request.POST.get("employees_count") or None
+        company.founded_year = request.POST.get("founded_year") or None
+
+        if request.FILES.get("logo"):
+            company.image_url = request.FILES["logo"]
+
+        if request.FILES.get("banner"):
+            company.banner = request.FILES["banner"]
+
+        company.save()
+        return redirect("company_profile")
+
+    return render(request, "company/profile.html", {
+        "company": company,
+        "offers": offers
+    })

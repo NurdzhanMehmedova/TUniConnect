@@ -53,6 +53,12 @@
                         <span class="tag salary">{{ app.offer.get_salary_type_display }}</span>
                     </div>
 
+                    {% if app.status == "Rejected" and app.rejection_reason %}
+                        <div style="margin-top:8px; font-size:13px; color:#991b1b;">
+                            <strong>Причина:</strong> {{ app.rejection_reason }}
+                        </div>
+                    {% endif %}
+
                 </div>
 
                 <!-- STATUS -->
@@ -67,15 +73,15 @@
                         {% endif %}">
 
                         {% if app.status == 'Approved' %}
-                            ✔ Одобрена
+                            Одобрена
                         {% elif app.status == 'Seen' %}
-                            👀 Прочетена
+                            Прочетена
                         {% elif app.status == 'Rejected' %}
-                            ❌ Отхвърлена
+                            Отхвърлена
                         {% elif app.status == 'Selected' %}
-                            🎯 Избрана
+                            Избрана
                         {% else %}
-                            ⏳ В изчакване
+                             В изчакване
                         {% endif %}
 
                     </span>

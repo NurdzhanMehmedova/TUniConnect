@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper-modern">
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- 🔷 EDIT BUTTON -->
+        <div style="text-align:right; margin-bottom:10px;">
+            <button type="button" class="btn-primary" onclick="toggleEdit()">
+                Редактирай профил
+            </button>
+
+            <button type="submit" class="btn-primary hidden" id="saveBtn">
+                Запази
+            </button>
+        </div>
+
+        <!-- 🔥 HERO БАНЕР (НОВ ДИЗАЙН) -->
+        <div class="company-hero">
+
+            <div class="company-hero-bg">
+                {% if company.banner %}
+                    <img src="{{ company.banner.url }}">
+                {% else %}
+                    <img src="{% static 'images/default-banner.png' %}">
+                {% endif %}
+            </div>
+
+            <div class="company-hero-overlay"></div>
+
+            <div class="company-hero-content">
+
+                <div class="company-hero-logo">
+                    <img src="{{ company.image_url|default:'/static/images/logo_placeholder.png' }}">
+                </div>
+
+                <div class="company-hero-info">
+                    <h1>{{ company.name }}</h1>
+
+                    <p class="company-meta">
+                        📍 {{ company.location.city_name }}
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- upload само при edit -->
+            <input type="file" name="banner" class="edit-field hidden">
+
+        </div>
+
+        <!-- 🔷 MAIN -->
+        <div class="company-profile-layout">
+
+            <!-- LEFT -->
+            <div>
+
+                <div class="profile-card">
+                    <h3>За компанията</h3>
+
+                    <p class="view-field">
+                        {{ company.description|default:"Няма информация." }}
+                    </p>
+
+                    <textarea name="description" class="edit-field hidden">{{ company.description|default_if_none:"" }}</textarea>
+                </div>
+
+                <div class="profile-card">
+                    <h3>История</h3>
+
+                    <p class="view-field">
+                        {{ company.history|default:"-" }}
+                    </p>
+
+                    <textarea name="history" class="edit-field hidden">{{ company.history|default_if_none:"" }}</textarea>
+                </div>
+
+                <div class="profile-card">
+                    <h3>Кариера в компанията</h3>
+
+                    <p class="view-field">
+                        {{ company.career|default:"-" }}
+                    </p>
+
+                    <textarea name="career" class="edit-field hidden">{{ company.career|default_if_none:"" }}</textarea>
+                </div>
+
+                <div class="profile-card">
+                    <h3>Информация</h3>
+
+                    <p class="view-field">
+                        👥 {{ company.employees_count|default:"-" }} служители<br>
+                        📅 {{ company.founded_year|default:"-" }}
+                    </p>
+
+                    <div class="edit-field hidden">
+                        <input type="number" name="employees_count" placeholder="Брой служители" value="{{ company.employees_count }}">
+                        <input type="number" name="founded_year" placeholder="Година на основаване" value="{{ company.founded_year }}">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div>
+
+                <h3>Обяви</h3>
+
+                {% for offer in offers %}
+
+                {% if offer.status == "ACTIVE" %}
+                <a href="{% url 'offer_detail' offer_id=offer.id %}" class="offer-link">
+                {% endif %}
+
+                <div class="offer-card offer-card-mini">
+
+                    <!-- LEFT -->
+                    <div class="offer-logo">
+                        <img src="{{ offer.company.image_url|default:'/static/images/logo_placeholder.png' }}">
+                    </div>
+
+                    <!-- CENTER -->
+                    <div class="offer-content">
+
+                        <div class="offer-company">
+                            {{ offer.company.name }}
+                        </div>
+
+                        <div class="offer-title">
+                            {{ offer.title }}
+                        </div>
+
+                        <div class="offer-meta-row">
+                            📅 {{ offer.start_date }}
+                            • 📍 {{ offer.location }}
+                        </div>
+
+                        <div class="offer-tags">
+                            <span class="tag">{{ offer.get_field_display }}</span>
+                            <span class="tag">{{ offer.get_workspace_type_display }}</span>
+                            <span class="tag salary">{{ offer.get_salary_type_display }}</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% if offer.status == "ACTIVE" %}
+                </a>
+                {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+function toggleEdit() {
+    document.querySelectorAll(".edit-field").forEach(el => el.classList.toggle("hidden"));
+    document.querySelectorAll(".view-field").forEach(el => el.classList.toggle("hidden"));
+    document.getElementById("saveBtn").classList.toggle("hidden");
+}
+</script>
+
+{% endblock %}

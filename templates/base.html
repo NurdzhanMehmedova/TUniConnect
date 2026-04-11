@@ -68,6 +68,7 @@
 
                 {% if user.role.name == "COMPANY" %}
                     <a href="{% url 'company_dashboard' %}">Dashboard</a>
+                    <a href="{% url 'company_profile' %}">Профил</a>
                     <a href="{% url 'company_offers' %}">Моите обяви</a>
                     <a href="{% url 'company_applications' %}">Кандидатури</a>
                 {% endif %}

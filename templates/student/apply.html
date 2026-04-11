@@ -10,11 +10,12 @@
 {% block content %}
 <div class="apply-page">
     <div class="apply-header">
-        <h2 style="margin-bottom:20px;">Кандидатстване за стаж</h2>
+        <h2 class="page-section-title">Кандидатстване за стаж</h2>
     </div>
 
     <div class="apply-card">
         <div class="apply-offer-meta">
+
             <h3>{{ offer.title }}</h3>
             <p>{{ offer.company.name }}</p>
         </div>
@@ -23,14 +24,15 @@
             {% csrf_token %}
 
             <div class="apply-input-group">
-                <label>Избери CV</label>
-                <div class="cv-choice-group">
-                    <label class="cv-choice-item">
+                <label>Източник на CV</label>
+                <p class="apply-help-text">Изберете дали искате да използвате CV от профила си или да качите външен файл.</p>
+                <div class="radio-stack">
+                    <label class="radio-line">
                         <input type="radio" name="cv_type" value="profile" checked>
                         <span>Използвай моето CV</span>
                     </label>
 
-                    <label class="cv-choice-item">
+                    <label class="radio-line">
                         <input type="radio" name="cv_type" value="upload">
                         <span>Качи файл</span>
                     </label>
@@ -44,13 +46,14 @@
 
             <div class="apply-input-group">
                 <label>Мотивационно писмо</label>
-                <div class="cv-choice-group motivation-choice-group">
-                    <label class="cv-choice-item">
+                <p class="apply-help-text">Моля въведете текста или прикачете файл.</p>
+                <div class="radio-stack">
+                    <label class="radio-line">
                         <input type="radio" name="motivation_type" value="text" checked>
                         <span>Напиши текст</span>
                     </label>
 
-                    <label class="cv-choice-item">
+                    <label class="radio-line">
                         <input type="radio" name="motivation_type" value="file">
                         <span>Качи файл</span>
                     </label>
@@ -70,7 +73,9 @@
             </div>
 
             <div class="apply-actions">
-                <button type="submit" class="btn-primary">Изпрати кандидатура</button>
+                <button type="submit" class="btn-primary">
+                    Изпрати кандидатура
+                </button>
             </div>
         </form>
     </div>
@@ -78,14 +83,23 @@
 
 <script>
 (function () {
-    const cvTypeInputs = document.querySelectorAll('input[name="cv_type"]');
+
+    const submitBtn = document.querySelector(".apply-actions button");
+
+    const cvRadios = document.querySelectorAll('input[name="cv_type"]');
+    const cvFileInput = document.getElementById("cv_file");
+
     const uploadWrap = document.getElementById('upload-wrap');
     const fileInput = document.getElementById('cv_file');
+
     const motivationTypeInputs = document.querySelectorAll('input[name="motivation_type"]');
     const motivationText = document.getElementById('motivation_letter');
     const motivationUploadWrap = document.getElementById('motivation-upload-wrap');
     const motivationFileInput = document.getElementById('motivation_file');
 
+    const HAS_CV_FROM_BACKEND = {{ has_cv|yesno:"true,false" }};
+
+    // ================= CV toggle =================
     function toggleUpload() {
         const selected = document.querySelector('input[name="cv_type"]:checked');
         const useUpload = selected && selected.value === 'upload';
@@ -98,6 +112,7 @@
         }
     }
 
+    // ================= Motivation toggle =================
     function toggleMotivationInput() {
         const selected = document.querySelector('input[name="motivation_type"]:checked');
         const useFile = selected && selected.value === 'file';
@@ -114,10 +129,51 @@
         }
     }
 
-    cvTypeInputs.forEach((input) => input.addEventListener('change', toggleUpload));
-    motivationTypeInputs.forEach((input) => input.addEventListener('change', toggleMotivationInput));
+    // ================= MAIN LOGIC =================
+    function updateSubmitState() {
+        const selected = document.querySelector('input[name="cv_type"]:checked');
+
+        if (!selected) return;
+
+        if (selected.value === "profile") {
+            if (HAS_CV_FROM_BACKEND) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Изпрати кандидатура";
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Попълнете CV първо";
+            }
+        }
+
+        if (selected.value === "upload") {
+            if (cvFileInput.files.length > 0) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Изпрати кандидатура";
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Качете CV файл";
+            }
+        }
+    }
+
+    // ================= EVENTS =================
+    cvRadios.forEach(r => r.addEventListener("change", () => {
+        toggleUpload();
+        updateSubmitState();
+    }));
+
+    cvFileInput.addEventListener("change", updateSubmitState);
+
+    motivationTypeInputs.forEach(input =>
+        input.addEventListener('change', toggleMotivationInput)
+    );
+
+    // ================= INIT =================
     toggleUpload();
     toggleMotivationInput();
+    updateSubmitState();
+
 })();
 </script>
+
 {% endblock %}

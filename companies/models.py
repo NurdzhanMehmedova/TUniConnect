@@ -21,6 +21,11 @@ class Company(models.Model):
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
     image_url = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    banner = models.ImageField(upload_to="company_banners/", blank=True, null=True)
+    employees_count = models.IntegerField(blank=True, null=True)
+    founded_year = models.IntegerField(blank=True, null=True)
+    history = models.TextField(blank=True, null=True)
+    career = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Компания"

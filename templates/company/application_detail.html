@@ -17,6 +17,14 @@
 
     <div class="auth-card-modern application-detail-card">
         <div class="application-detail-grid">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="form-error-panel">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
             <div>
                 <h4>Обява</h4>
                 <p>{{ application.offer.title }}</p>
@@ -29,29 +37,17 @@
                 <h4>Подадена на</h4>
                 <p>{{ application.submitted_at|date:"d.m.Y H:i" }}</p>
             </div>
-            <div>
+            <div class="cv-block">
                 <h4>CV</h4>
                 {% if application.cv_file %}
                     <div class="cv-file-actions">
                         <a href="{{ application.cv_file.url }}" target="_blank" class="btn-primary">Преглед тук</a>
-                        <a href="{{ application.cv_file.url }}" class="btn-outline">Изтегли CV</a>
+                        <a href="{{ application.cv_file.url }}" class="btn-success">Изтегли CV</a>
                     </div>
-                    {% if cv_file_ext == "pdf" %}
-                        <iframe
-                            src="{{ application.cv_file.url }}"
-                            class="cv-preview-frame"
-                            title="CV Preview">
-                        </iframe>
-                    {% elif cv_file_ext == "png" or cv_file_ext == "jpg" or cv_file_ext == "jpeg" %}
-                        <img src="{{ application.cv_file.url }}" alt="CV" class="cv-preview-image">
-                    {% else %}
-                        <p class="cv-help-text">
-                            Файлът е качен успешно. Ползвайте „Изтегли CV“, за да го отворите.
-                        </p>
-                    {% endif %}
+
                 {% elif has_meaningful_cv_text %}
                     <p>CV е подадено като текст от шаблона на сайта.</p>
-                {% elif student_cv %}
+                {% elif not application.cv_file and student_cv %}
                     <p>CV е подадено от профила на студента.</p>
                 {% else %}
                     <p>Няма прикачено CV</p>
@@ -64,7 +60,7 @@
                 <h4>CV (текст)</h4>
                 <pre>{{ application.cv_text }}</pre>
             </div>
-        {% elif student_cv %}
+        {% elif student_cv and not application.cv_file %}
             <div class="application-text-block">
                 <h4>CV от профил на студента</h4>
                 <div class="cv-sections">
@@ -96,20 +92,63 @@
             </div>
         {% endif %}
 
-        {% if application.motivation_letter %}
+        {% if application.motivation_letter or application.motivation_file %}
             <div class="application-text-block">
                 <h4>Мотивационно писмо</h4>
-                <p>{{ application.motivation_letter }}</p>
+                {% if application.motivation_letter %}
+                    <p>{{ application.motivation_letter }}</p>
+                {% endif %}
+                {% if application.motivation_file %}
+                    <div class="cv-file-actions" style="margin-top:10px;">
+                        <a href="{{ application.motivation_file.url }}" target="_blank" class="btn-primary">Преглед файл</a>
+                        <a href="{{ application.motivation_file.url }}" class="btn-success">Изтегли файл</a>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
 
         {% if application.status == "Waiting" or application.status == "Seen" %}
             <div class="form-actions application-decision-actions">
-                <a href="{% url 'company_approve_application' application.id %}" class="btn-primary">Одобри</a>
-                <a href="{% url 'company_reject_application' application.id %}" class="btn-danger">Отхвърли</a>
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="application-text-block">
+                        <h4>Коментар към кандидата (при отказ)</h4>
+
+                        <textarea id="rejection_reason" name="rejection_reason" class="rejection-textarea"
+                            placeholder="Моля добавете коментар с причината за отхвърлянето на кандидатурата на студента."></textarea>
+
+
+                    </div>
+
+                    <div class="form-actions application-decision-actions">
+                        <button type="submit" name="action" value="approve" class="btn-primary">
+                            Одобри
+                        </button>
+                        <button type="submit" name="action" value="reject" id="reject-btn" class="btn-danger" disabled> Отхвърли </button>
+                    </div>
+
+                </form>
             </div>
         {% endif %}
     </div>
 
 </div>
+
+<script>
+const textarea = document.getElementById("rejection_reason");
+const rejectBtn = document.getElementById("reject-btn");
+
+textarea.addEventListener("input", function () {
+    if (textarea.value.trim().length > 0) {
+        rejectBtn.disabled = false;
+        rejectBtn.style.opacity = "1";
+        rejectBtn.style.cursor = "pointer";
+    } else {
+        rejectBtn.disabled = true;
+        rejectBtn.style.opacity = "0.5";
+        rejectBtn.style.cursor = "not-allowed";
+    }
+});
+</script>
 {% endblock %}

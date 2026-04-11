@@ -121,9 +121,11 @@ urlpatterns = [
     path("about/", views_frontend.about, name="about"),
     path("company/application/<int:application_id>/approve/",company_approve_application,name="company_approve_application"),
     path("company/application/<int:application_id>/reject/",company_reject_application,name="company_reject_application"),
+    path("company/profile/", views_frontend.company_profile, name="company_profile"),
     path("offers/<int:offer_id>/apply/",views_frontend.apply_for_offer,name="apply_for_offer"),
     path('offer/<int:pk>/edit/', views_frontend.edit_offer, name='edit_offer'),
     path('offers/<int:offer_id>/quick-apply/', quick_apply, name='quick_apply'),
+
 
     # Password Reset (временна парола)
     path("change-password/",views_frontend.change_password,name="change_password"),
