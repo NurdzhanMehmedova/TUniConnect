@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/company.css' %}">
+{% endblock %}
+
+{% block title %}Кандидатура{% endblock %}
+
+{% block content %}
+<div class="offers-wrapper company-applications-wrapper">
+
+    <div class="offers-header">
+        <h2>Кандидатура на {{ application.student.user.first_name }} {{ application.student.user.last_name }}</h2>
+        <a href="{% url 'company_applications' %}" class="btn-outline">Назад</a>
+    </div>
+
+    <div class="auth-card-modern application-detail-card">
+        <div class="application-detail-grid">
+            <div>
+                <h4>Обява</h4>
+                <p>{{ application.offer.title }}</p>
+            </div>
+            <div>
+                <h4>Статус</h4>
+                <span class="status-badge {{ application.status|lower }}">{{ application.get_status_display }}</span>
+            </div>
+            <div>
+                <h4>Подадена на</h4>
+                <p>{{ application.submitted_at|date:"d.m.Y H:i" }}</p>
+            </div>
+            <div>
+                <h4>CV</h4>
+                {% if application.cv_file %}
+                    <a href="{{ application.cv_file.url }}" class="btn-outline">Изтегли CV</a>
+                    {% if cv_file_ext == "pdf" %}
+                        <iframe
+                            src="{{ application.cv_file.url }}"
+                            class="cv-preview-frame"
+                            title="CV Preview">
+                        </iframe>
+                    {% elif cv_file_ext == "png" or cv_file_ext == "jpg" or cv_file_ext == "jpeg" %}
+                        <img src="{{ application.cv_file.url }}" alt="CV" class="cv-preview-image">
+                    {% else %}
+                        <p class="cv-help-text">
+                            Файлът е качен успешно. Ползвайте „Изтегли CV“, за да го отворите.
+                        </p>
+                    {% endif %}
+                {% elif application.cv_text %}
+                    <p>CV е подадено като текст.</p>
+                {% elif student_cv %}
+                    <p>CV е подадено от профила на студента.</p>
+                {% else %}
+                    <p>Няма прикачено CV.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if application.cv_text %}
+            <div class="application-text-block">
+                <h4>CV (текст)</h4>
+                <pre>{{ application.cv_text }}</pre>
+            </div>
+        {% elif student_cv %}
+            <div class="application-text-block">
+                <h4>CV от профил на студента</h4>
+                <div class="cv-sections">
+                    {% if student_cv.summary %}
+                        <div>
+                            <h5>Профил</h5>
+                            <p>{{ student_cv.summary }}</p>
+                        </div>
+                    {% endif %}
+                    {% if student_cv.experience %}
+                        <div>
+                            <h5>Опит</h5>
+                            <p>{{ student_cv.experience }}</p>
+                        </div>
+                    {% endif %}
+                    {% if student_cv.skills %}
+                        <div>
+                            <h5>Умения</h5>
+                            <p>{{ student_cv.skills }}</p>
+                        </div>
+                    {% endif %}
+                    {% if student_cv.education %}
+                        <div>
+                            <h5>Образование</h5>
+                            <p>{{ student_cv.education }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if application.motivation_letter %}
+            <div class="application-text-block">
+                <h4>Мотивационно писмо</h4>
+                <p>{{ application.motivation_letter }}</p>
+            </div>
+        {% endif %}
+
+        {% if application.status == "Waiting" or application.status == "Seen" %}
+            <div class="form-actions">
+                <a href="{% url 'company_approve_application' application.id %}" class="btn-primary">Одобри</a>
+                <a href="{% url 'company_reject_application' application.id %}" class="btn-outline">Отхвърли</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

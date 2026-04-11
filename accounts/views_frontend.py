@@ -617,12 +617,35 @@ def company_applications(request):
 
     applications = Application.objects.filter(
         offer__company=company
-    ).select_related("student", "student__user", "offer")
+    ).select_related("student", "student__user", "offer").order_by("-submitted_at")
 
     return render(request, "company/applications.html", {
         "company": company,
         "applications": applications
     })
+
+@login_required
+def company_application_detail(request, application_id):
+
+    if request.user.role.name != "COMPANY":
+        return redirect("home")
+
+    company = Company.objects.filter(user=request.user).first()
+
+    application = get_object_or_404(
+        Application.objects.select_related("student", "student__user", "offer"),
+        id=application_id,
+        offer__company=company
+    )
+
+    if application.status == Application.Status.WAITING:
+        application.status = Application.Status.SEEN
+        application.save(update_fields=["status"])
+
+    return render(request, "company/application_detail.html", {
+        "application": application
+    })
+
 
 @login_required
 def create_offer(request):
@@ -658,7 +681,8 @@ def company_approve_application(request, application_id):
     if request.user.role.name != "COMPANY":
         return redirect("home")
 
-    application = Application.objects.get(id=application_id)
+    company = Company.objects.filter(user=request.user).first()
+    application = get_object_or_404(Application, id=application_id, offer__company=company)
 
     application.status = Application.Status.APPROVED
     application.save()
@@ -672,7 +696,8 @@ def company_reject_application(request, application_id):
     if request.user.role.name != "COMPANY":
         return redirect("home")
 
-    application = Application.objects.get(id=application_id)
+    company = Company.objects.filter(user=request.user).first()
+    application = get_object_or_404(Application, id=application_id, offer__company=company)
 
     application.status = Application.Status.REJECTED
     application.save()

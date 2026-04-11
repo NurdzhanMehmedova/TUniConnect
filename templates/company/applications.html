@@ -5,85 +5,69 @@
 <link rel="stylesheet" href="{% static 'css/company.css' %}">
 {% endblock %}
 
+{% block title %}Кандидатури{% endblock %}
+
 {% block content %}
+<div class="offers-wrapper company-applications-wrapper">
 
-<div class="auth-wrapper-modern applications-page">
-    <div class="app-layout">
-
-        <div class="sidebar-card">
-            <div class="sidebar-header">
-                <h3 class="sidebar-title">{{ company.name }}</h3>
-            </div>
-
-            <div class="sidebar-menu">
-                <a href="{% url 'company_dashboard' %}">Дашборд</a>
-                <a href="{% url 'company_offers' %}">Моите обяви</a>
-                <a href="{% url 'company_applications' %}" class="active">Кандидатури</a>
-            </div>
-        </div>
-
-        <div class="content-card">
-            <h2>Кандидатури</h2>
-
-            <div class="table-card">
-                <table class="app-table company-applications-table">
-                    <thead>
-                        <tr>
-                            <th>Студент</th>
-                            <th>Обява</th>
-                            <th>CV</th>
-                            <th>Статус</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for app in applications %}
-                            <tr>
-                                <td>
-                                    {{ app.student.user.first_name }}
-                                    {{ app.student.user.last_name }}
-                                </td>
-
-                                <td>{{ app.offer.title }}</td>
-
-                                <td>
-                                    {% if app.cv_file %}
-                                        <a href="{{ app.cv_file.url }}">Изтегли CV</a>
-                                    {% elif app.cv_text %}
-                                        <span>CV (текст)</span>
-                                    {% else %}
-                                        <span>Няма прикачено CV</span>
-                                    {% endif %}
-                                </td>
-
-                                <td>
-                                    <span class="status-badge {{ app.status|lower }}">
-                                        {{ app.get_status_display }}
-                                    </span>
-                                </td>
-
-                                <td class="applications-actions">
-                                    {% if app.status == "Waiting" or app.status == "Seen" %}
-                                        <a href="{% url 'company_approve_application' app.id %}" class="btn-primary">
-                                            Одобри
-                                        </a>
-                                        <a href="{% url 'company_reject_application' app.id %}" class="btn-outline">
-                                            Отхвърли
-                                        </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="5">Няма кандидатури</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="offers-header">
+        <h2>Кандидатури</h2>
     </div>
+
+    <div class="offers-list">
+
+        {% for app in applications %}
+            <div class="offer-card company-application-card">
+
+                <div class="offer-logo">
+                    <img src="/static/images/logo_placeholder.png" alt="Student">
+                </div>
+
+                <div class="offer-content">
+                    <div class="offer-company">
+                        {{ app.student.user.first_name }} {{ app.student.user.last_name }}
+                    </div>
+
+                    <div class="offer-title">
+                        {{ app.offer.title }}
+                    </div>
+
+                    <div class="offer-meta-row">
+                        Подадена: {{ app.submitted_at|date:"d.m.Y H:i" }}
+                    </div>
+
+                    <div class="offer-tags">
+                        <span class="tag">{{ app.offer.get_field_display }}</span>
+                        <span class="tag">{{ app.offer.get_workspace_type_display }}</span>
+                        <span class="tag salary">{{ app.offer.get_salary_type_display }}</span>
+                    </div>
+                </div>
+
+                <div class="offer-actions application-actions">
+                    <span class="status-badge {{ app.status|lower }}">
+                        {{ app.get_status_display }}
+                    </span>
+
+                    <a href="{% url 'company_application_detail' app.id %}" class="btn-outline">
+                        Преглед
+                    </a>
+
+                    {% if app.status == "Waiting" or app.status == "Seen" %}
+                        <a href="{% url 'company_approve_application' app.id %}" class="btn-primary">
+                            Одобри
+                        </a>
+                        <a href="{% url 'company_reject_application' app.id %}" class="btn-outline">
+                            Отхвърли
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p>Няма кандидатури.</p>
+        {% endfor %}
+
+    </div>
+
 </div>
 
 {% endblock %}

@@ -60,6 +60,7 @@
 
                     <span class="status-badge
                         {% if app.status == 'Approved' %}approved
+                        {% elif app.status == 'Seen' %}seen
                         {% elif app.get_status_display == 'Rejected' %}rejected
                         {% elif app.get_status_display == 'Selected' %}approved
                         {% else %}pending
@@ -67,6 +68,8 @@
 
                         {% if app.get_status_display == 'Approved' %}
                             ✔ Одобрена
+                        {% elif app.get_status_display == 'Seen' %}
+                            👀 Прочетена
                         {% elif app.get_status_display == 'Rejected' %}
                             ❌ Отхвърлена
                         {% elif app.get_status_display == 'Selected' %}
