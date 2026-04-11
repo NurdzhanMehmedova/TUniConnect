@@ -12,7 +12,7 @@
 
     <div class="offers-header">
         <h2>Кандидатура на {{ application.student.user.first_name }} {{ application.student.user.last_name }}</h2>
-        <a href="{% url 'company_applications' %}" class="btn-outline">Назад</a>
+        <a href="{% url 'company_applications' %}" class="btn-danger">Назад</a>
     </div>
 
     <div class="auth-card-modern application-detail-card">
@@ -32,7 +32,10 @@
             <div>
                 <h4>CV</h4>
                 {% if application.cv_file %}
-                    <a href="{{ application.cv_file.url }}" class="btn-outline">Изтегли CV</a>
+                    <div class="cv-file-actions">
+                        <a href="{{ application.cv_file.url }}" target="_blank" class="btn-primary">Преглед тук</a>
+                        <a href="{{ application.cv_file.url }}" class="btn-outline">Изтегли CV</a>
+                    </div>
                     {% if cv_file_ext == "pdf" %}
                         <iframe
                             src="{{ application.cv_file.url }}"
@@ -46,17 +49,17 @@
                             Файлът е качен успешно. Ползвайте „Изтегли CV“, за да го отворите.
                         </p>
                     {% endif %}
-                {% elif application.cv_text %}
-                    <p>CV е подадено като текст.</p>
+                {% elif has_meaningful_cv_text %}
+                    <p>CV е подадено като текст от шаблона на сайта.</p>
                 {% elif student_cv %}
                     <p>CV е подадено от профила на студента.</p>
                 {% else %}
-                    <p>Няма прикачено CV.</p>
+                    <p>Няма прикачено CV</p>
                 {% endif %}
             </div>
         </div>
 
-        {% if application.cv_text %}
+        {% if has_meaningful_cv_text %}
             <div class="application-text-block">
                 <h4>CV (текст)</h4>
                 <pre>{{ application.cv_text }}</pre>
@@ -103,7 +106,7 @@
         {% if application.status == "Waiting" or application.status == "Seen" %}
             <div class="form-actions">
                 <a href="{% url 'company_approve_application' application.id %}" class="btn-primary">Одобри</a>
-                <a href="{% url 'company_reject_application' application.id %}" class="btn-outline">Отхвърли</a>
+                <a href="{% url 'company_reject_application' application.id %}" class="btn-danger">Отхвърли</a>
             </div>
         {% endif %}
     </div>

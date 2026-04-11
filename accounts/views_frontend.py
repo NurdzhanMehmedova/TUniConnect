@@ -642,10 +642,26 @@ def company_application_detail(request, application_id):
         application.status = Application.Status.SEEN
         application.save(update_fields=["status"])
 
-    return render(request, "company/application_detail.html", {
-        "application": application
-    })
+    student_cv = StudentCV.objects.filter(student=application.student).first()
+    file_ext = ""
+    if application.cv_file:
+        file_ext = application.cv_file.name.split(".")[-1].lower()
 
+    cv_text = (application.cv_text or "").strip()
+    profile_cv_markers = {
+        "кандидатстване с профилно cv",
+        "кандидатстване с профилно св",
+    }
+    has_meaningful_cv_text = bool(
+        cv_text and cv_text.lower() not in profile_cv_markers
+    )
+
+    return render(request, "company/application_detail.html", {
+        "application": application,
+        "student_cv": student_cv,
+        "cv_file_ext": file_ext,
+        "has_meaningful_cv_text": has_meaningful_cv_text,
+    })
 
 @login_required
 def create_offer(request):
