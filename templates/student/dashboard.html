@@ -56,39 +56,42 @@
 
         {% if section == "data" %}
 
-            <h2>Лични данни</h2>
+            <div class="section-head">
+                <h2>Лични данни</h2>
+                <p>Основна академична и профилна информация.</p>
+            </div>
 
-            <div class="profile-grid">
+            <div class="profile-grid profile-grid-modern">
 
-                <div class="profile-item">
+                <div class="profile-item profile-item-modern">
                     <span class="profile-label">Име</span>
                     <span class="profile-value">
                         {{ student.user.first_name }} {{ student.user.last_name }}
                     </span>
                 </div>
 
-                <div class="profile-item">
+                <div class="profile-item profile-item-modern">
                     <span class="profile-label">Фак. номер</span>
                     <span class="profile-value">
                         {{ student.faculty_number }}
                     </span>
                 </div>
 
-                <div class="profile-item">
+                <div class="profile-item profile-item-modern">
                     <span class="profile-label">Специалност</span>
                     <span class="profile-value">
                         {{ student.specialty.name }}
                     </span>
                 </div>
 
-                <div class="profile-item">
+                <div class="profile-item profile-item-modern">
                     <span class="profile-label">Катедра</span>
                     <span class="profile-value">
                         {{ student.specialty.department.name }}
                     </span>
                 </div>
 
-                <div class="profile-item">
+                <div class="profile-item profile-item-modern">
                     <span class="profile-label">Курс</span>
                     <span class="profile-value">
                         {{ student.year_of_study }}
@@ -99,16 +102,19 @@
 
         {% elif section == "stats" %}
 
-            <h2>Статистика</h2>
+            <div class="section-head">
+                <h2>Статистика</h2>
+                <p>Преглед на кандидатурите и текущия ти статус.</p>
+            </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
+            <div class="stats-grid stats-grid-modern">
+                <div class="stat-card stat-card-modern">
                     <h3>Общо кандидатури</h3>
                     <p>{{ total_applications }}</p>
                 </div>
 
-                <div class="stats-visual">
-                    <div class="donut-wrapper">
+                 <div class="stats-visual stats-visual-modern">
+                    <div class="donut-wrapper donut-wrapper-modern">
                         <div class="donut"
                              style="background: conic-gradient(
                                 #16a34a 0% {{ approved_count }}%,
@@ -120,12 +126,12 @@
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card stat-card-modern">
                     <h3>Отхвърлени</h3>
                     <p>{{ rejected_count }}</p>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card stat-card-modern">
                     <h3>В процес</h3>
                     <p>{{ pending_count }}</p>
                 </div>
@@ -167,7 +173,10 @@
 
         {% elif section == "progress" %}
 
-            <h2>Прогрес</h2>
+            <div class="section-head">
+                <h2>Прогрес</h2>
+                <p>Проследи как се развиват кандидатурите ти и статуса на стажа.</p>
+            </div>
 
             <!-- PROGRESS BAR -->
             <div class="progress-container">
@@ -182,26 +191,26 @@
                     </div>
                 </div>
 
-                <p>{{ approved_count }} одобрени от {{ total_applications }} кандидатури</p>
+                <p class="progress-summary">{{ approved_count }} одобрени от {{ total_applications }} кандидатури</p>
             </div>
 
             {% if approved_application %}
-                <div class="progress-card success">
+                <div class="progress-card success progress-card-modern">
                     <p>✔ Одобрена практика: {{ approved_application.offer.title }}</p>
                 </div>
 
                 {% if report %}
-                    <div class="progress-card success">
+                    <div class="progress-card success progress-card-modern">
                         <p>✔ Качен отчет</p>
                     </div>
                 {% else %}
-                    <div class="progress-card pending">
+                    <div class="progress-card pending progress-card-modern">
                         <p>⏳ Очаква се качване на отчет</p>
                     </div>
                 {% endif %}
 
             {% else %}
-                <div class="progress-card pending">
+                <div class="progress-card pending progress-card-modern">
                     <p>Все още няма одобрена практика</p>
                 </div>
             {% endif %}
@@ -211,70 +220,74 @@
             <h2>Моето CV</h2>
 
             <div class="cv-wrapper">
+                <div class="cv-layout-modern">
 
-                <!-- RIGHT SIDE -->
-                <div class="cv-main">
+                    <aside class="cv-sidebar-modern">
+                        <div class="cv-sidebar-photo-wrap">
+                            <form method="post" enctype="multipart/form-data" action="">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="upload_photo">
 
-                    <!-- HEADER (снимка + име + контакти) -->
-                    <div class="cv-header">
+                                <input type="file" name="profile_image" id="upload-photo" hidden onchange="this.form.submit()">
 
-                    <!-- PHOTO -->
-                    <div class="cv-photo-wrapper">
+                                <label for="upload-photo" class="cv-photo-upload cv-photo-upload-modern" title="Качи снимка">
+                                    {% if student.user.profile_image %}
+                                        <img src="{{ student.user.profile_image.url }}" class="cv-photo-img">
+                                    {% else %}
+                                        <span>Качи снимка</span>
+                                    {% endif %}
+                                </label>
+                            </form>
+                        </div>
 
-                        <form method="post" enctype="multipart/form-data" action="">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="upload_photo">
+                        <h2 class="cv-name-modern">{{ student.user.first_name }} {{ student.user.last_name }}</h2>
 
-                            <input type="file" name="profile_image" id="upload-photo" hidden onchange="this.form.submit()">
+                        <div class="cv-side-section">
+                            <h4>Умения</h4>
+                            {% if cv.skills %}
+                                <p>{{ cv.skills|linebreaks }}</p>
+                            {% else %}
+                                <p class="cv-empty">Добави ключови умения в полето отдолу.</p>
+                            {% endif %}
+                        </div>
+                    </aside>
 
-                            <label for="upload-photo" class="cv-photo-upload">
-                                {% if student.user.profile_image %}
-                                    <img src="{{ student.user.profile_image.url }}" class="cv-photo-img">
-                                {% else %}
-                                    <span>Качи снимка</span>
-                                {% endif %}
-                            </label>
-                        </form>
+                    <section class="cv-main-modern">
+                        <h2 class="cv-title-modern">Професионално CV</h2>
 
-                    </div>
+                        {% if not cv.summary and not cv.experience and not cv.education %}
+                            <p class="cv-empty">
+                                Попълни CV-то си отдолу 👇
+                            </p>
+                        {% endif %}
 
-                    <!-- INFO -->
-                    <div class="cv-info">
-                        <h2>{{ student.user.first_name }} {{ student.user.last_name }}</h2>
+                        <article class="cv-block">
+                            <h3>Профил</h3>
+                            {% if cv.summary %}
+                                <div class="cv-block-content">{{ cv.summary|linebreaks }}</div>
+                            {% else %}
+                                <p class="cv-empty">Добави кратко професионално резюме.</p>
+                            {% endif %}
+                        </article>
 
-                        <p class="cv-contact">
-                            {{ student.user.email }}
-                        </p>
+                        <article class="cv-block">
+                            <h3>Професионален опит</h3>
+                            {% if cv.experience %}
+                                <div class="cv-block-content">{{ cv.experience|linebreaks }}</div>
+                            {% else %}
+                                <p class="cv-empty">Опиши стажове, практики или проекти.</p>
+                            {% endif %}
+                        </article>
 
-                        <p class="cv-contact">
-                            {{ student.user.phone }}
-                        </p>
-                    </div>
-
-                </div>
-
-                    <!-- CONTENT -->
-                    {% if not cv.summary and not cv.experience and not cv.education %}
-                        <p class="cv-empty">
-                            Попълни CV-то си отдолу 👇
-                        </p>
-                    {% endif %}
-
-                    {% if cv.summary %}
-                        <h3>Резюме</h3>
-                        <p>{{ cv.summary|linebreaks }}</p>
-                    {% endif %}
-
-                    {% if cv.experience %}
-                        <h3>Опит</h3>
-                        <p>{{ cv.experience|linebreaks }}</p>
-                    {% endif %}
-
-                    {% if cv.education %}
-                        <h3>Образование</h3>
-                        <p>{{ cv.education|linebreaks }}</p>
-                    {% endif %}
-
+                        <article class="cv-block">
+                            <h3>Образование</h3>
+                            {% if cv.education %}
+                                <div class="cv-block-content">{{ cv.education|linebreaks }}</div>
+                            {% else %}
+                                <p class="cv-empty">Добави учебна информация и релевантни курсове.</p>
+                            {% endif %}
+                        </article>
+                    </section>
                 </div>
 
             <!-- EDIT FORM -->
