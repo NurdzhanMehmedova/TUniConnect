@@ -2,11 +2,14 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.paginator import Paginator
 from rest_framework import viewsets
 from internships.models import Favorite
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.db import connection
+from django.db.utils import OperationalError, ProgrammingError
 from django.contrib import messages
 from companies.models import Location
 from accounts.models import StudentCV
@@ -27,6 +30,17 @@ from .serializers import (
 )
 
 from internships.models import Application, Report, InternOffer
+
+def report_workflow_enabled():
+    try:
+        with connection.cursor() as cursor:
+            columns = connection.introspection.get_table_description(
+                cursor, Report._meta.db_table
+            )
+        names = {col.name for col in columns}
+        return {"company_status", "mentor_status"}.issubset(names)
+    except (OperationalError, ProgrammingError):
+        return False
 
 
 # ============================
@@ -73,6 +87,7 @@ def student_dashboard(request):
     student = request.user.student
     section = request.GET.get("section", "data")
     cv, created = StudentCV.objects.get_or_create(student=student)
+    workflow_enabled = report_workflow_enabled()
 
     if request.method == "POST":
 
@@ -140,6 +155,7 @@ def student_dashboard(request):
         # progress
         "approved_application": approved_application,
         "report": report,
+        "report_workflow_enabled": workflow_enabled,
         "cv": cv,
     }
 
@@ -266,7 +282,10 @@ def student_reports(request):
         return redirect("home")
 
     student = request.user.student
-    reports = Report.objects.filter(student=student)
+    workflow_enabled = report_workflow_enabled()
+    reports = Report.objects.filter(student=student).order_by("-submitted_at")
+    if not workflow_enabled:
+        reports = reports.only("id", "student_id", "report_file", "grade", "comments", "submitted_at")
     report_type = request.GET.get("type", "internship")
     valid_report_types = {"employment_contract", "internship", "own_business"}
     if report_type not in valid_report_types:
@@ -296,10 +315,19 @@ def student_reports(request):
                 mentor=student.mentor,
                 company=approved_application.offer.company,
                 report_file=report_file,
-                company_status=Report.ApprovalStatus.PENDING,
-                mentor_status=Report.ApprovalStatus.PENDING,
+                **(
+                    {
+                        "company_status": Report.ApprovalStatus.PENDING,
+                        "mentor_status": Report.ApprovalStatus.PENDING,
+                    }
+                    if workflow_enabled
+                    else {}
+                )
             )
-            messages.success(request, "Докладът е качен успешно и чака одобрение от фирмата.")
+            if workflow_enabled:
+                messages.success(request, "Докладът е качен успешно и чака одобрение от фирмата.")
+            else:
+                messages.warning(request, "Докладът е качен, но е нужна миграция за фирмено/менторско одобрение.")
             return redirect(f"{request.path}?type={report_type}")
 
     internship_days = None
@@ -314,6 +342,7 @@ def student_reports(request):
         "internship_days": internship_days,
         "internship_hours": internship_hours,
         "report_type": report_type,
+        "report_workflow_enabled": workflow_enabled,
     })
 
 @login_required

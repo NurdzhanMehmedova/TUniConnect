@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -15,6 +17,9 @@ import random
 import string
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
+from django.db import connection
+from django.db.utils import OperationalError, ProgrammingError
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
@@ -28,6 +33,17 @@ from internships.models import InternOffer, Application
 import os
 from django.core.files.storage import default_storage
 from django.conf import settings
+
+def report_workflow_enabled():
+    try:
+        with connection.cursor() as cursor:
+            columns = connection.introspection.get_table_description(
+                cursor, Report._meta.db_table
+            )
+        names = {col.name for col in columns}
+        return {"company_status", "mentor_status"}.issubset(names)
+    except (OperationalError, ProgrammingError):
+        return False
 
 def home(request):
 
@@ -353,9 +369,13 @@ def mentor_dashboard(request):
             "Няма кандидатура"
         )
 
+    workflow_enabled = report_workflow_enabled()
+
     reports = Report.objects.filter(
         student__mentor=mentor
     ).select_related("student", "student__user")
+    if not workflow_enabled:
+        reports = reports.only("id", "student_id", "company_id", "report_file", "submitted_at")
 
     total_students = students.count()
     students_with_internship = students.filter(
@@ -374,6 +394,7 @@ def mentor_dashboard(request):
         "available_students": unassigned_or_other_students,
         "applications": applications,
         "reports": reports,
+        "report_workflow_enabled": workflow_enabled,
         "total_students": total_students,
         "students_with_internship": students_with_internship,
         "students_without_internship": students_without_internship,
@@ -402,12 +423,16 @@ def mentor_approve_internship(request, application_id):
     application.status = Application.Status.SEEN
     application.save(update_fields=["status"])
     messages.success(request, "Стажът е одобрен от ментора.")
-    return redirect("mentor_dashboard?section=applications")
+    return redirect(f"{reverse('mentor_dashboard')}?section=applications")
 
 @login_required
 def mentor_approve_report(request, report_id):
     if request.user.role.name != "MENTOR":
         return redirect("home")
+
+    if not report_workflow_enabled():
+        messages.error(request, "Липсват миграции за workflow на доклади. Изпълни migrate.")
+        return redirect(f"{reverse('mentor_dashboard')}?section=reports")
 
     mentor = Mentor.objects.filter(user=request.user).first()
     report = get_object_or_404(
@@ -418,13 +443,13 @@ def mentor_approve_report(request, report_id):
 
     if report.company_status != Report.ApprovalStatus.APPROVED:
         messages.error(request, "Първо фирмата трябва да одобри доклада.")
-        return redirect("mentor_dashboard?section=reports")
+        return redirect(f"{reverse('mentor_dashboard')}?section=reports")
 
     report.mentor_status = Report.ApprovalStatus.APPROVED
     report.save(update_fields=["mentor_status"])
     messages.success(request, "Докладът е одобрен от ментора.")
 
-    return redirect("mentor_dashboard?section=reports")
+    return redirect(f"{reverse('mentor_dashboard')}?section=reports")
 
 @login_required
 def mentor_applications(request):
@@ -638,10 +663,17 @@ def company_applications(request):
         return redirect("home")
 
     company = Company.objects.filter(user=request.user).first()
+    workflow_enabled = report_workflow_enabled()
 
     applications = Application.objects.filter(
         offer__company=company
     ).select_related("student", "student__user", "offer").order_by("-submitted_at")
+
+    reports = Report.objects.filter(
+        company=company
+    ).select_related("student", "student__user").order_by("-submitted_at")
+    if not workflow_enabled:
+        reports = reports.only("id", "student_id", "company_id", "report_file", "submitted_at")
 
     reports = Report.objects.filter(
         company=company
@@ -651,6 +683,7 @@ def company_applications(request):
         "company": company,
         "applications": applications,
         "reports": reports,
+        "report_workflow_enabled": workflow_enabled,
     })
 
 @login_required
@@ -1124,3 +1157,11 @@ def company_public_profile(request, company_id):
         "company": company,
         "offers": offers
     })
+
+    if not report_workflow_enabled():
+            messages.error(request, "Липсват миграции за workflow на доклади. Изпълни migrate.")
+            return redirect("company_applications")
+
+    if not report_workflow_enabled():
+        messages.error(request, "Липсват миграции за workflow на доклади. Изпълни migrate.")
+        return redirect("company_applications")
