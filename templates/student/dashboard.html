@@ -117,8 +117,8 @@
                     <div class="donut-wrapper donut-wrapper-modern">
                         <div class="donut"
                              style="background: conic-gradient(
-                                #16a34a 0% {{ approved_count }}%,
-                                #e5e7eb {{ approved_count }}% 100%
+                                #16a34a 0% {{ approved_percentage|floatformat:0 }}%,
+                                #e5e7eb {{ approved_percentage|floatformat:0 }}% 100%
                              );">
                             <span>{{ approved_count }}</span>
                         </div>
@@ -179,12 +179,13 @@
             </div>
 
             <!-- PROGRESS BAR -->
+            <!-- PROGRESS BAR -->
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill"
                          style="width:
                          {% if total_applications > 0 %}
-                            {{ approved_count|floatformat:0 }}
+                            {{ approved_percentage|floatformat:0 }}
                          {% else %}
                             0
                          {% endif %}%;">

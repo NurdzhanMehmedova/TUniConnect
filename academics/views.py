@@ -97,18 +97,27 @@ def student_dashboard(request):
 
     applications = Application.objects.filter(student=student).select_related("offer")
 
-    approved_count = applications.filter(status=Application.Status.APPROVED).count()
+    approved_count = applications.filter(
+        status__in=[
+            Application.Status.APPROVED,
+            Application.Status.SELECTED
+        ]
+    ).count()
     rejected_count = applications.filter(status=Application.Status.REJECTED).count()
     pending_count = applications.exclude(
         status__in=[
             Application.Status.APPROVED,
+            Application.Status.SELECTED,
             Application.Status.REJECTED
         ]
     ).count()
 
     total_applications = applications.count()
+    approved_percentage = (approved_count / total_applications * 100) if total_applications > 0 else 0
 
     approved_application = applications.filter(
+        status=Application.Status.SELECTED
+    ).first() or applications.filter(
         status=Application.Status.APPROVED
     ).first()
 
@@ -124,6 +133,7 @@ def student_dashboard(request):
         "applications": applications,
         "total_applications": total_applications,
         "approved_count": approved_count,
+        "approved_percentage": approved_percentage,
         "rejected_count": rejected_count,
         "pending_count": pending_count,
 
