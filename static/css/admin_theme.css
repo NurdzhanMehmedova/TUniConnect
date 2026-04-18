@@ -1,0 +1,475 @@
+:root {
+    --primary: #6366f1;
+    --secondary: #0ea5e9;
+    --text: #1e293b;
+    --muted: #64748b;
+    --surface: rgba(255, 255, 255, 0.88);
+    --surface-solid: #ffffff;
+    --border: #dbe4ff;
+    --shadow: 0 12px 30px rgba(30, 41, 59, 0.12);
+    --radius: 14px;
+}
+
+html,
+body {
+    min-height: 100%;
+    color: var(--text);
+    background:
+        radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15), transparent 40%),
+        radial-gradient(circle at 80% 30%, rgba(14, 165, 233, 0.15), transparent 40%),
+        linear-gradient(180deg, #dbeafe 0%, #cfe3ff 100%);
+}
+
+/* Header */
+#header {
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--text);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+}
+
+#branding h1,
+#branding h1 a {
+    color: var(--text);
+    font-weight: 700;
+}
+
+#user-tools {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#user-tools a {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-weight: 600;
+    background: #ffffff;
+}
+
+#user-tools a:hover {
+    color: #fff;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-color: transparent;
+}
+
+a:hover {
+    color: var(--primary);
+}
+
+/* Generic cards */
+.module,
+.inline-group,
+.submit-row,
+.object-tools a,
+#changelist-filter,
+#changelist .actions,
+.paginator,
+.login #container,
+#changelist-search,
+#content-main,
+#content-related,
+.dashboard #content-main > .module {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    box-shadow: 0 8px 24px rgba(30, 41, 59, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+#content {
+    background: transparent;
+}
+
+.dashboard #content > h1 {
+    display: none;
+}
+
+.module h2,
+.module caption,
+.inline-group h2,
+#changelist-filter h2 {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: #fff;
+    border-radius: 12px 12px 0 0;
+}
+
+a:link,
+a:visited {
+    color: #3347d6;
+}
+
+/* Buttons */
+.button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+a.button,
+.submit-row input,
+.selector-chosen h2,
+.selector-available h2 {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: #fff;
+    border: 0;
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+input[type="reset"]:hover,
+a.button:hover,
+.submit-row input:hover {
+    background: linear-gradient(90deg, #585ce9, #0b9ad8);
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.28);
+    transform: translateY(-1px);
+}
+
+input, textarea, select {
+    border: 1px solid #d7ddf4;
+    border-radius: 10px;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Dashboard index layout */
+.dashboard #content {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.dashboard #content-main {
+    flex: 1 1 auto;
+    min-width: 720px;
+    width: auto;
+    float: none;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.dashboard #content-main .module table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.dashboard .module {
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.dashboard #content-related {
+    flex: 0 0 320px;
+    width: 320px;
+    float: none;
+    padding: 0;
+    overflow: hidden;
+}
+
+.dashboard #recent-actions-module {
+    margin: 0;
+}
+
+/* Audit-friendly recent actions panel */
+.dashboard #content-related {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #dbe4ff;
+    border-radius: 14px;
+    box-shadow: 0 14px 30px rgba(30, 41, 59, 0.12);
+    overflow: hidden;
+    position: sticky;
+    top: 96px;
+    align-self: flex-start;
+}
+
+.dashboard #recent-actions-module h2 {
+    margin: 0;
+    padding: 14px 16px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.dashboard #recent-actions-module h3 {
+    margin: 0;
+    padding: 12px 16px 10px;
+    font-size: 0.95rem;
+    color: var(--text);
+    border-bottom: 1px solid #e8edff;
+    background: #f8faff;
+}
+
+.dashboard #recent-actions-module ul.actionlist {
+    list-style: none;
+    margin: 0;
+    padding: 10px 14px 12px;
+    max-height: 62vh;
+    overflow-y: auto;
+}
+
+.dashboard #recent-actions-module ul.actionlist li {
+    position: relative;
+    padding: 10px 8px 10px 24px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: #ffffff;
+    border: 1px solid #e8edff;
+}
+
+.dashboard #recent-actions-module ul.actionlist li::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 16px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.14);
+}
+
+.dashboard #recent-actions-module ul.actionlist li:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard #recent-actions-module .mini {
+    margin-top: 2px;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+
+/* Keep left tables static and remove extra card backgrounds */
+.dashboard .module,
+.change-list #content-main,
+.change-list #changelist,
+.change-list #changelist-form,
+.change-form #content-main,
+.change-form .module,
+.change-form .aligned,
+.change-list #changelist-form .results {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.change-list #changelist-form,
+.change-list #changelist,
+.change-form #content-main {
+    padding: 0;
+}
+
+#nav-sidebar {
+    position: sticky;
+    top: 92px;
+    align-self: flex-start;
+    height: calc(100vh - 110px);
+    overflow: auto;
+}
+
+/* Changelist: models left, detailed table right */
+.change-list #container {
+    max-width: 100%;
+}
+
+.change-list #main {
+    display: flex;
+    gap: 18px;
+}
+
+#nav-sidebar {
+    width: 240px;
+    min-width: 240px;
+    flex: 0 0 240px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 0;
+}
+
+.change-list #content {
+    flex: 1;
+}
+
+.change-list #content-main {
+    padding: 0;
+    margin-top: 0;
+    position: relative;
+}
+
+.change-list #changelist {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 16px;
+    margin-top: 6px;
+}
+
+.change-list #changelist .results,
+.change-list #changelist .results table {
+    width: 100%;
+}
+
+.change-list #changelist-form {
+    overflow: visible;
+    border-radius: 0;
+}
+
+.change-list #changelist-filter {
+    align-self: start;
+    position: sticky;
+    top: 110px;
+    margin-top: 46px;
+}
+
+.results {
+    overflow-x: auto;
+}
+
+.results th,
+.results td,
+.dashboard .module table td,
+.dashboard .module table th {
+    border-color: #e5e7eb;
+}
+
+
+.change-form .aligned .form-row {
+    padding: 14px 16px;
+}
+
+.change-form .aligned label {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Change form/detail pages */
+.change-form #content {
+    max-width: 1200px;
+}
+
+.change-form #content-main {
+    padding: 0;
+}
+
+.change-form .aligned .form-row,
+.change-form .submit-row {
+    border-bottom-color: #e5e7eb;
+}
+
+.change-form .breadcrumbs,
+.change-list .breadcrumbs,
+.dashboard .breadcrumbs {
+    background: rgba(15, 23, 42, 0.78);
+    border-radius: 10px;
+    margin-bottom: 14px;
+}
+
+.change-list .object-tools {
+    float: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 3;
+}
+
+.change-list .object-tools li {
+    background: transparent;
+}
+
+.change-list .object-tools a,
+.change-list .object-tools a:link,
+.change-list .object-tools a:visited {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: #fff;
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
+}
+
+.change-list .object-tools a:hover {
+    background: linear-gradient(90deg, #585ce9, #0b9ad8);
+    color: #fff;
+}
+
+.change-list #changelist-search {
+    margin-top: 0;
+}
+
+/* Login page */
+.login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.login #container {
+    margin-top: 0;
+}
+
+@media (max-width: 1200px) {
+    .change-list #changelist {
+        grid-template-columns: 1fr;
+    }
+
+    .change-list #changelist-filter {
+        position: static;
+    }
+
+    .dashboard #content {
+        display: block;
+    }
+
+    .dashboard #content-main,
+    .dashboard #content-related {
+        min-width: 0;
+        width: 100%;
+        flex: initial;
+    }
+
+    #nav-sidebar {
+        width: 220px;
+        min-width: 220px;
+    }
+
+    .change-list .object-tools {
+        position: static;
+        margin-bottom: 8px;
+    }
+
+    .change-list #changelist-filter {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 1024px) {
+    #header,
+    .module,
+    .inline-group,
+    .submit-row,
+    #changelist-filter,
+    #content-main,
+    #content-related {
+        backdrop-filter: none;
+    }
+
+    .change-list #main {
+        display: block;
+    }
+}
