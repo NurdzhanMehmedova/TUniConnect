@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from internships.models import Favorite
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-
+from django.contrib import messages
 from companies.models import Location
 from accounts.models import StudentCV
 from academics.models import (
@@ -123,7 +123,7 @@ def student_dashboard(request):
 
     report = None
     if approved_application:
-        report = Report.objects.filter(student=student).first()
+        report = Report.objects.filter(student=student).order_by("-submitted_at").first()
 
     context = {
         "student": student,
@@ -267,9 +267,53 @@ def student_reports(request):
 
     student = request.user.student
     reports = Report.objects.filter(student=student)
+    report_type = request.GET.get("type", "internship")
+    valid_report_types = {"employment_contract", "internship", "own_business"}
+    if report_type not in valid_report_types:
+        report_type = "internship"
+
+    approved_application = Application.objects.filter(
+        student=student,
+        status__in=[Application.Status.SELECTED, Application.Status.APPROVED]
+    ).select_related("offer", "offer__company").first()
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "upload_report":
+            report_file = request.FILES.get("report_file")
+
+            if not approved_application:
+                messages.error(request, "Нямате одобрен стаж, за който да подадете отчет.")
+                return redirect(f"{request.path}?type={report_type}")
+
+            if not report_file:
+                messages.error(request, "Моля, качете файл с отчет.")
+                return redirect(f"{request.path}?type={report_type}")
+
+            Report.objects.create(
+                student=student,
+                mentor=student.mentor,
+                company=approved_application.offer.company,
+                report_file=report_file,
+                company_status=Report.ApprovalStatus.PENDING,
+                mentor_status=Report.ApprovalStatus.PENDING,
+            )
+            messages.success(request, "Докладът е качен успешно и чака одобрение от фирмата.")
+            return redirect(f"{request.path}?type={report_type}")
+
+    internship_days = None
+    internship_hours = None
+    if approved_application and approved_application.offer.start_date and approved_application.offer.end_date:
+        internship_days = (approved_application.offer.end_date - approved_application.offer.start_date).days + 1
+        internship_hours = internship_days * 8 if internship_days > 0 else 0
 
     return render(request, "student/reports.html", {
-        "reports": reports
+        "reports": reports,
+        "approved_application": approved_application,
+        "internship_days": internship_days,
+        "internship_hours": internship_hours,
+        "report_type": report_type,
     })
 
 @login_required

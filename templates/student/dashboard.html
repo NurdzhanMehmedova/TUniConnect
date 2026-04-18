@@ -179,7 +179,6 @@
             </div>
 
             <!-- PROGRESS BAR -->
-            <!-- PROGRESS BAR -->
             <div class="progress-container">
                 <div class="progress-bar">
                     <div class="progress-fill"
@@ -203,6 +202,10 @@
                 {% if report %}
                     <div class="progress-card success progress-card-modern">
                         <p>✔ Качен отчет</p>
+                        <p class="progress-sub-status">
+                            Фирма: {{ report.get_company_status_display }} •
+                            Ментор: {{ report.get_mentor_status_display }}
+                        </p>
                     </div>
                 {% else %}
                     <div class="progress-card pending progress-card-modern">

@@ -405,6 +405,28 @@ def mentor_approve_internship(request, application_id):
     return redirect("mentor_dashboard?section=applications")
 
 @login_required
+def mentor_approve_report(request, report_id):
+    if request.user.role.name != "MENTOR":
+        return redirect("home")
+
+    mentor = Mentor.objects.filter(user=request.user).first()
+    report = get_object_or_404(
+        Report.objects.select_related("student"),
+        id=report_id,
+        student__mentor=mentor
+    )
+
+    if report.company_status != Report.ApprovalStatus.APPROVED:
+        messages.error(request, "Първо фирмата трябва да одобри доклада.")
+        return redirect("mentor_dashboard?section=reports")
+
+    report.mentor_status = Report.ApprovalStatus.APPROVED
+    report.save(update_fields=["mentor_status"])
+    messages.success(request, "Докладът е одобрен от ментора.")
+
+    return redirect("mentor_dashboard?section=reports")
+
+@login_required
 def mentor_applications(request):
 
     if request.user.role.name != "MENTOR":
@@ -458,7 +480,6 @@ def reject_application(request, application_id):
 
     return redirect("mentor_applications")
 
-@login_required
 @login_required
 def mentor_offers(request):
 
@@ -622,10 +643,47 @@ def company_applications(request):
         offer__company=company
     ).select_related("student", "student__user", "offer").order_by("-submitted_at")
 
+    reports = Report.objects.filter(
+        company=company
+    ).select_related("student", "student__user").order_by("-submitted_at")
+
     return render(request, "company/applications.html", {
         "company": company,
-        "applications": applications
+        "applications": applications,
+        "reports": reports,
     })
+
+@login_required
+def company_approve_report(request, report_id):
+
+    if request.user.role.name != "COMPANY":
+        return redirect("home")
+
+    company = Company.objects.filter(user=request.user).first()
+    report = get_object_or_404(Report, id=report_id, company=company)
+
+    report.company_status = Report.ApprovalStatus.APPROVED
+    report.save(update_fields=["company_status"])
+    messages.success(request, "Докладът е одобрен от фирмата.")
+
+    return redirect("company_applications")
+
+
+@login_required
+def company_reject_report(request, report_id):
+
+    if request.user.role.name != "COMPANY":
+        return redirect("home")
+
+    company = Company.objects.filter(user=request.user).first()
+    report = get_object_or_404(Report, id=report_id, company=company)
+
+    report.company_status = Report.ApprovalStatus.REJECTED
+    report.mentor_status = Report.ApprovalStatus.PENDING
+    report.save(update_fields=["company_status", "mentor_status"])
+    messages.warning(request, "Докладът е върнат за корекция от фирмата.")
+
+    return redirect("company_applications")
 
 @login_required
 def company_application_detail(request, application_id):

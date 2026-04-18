@@ -6,18 +6,190 @@
 {% endblock %}
 
 {% block content %}
+<div class="reports-wrapper">
+    <div class="reports-shell">
 
-<h2>Моите доклади</h2>
-
-{% if reports %}
-    {% for report in reports %}
-        <div class="card">
-            <p>Оценка: {{ report.grade }}</p>
-            <p>Коментар: {{ report.comments }}</p>
+        <div class="reports-header">
+            <h1>Информация за стажа и отчет</h1>
+            <p>Попълни данните за практиката в структуриран формат, съвместим с останалия дизайн на платформата.</p>
         </div>
-    {% endfor %}
-{% else %}
-    <p>Нямате качени доклади.</p>
-{% endif %}
 
+        <div class="internship-type-tabs">
+            <a href="?type=employment_contract" class="internship-tab {% if report_type == 'employment_contract' %}active{% endif %}">
+                Трудов договор
+            </a>
+            <a href="?type=internship" class="internship-tab {% if report_type == 'internship' %}active{% endif %}">
+                Стаж
+            </a>
+            <a href="?type=own_business" class="internship-tab {% if report_type == 'own_business' %}active{% endif %}">
+                Собствен бизнес
+            </a>
+        </div>
+
+        <section class="report-form-card">
+            <h3 class="report-section-title">Данни за практическото обучение</h3>
+
+            {% if report_type == "internship" %}
+                <div class="report-grid">
+                    <div class="report-field full">
+                        <label>Наименование на организацията</label>
+                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.company.name }}{% endif %}" placeholder="Напр. ТУниФирма ООД">
+                    </div>
+
+                    <div class="report-field">
+                        <label>БУЛСТАТ (ЕИК)</label>
+                        <input type="text" placeholder="Въведи ЕИК">
+                    </div>
+
+                    <div class="report-field">
+                        <label>Позиция</label>
+                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.title }}{% endif %}" placeholder="Стажант разработчик">
+                    </div>
+
+                    <div class="report-field">
+                        <label>От</label>
+                        <input type="date" value="{% if approved_application %}{{ approved_application.offer.start_date|date:'Y-m-d' }}{% endif %}">
+                    </div>
+
+                    <div class="report-field">
+                        <label>До</label>
+                        <input type="date" value="{% if approved_application %}{{ approved_application.offer.end_date|date:'Y-m-d' }}{% endif %}">
+                    </div>
+
+                    <div class="report-field">
+                        <label>Общо работни дни</label>
+                        <input type="text" value="{% if internship_days %}{{ internship_days }}{% endif %}" placeholder="45">
+                    </div>
+
+                    <div class="report-field">
+                        <label>Общо работни часове</label>
+                        <input type="text" value="{% if internship_hours %}{{ internship_hours }}{% endif %}" placeholder="240">
+                    </div>
+
+                    <div class="report-field full">
+                        <label>Цели на практическото обучение</label>
+                        <textarea rows="4" placeholder="Опиши целите и основните задачи по време на стажа..."></textarea>
+                    </div>
+                </div>
+            {% elif report_type == "employment_contract" %}
+                <div class="report-grid">
+                    <div class="report-field full">
+                        <label>Работодател / организация</label>
+                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.company.name }}{% endif %}" placeholder="Име на работодател">
+                    </div>
+
+                    <div class="report-field">
+                        <label>ЕИК на работодател</label>
+                        <input type="text" placeholder="Въведи ЕИК">
+                    </div>
+
+                    <div class="report-field">
+                        <label>Длъжност по договор</label>
+                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.title }}{% endif %}" placeholder="Junior Developer">
+                    </div>
+
+                    <div class="report-field">
+                        <label>Начална дата</label>
+                        <input type="date" value="{% if approved_application %}{{ approved_application.offer.start_date|date:'Y-m-d' }}{% endif %}">
+                    </div>
+
+                    <div class="report-field">
+                        <label>Крайна дата</label>
+                        <input type="date" value="{% if approved_application %}{{ approved_application.offer.end_date|date:'Y-m-d' }}{% endif %}">
+                    </div>
+
+                    <div class="report-field full">
+                        <label>Описание на изпълняваните дейности</label>
+                        <textarea rows="4" placeholder="Опиши дейностите по трудов договор..."></textarea>
+                    </div>
+                </div>
+            {% else %}
+                <div class="report-grid">
+                    <div class="report-field full">
+                        <label>Име на бизнес / проект</label>
+                        <input type="text" placeholder="Напр. StudioLab">
+                    </div>
+
+                    <div class="report-field">
+                        <label>ЕИК / Булстат</label>
+                        <input type="text" placeholder="Въведи ЕИК">
+                    </div>
+
+                    <div class="report-field">
+                        <label>Роля в бизнеса</label>
+                        <input type="text" placeholder="Основател / Мениджър">
+                    </div>
+
+                    <div class="report-field full">
+                        <label>Дейност на бизнеса</label>
+                        <textarea rows="3" placeholder="Опиши предмета на дейност..."></textarea>
+                    </div>
+
+                    <div class="report-field full">
+                        <label>Цели и постигнати резултати</label>
+                        <textarea rows="4" placeholder="Опиши целите и резултатите от проекта..."></textarea>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="contact-card">
+                <h4>Лице за контакт</h4>
+                <div class="report-grid">
+                    <div class="report-field">
+                        <label>Имена</label>
+                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.company.contact_person }}{% endif %}" placeholder="Име на представител">
+                    </div>
+                    <div class="report-field">
+                        <label>Имейл</label>
+                        <input type="email" value="{% if approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.email }}{% endif %}" placeholder="contact@company.com">
+                    </div>
+                    <div class="report-field">
+                        <label>Телефон</label>
+                        <input type="text" value="{% if approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.phone }}{% endif %}" placeholder="+359...">
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="report-upload-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="upload_report">
+
+                <div class="report-grid">
+                    <div class="report-field full">
+                        <label>Файл на доклада (PDF/DOC)</label>
+                        <input type="file" name="report_file" required>
+                    </div>
+                </div>
+
+                <div class="report-actions">
+                    <button type="submit" class="btn-primary">Отчети стаж</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="report-history-card">
+            <h3 class="report-section-title">Мои отчети</h3>
+
+            {% if reports %}
+                <div class="report-history-list">
+                    {% for report in reports %}
+                        <article class="report-history-item">
+                            <div>
+                                <strong>Доклад #{{ forloop.counter }}</strong>
+                                <p>Качен на {{ report.submitted_at|date:"d.m.Y" }}</p>
+                            </div>
+                            <div class="report-history-meta">
+                                <span>Оценка: {{ report.grade|default:"—" }}</span>
+                                <span>Фирма: {{ report.get_company_status_display }}</span>
+                                <span>Ментор: {{ report.get_mentor_status_display }}</span>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="report-empty">Все още нямаш подадени отчети.</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
 {% endblock %}

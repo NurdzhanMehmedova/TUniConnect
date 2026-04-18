@@ -39,7 +39,8 @@ from accounts.views_frontend import (
     reject_application, company_dashboard, company_offers, edit_offer, create_offer, company_applications,
     company_application_detail,
     company_approve_application,
-    company_reject_application, quick_apply, mentor_approve_internship
+    company_reject_application, quick_apply, mentor_approve_internship, company_approve_report,
+    company_reject_report, mentor_approve_report
 )
 
 # ================= FRONTEND =================
@@ -108,7 +109,8 @@ urlpatterns = [
     path("mentor/applications/", mentor_applications, name="mentor_applications"),
     path("mentor/applications/<int:application_id>/approve/", approve_application, name="approve_application"),
     path("mentor/applications/<int:application_id>/reject/", reject_application, name="reject_application"),
-    path("mentor/applications/<int:application_id>/approve-internship/", mentor_approve_internship, name="mentor_approve_internship"),
+    path("mentor/applications/<int:application_id>/approve-internship/", mentor_approve_internship,name="mentor_approve_internship"),
+    path("mentor/reports/<int:report_id>/approve/", mentor_approve_report, name="mentor_approve_report"),
     path("mentor/offers/", views_frontend.mentor_offers, name="mentor_offers"),
     path("mentor/all-students/", views_frontend.mentor_all_students, name="mentor_all_students"),
     path("mentor/students-no-internship/", views_frontend.mentor_students_without_internship, name="mentor_students_without_internship"),
@@ -121,6 +123,8 @@ urlpatterns = [
     path("about/", views_frontend.about, name="about"),
     path("company/application/<int:application_id>/approve/",company_approve_application,name="company_approve_application"),
     path("company/application/<int:application_id>/reject/",company_reject_application,name="company_reject_application"),
+    path("company/reports/<int:report_id>/approve/", company_approve_report, name="company_approve_report"),
+    path("company/reports/<int:report_id>/reject/", company_reject_report, name="company_reject_report"),
     path("company/profile/", views_frontend.company_profile, name="company_profile"),
     path("companies/<int:company_id>/", views_frontend.company_public_profile, name="company_public_profile"),
     path("offers/<int:offer_id>/apply/",views_frontend.apply_for_offer,name="apply_for_offer"),

@@ -138,12 +138,26 @@ class Application(models.Model):
 
 
 class Report(models.Model):
+    class ApprovalStatus(models.TextChoices):
+        PENDING = "PENDING", "Чака одобрение"
+        APPROVED = "APPROVED", "Одобрен"
+        REJECTED = "REJECTED", "Върнат за корекция"
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     mentor = models.ForeignKey(Mentor, on_delete=models.SET_NULL, null=True)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True)
     report_file = models.FileField(upload_to="reports/")
     grade = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     comments = models.TextField(blank=True, null=True)
+    company_status = models.CharField(
+        max_length=20,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING
+    )
+    mentor_status = models.CharField(
+        max_length=20,
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING
+    )
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
