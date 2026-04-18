@@ -191,6 +191,7 @@
         const checkSpecial = document.getElementById("check-special");
         const togglePassword = document.getElementById("togglePassword");
         const phoneInput = document.querySelector("input[name='phone']");
+        const roleSelect = document.querySelector("select[name='role']");
 
         let phoneValid = false;
         let usernameAvailable = false;
@@ -368,8 +369,7 @@
         }
 
         function updateSubmitState(){
-            const selectedRole =
-            roleSelect.options[roleSelect.selectedIndex].text.trim();
+            const selectedRole = roleSelect.value;
 
             let roleValid = false;
 
@@ -624,7 +624,6 @@
         }
 
         /* ================= ROLE TOGGLE ================= */
-        const roleSelect = document.querySelector("select[name='role']");
         const studentSection = document.getElementById("studentFields");
         const mentorSection = document.getElementById("mentorFields");
         const companySection = document.getElementById("companyFields");
@@ -633,7 +632,9 @@
         function toggleRoleFields() {
 
             const selectedText =
-                roleSelect.options[roleSelect.selectedIndex].text.trim();
+                roleSelect.options[roleSelect.selectedIndex].text
+                .trim()
+                .toUpperCase();
 
             // скриваме всички секции
             studentSection.classList.remove("active");
@@ -648,7 +649,7 @@
                 "#companyFields input"
             ).forEach(el => el.disabled = true);
 
-            if (selectedText === "STUDENT") {
+            if (selectedText === "СТУДЕНТ") {
 
                 roleCard.style.display = "block";
                 studentSection.classList.add("active");
@@ -659,7 +660,7 @@
                 initStudentSpecialties();
             }
 
-            if (selectedText === "MENTOR") {
+            if (selectedText === "МЕНТОР") {
 
                 roleCard.style.display = "block";
                 mentorSection.style.display = "block";
@@ -668,7 +669,7 @@
                     .forEach(el => el.disabled = false);
             }
 
-            if (selectedText === "COMPANY") {
+            if (selectedText === "КОМПАНИЯ") {
 
                 roleCard.style.display = "block";
                 companySection.style.display = "block";

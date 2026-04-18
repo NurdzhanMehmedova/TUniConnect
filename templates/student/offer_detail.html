@@ -39,7 +39,7 @@
                 <h1>{{ offer.title }}</h1>
 
                 <p class="job-company">
-                    {{ offer.company.name }} • {{ offer.location }}
+                    {{ offer.company.name }} • {{ offer.location.display_name }}
                 </p>
 
                 <div class="job-tags">
@@ -106,13 +106,13 @@
 
             <div class="sidebar-card sticky">
 
-                <div class="company-box">
+                <a href="{% url 'company_public_profile' offer.company.id %}" class="company-box">
                     <img src="{{ offer.company.image_url|default:'/static/images/logo_placeholder.png' }}">
                     <h4>{{ offer.company.name }}</h4>
-                </div>
+                </a>
 
                 <div class="sidebar-info">
-                    <p><strong>Локация:</strong> {{ offer.location }}</p>
+                    <p><strong>Локация:</strong> {{ offer.location.display_name }}</p>
                     <p><strong>Поле:</strong> {{ offer.get_field_display }}</p>
                     <p><strong>Тип:</strong> {{ offer.get_workspace_type_display }}</p>
                 </div>

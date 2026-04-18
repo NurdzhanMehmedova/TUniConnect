@@ -66,6 +66,8 @@ class RegisterForm(forms.ModelForm):
                 "placeholder": " "
             })
 
+        self.fields["role"].label_from_instance = lambda obj: obj.display_name()
+
         self.fields["faculty_number"].widget.attrs.update({
             "maxlength": 8,
             "inputmode": "numeric",
@@ -96,14 +98,6 @@ class RegisterForm(forms.ModelForm):
                 pass
         else:
             self.fields['specialty'].queryset = Specialty.objects.none()
-
-    def clean_phone(self):
-        phone = self.cleaned_data.get("phone")
-        if not re.match(r"^\+359\d{9}$", phone):
-            raise forms.ValidationError(
-                "Телефонът трябва да бъде във формат +359XXXXXXXXX."
-            )
-        return phone
 
     def clean_first_name(self):
         first_name = self.cleaned_data.get("first_name")

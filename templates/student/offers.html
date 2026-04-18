@@ -67,7 +67,7 @@
                 <option value="">Всички</option>
 
                 {% for loc in locations %}
-                <option value="{{ loc.id }}">{{ loc.city }}</option>
+                <option value="{{ loc.id }}">{{ loc.display_name }}</option>
                 {% endfor %}
 
             </select>
@@ -108,7 +108,7 @@
                 <div class="offer-meta-row">
                     📅 {{ offer.start_date }}
                     &nbsp;&nbsp;•&nbsp;&nbsp;
-                    📍 {{ offer.location }}
+                    📍 {{ offer.location.display_name }}
                     🕒 {{ offer.created_at|time_since }}
                 </div>
 

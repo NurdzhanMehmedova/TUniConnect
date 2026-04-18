@@ -25,6 +25,9 @@ from internships.models import InternOffer
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from internships.models import InternOffer, Application
+import os
+from django.core.files.storage import default_storage
+from django.conf import settings
 
 def home(request):
 
@@ -1036,8 +1039,9 @@ def company_profile(request):
         company.employees_count = request.POST.get("employees_count") or None
         company.founded_year = request.POST.get("founded_year") or None
 
+
         if request.FILES.get("logo"):
-            company.image_url = request.FILES["logo"]
+            company.logo = request.FILES["logo"]
 
         if request.FILES.get("banner"):
             company.banner = request.FILES["banner"]
@@ -1046,6 +1050,19 @@ def company_profile(request):
         return redirect("company_profile")
 
     return render(request, "company/profile.html", {
+        "company": company,
+        "offers": offers
+    })
+
+def company_public_profile(request, company_id):
+    company = get_object_or_404(Company, id=company_id)
+
+    offers = InternOffer.objects.filter(
+        company=company,
+        status=InternOffer.Status.ACTIVE
+    )
+
+    return render(request, "company/public_profile.html", {
         "company": company,
         "offers": offers
     })

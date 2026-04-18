@@ -1002,10 +1002,23 @@ button:disabled {
     margin-bottom: 20px;
 }
 
-.company-stats {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.profile-card textarea {
+    width: 100%;
+    min-height: 120px;
+
+    padding: 14px 16px;
+
+    border-radius: 14px;
+    border: 1px solid #d1d5db;
+
+    background: #f8fafc;
+
+    font-size: 14px;
+    font-family: inherit;
+
+    resize: vertical;
+    transition: 0.2s;
+    box-sizing: border-box;
 }
 
 .company-stats li {
