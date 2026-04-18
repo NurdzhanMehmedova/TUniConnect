@@ -138,7 +138,12 @@ def student_dashboard(request):
 
     report = None
     if approved_application:
-        report = Report.objects.filter(student=student).order_by("-submitted_at").first()
+        report_qs = Report.objects.filter(student=student).order_by("-submitted_at")
+        if not workflow_enabled:
+            report_qs = report_qs.only(
+                "id", "student_id", "report_file", "grade", "comments", "submitted_at"
+            )
+        report = report_qs.first()
 
     context = {
         "student": student,
@@ -310,6 +315,19 @@ def student_reports(request):
                 messages.error(request, "Моля, качете файл с отчет.")
                 return redirect(f"{request.path}?type={report_type}")
 
+            if report_type == "internship" and approved_application:
+                start_date = approved_application.offer.start_date
+                end_date = approved_application.offer.end_date
+                if start_date and end_date:
+                    worked_days = (end_date - start_date).days + 1
+                    worked_hours = worked_days * 8 if worked_days > 0 else 0
+                    if worked_hours < 150:
+                        messages.error(
+                            request,
+                            "За УП/успешен стаж са нужни минимум 150 часа. В момента са отчетени по-малко."
+                        )
+                        return redirect(f"{request.path}?type={report_type}")
+
             Report.objects.create(
                 student=student,
                 mentor=student.mentor,
@@ -336,11 +354,25 @@ def student_reports(request):
         internship_days = (approved_application.offer.end_date - approved_application.offer.start_date).days + 1
         internship_hours = internship_days * 8 if internship_days > 0 else 0
 
+    required_hours = 150
+    hours_requirement_met = True
+    if report_type == "internship" and internship_hours is not None:
+        hours_requirement_met = internship_hours >= required_hours
+
+    proof_label_map = {
+        "employment_contract": "Прикачи трудов договор",
+        "internship": "Прикачи служебна бележка за стаж",
+        "own_business": "Прикачи документ за дейност на собствен бизнес",
+    }
+
     return render(request, "student/reports.html", {
         "reports": reports,
         "approved_application": approved_application,
         "internship_days": internship_days,
         "internship_hours": internship_hours,
+        "required_hours": required_hours,
+        "hours_requirement_met": hours_requirement_met,
+        "proof_label": proof_label_map.get(report_type, "Прикачи доказателство"),
         "report_type": report_type,
         "report_workflow_enabled": workflow_enabled,
     })

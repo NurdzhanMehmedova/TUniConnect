@@ -675,16 +675,13 @@ def company_applications(request):
     if not workflow_enabled:
         reports = reports.only("id", "student_id", "company_id", "report_file", "submitted_at")
 
-    reports = Report.objects.filter(
-        company=company
-    ).select_related("student", "student__user").order_by("-submitted_at")
-
     return render(request, "company/applications.html", {
         "company": company,
         "applications": applications,
         "reports": reports,
         "report_workflow_enabled": workflow_enabled,
     })
+
 
 @login_required
 def company_approve_report(request, report_id):

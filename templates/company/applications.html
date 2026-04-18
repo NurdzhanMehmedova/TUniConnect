@@ -72,8 +72,10 @@
                     <th>Студент</th>
                     <th>Дата</th>
                     <th>Файл</th>
-                    <th>Статус фирма</th>
-                    <th>Статус ментор</th>
+                    {% if report_workflow_enabled %}
+                        <th>Статус фирма</th>
+                        <th>Статус ментор</th>
+                    {% endif %}
                     <th>Действие</th>
                 </tr>
             </thead>
@@ -83,22 +85,28 @@
                         <td>{{ report.student.user.first_name }} {{ report.student.user.last_name }}</td>
                         <td>{{ report.submitted_at|date:"d.m.Y" }}</td>
                         <td><a href="{{ report.report_file.url }}" target="_blank" class="btn-primary">Преглед</a></td>
-                        <td>{{ report.get_company_status_display }}</td>
-                        <td>{{ report.get_mentor_status_display }}</td>
+                        {% if report_workflow_enabled %}
+                            <td>{{ report.get_company_status_display }}</td>
+                            <td>{{ report.get_mentor_status_display }}</td>
+                        {% endif %}
                         <td>
-                            {% if report.company_status == "PENDING" %}
-                                <a href="{% url 'company_approve_report' report.id %}" class="btn-primary">Одобри</a>
-                                <a href="{% url 'company_reject_report' report.id %}" class="btn-outline">Върни</a>
-                            {% elif report.company_status == "APPROVED" %}
-                                <span class="status-badge approved">Одобрен</span>
+                            {% if report_workflow_enabled %}
+                                {% if report.company_status == "PENDING" %}
+                                    <a href="{% url 'company_approve_report' report.id %}" class="btn-primary">Одобри</a>
+                                    <a href="{% url 'company_reject_report' report.id %}" class="btn-outline">Върни</a>
+                                {% elif report.company_status == "APPROVED" %}
+                                    <span class="status-badge approved">Одобрен</span>
+                                {% else %}
+                                    <span class="status-badge rejected">Върнат</span>
+                                {% endif %}
                             {% else %}
-                                <span class="status-badge rejected">Върнат</span>
+                                <span class="status-badge pending">Изпълни migrate</span>
                             {% endif %}
                         </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="6">Няма подадени доклади.</td>
+                        <td colspan="{% if report_workflow_enabled %}6{% else %}4{% endif %}">Няма подадени доклади.</td>
                     </tr>
                 {% endfor %}
             </tbody>

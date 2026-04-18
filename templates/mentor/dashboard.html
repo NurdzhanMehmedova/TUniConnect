@@ -248,8 +248,10 @@ class="{% if section == 'assign' %}active{% endif %}">
 <th>Обява</th>
 <th>Дата</th>
 <th>Файл</th>
+{% if report_workflow_enabled %}
 <th>Фирма</th>
 <th>Ментор</th>
+{% endif %}
 <th>Действие</th>
 </tr>
 </thead>
@@ -281,17 +283,28 @@ class="{% if section == 'assign' %}active{% endif %}">
 <a href="{{ report.report_file.url }}" target="_blank" class="btn-approve">Преглед</a>
 </td>
 
+{% if report_workflow_enabled %}
 <td>{{ report.get_company_status_display }}</td>
 <td>{{ report.get_mentor_status_display }}</td>
+{% endif %}
 <td>
-    {% if report.company_status == "APPROVED" and report.mentor_status == "PENDING" %}
-        <a href="{% url 'mentor_approve_report' report.id %}" class="btn-approve">Одобри</a>
-    {% elif report.mentor_status == "APPROVED" %}
-        <span class="status-badge approved">Одобрен</span>
-    {% elif report.company_status == "REJECTED" %}
-        <span class="status-badge rejected">Върнат от фирма</span>
+    {% if report_workflow_enabled %}
+<td>{{ report.get_company_status_display }}</td>
+<td>{{ report.get_mentor_status_display }}</td>
+{% endif %}
+<td>
+    {% if report_workflow_enabled %}
+        {% if report.company_status == "APPROVED" and report.mentor_status == "PENDING" %}
+            <a href="{% url 'mentor_approve_report' report.id %}" class="btn-approve">Одобри</a>
+        {% elif report.mentor_status == "APPROVED" %}
+            <span class="status-badge approved">Одобрен</span>
+        {% elif report.company_status == "REJECTED" %}
+            <span class="status-badge rejected">Върнат от фирма</span>
+        {% else %}
+            <span class="status-badge pending">Чака фирма</span>
+        {% endif %}
     {% else %}
-        <span class="status-badge pending">Чака фирма</span>
+        <span class="status-badge pending">Изпълни migrate</span>
     {% endif %}
 </td>
 
@@ -300,7 +313,7 @@ class="{% if section == 'assign' %}active{% endif %}">
 {% empty %}
 
 <tr>
-<td colspan="8">
+<td colspan="{% if report_workflow_enabled %}8{% else %}6{% endif %}">
 Няма качени доклади
 </td>
 </tr>

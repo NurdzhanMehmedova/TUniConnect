@@ -14,6 +14,35 @@
             <p>Попълни данните за практиката в структуриран формат, съвместим с останалия дизайн на платформата.</p>
         </div>
 
+        <section class="report-guide-card">
+            <h3 class="report-section-title">Ръководство за отчитане</h3>
+            <p class="report-guide-note">
+                Минималният необходим обем за успешен стаж е <strong>150 часа</strong>.
+            </p>
+            <table class="report-guide-table">
+                <thead>
+                    <tr>
+                        <th>Тип стаж</th>
+                        <th>Задължително доказателство</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Основен трудов договор</td>
+                        <td>Прикачен трудов договор от работодателя</td>
+                    </tr>
+                    <tr>
+                        <td>Стаж към университета</td>
+                        <td>Прикачена служебна бележка за проведен стаж</td>
+                    </tr>
+                    <tr>
+                        <td>Собствен бизнес</td>
+                        <td>Документ, доказващ дейността на бизнеса</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
         <div class="internship-type-tabs">
             <a href="?type=employment_contract" class="internship-tab {% if report_type == 'employment_contract' %}active{% endif %}">
                 Трудов договор
@@ -58,12 +87,12 @@
 
                     <div class="report-field">
                         <label>Общо работни дни</label>
-                        <input type="text" value="{% if internship_days %}{{ internship_days }}{% endif %}" placeholder="45">
+                        <input type="text" value="{% if internship_days %}{{ internship_days }}{% endif %}" placeholder="Без минимум">
                     </div>
 
                     <div class="report-field">
                         <label>Общо работни часове</label>
-                        <input type="text" value="{% if internship_hours %}{{ internship_hours }}{% endif %}" placeholder="240">
+                        <input type="text" value="{% if internship_hours %}{{ internship_hours }}{% endif %}" placeholder="Минимум 150">
                     </div>
 
                     <div class="report-field full">
@@ -153,13 +182,20 @@
             <form method="post" enctype="multipart/form-data" class="report-upload-form">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="upload_report">
+                <input type="hidden" name="report_type" value="{{ report_type }}">
 
                 <div class="report-grid">
                     <div class="report-field full">
-                        <label>Файл на доклада (PDF/DOC)</label>
+                        <label>{{ proof_label }} (PDF/DOC)</label>
                         <input type="file" name="report_file" required>
                     </div>
                 </div>
+
+                {% if report_type == "internship" and internship_hours is not None %}
+                    <p class="report-guide-note {% if not hours_requirement_met %}report-guide-warning{% endif %}">
+                        Отчетени часове: <strong>{{ internship_hours }}</strong> / изискване: <strong>{{ required_hours }}</strong>.
+                    </p>
+                {% endif %}
 
                 <div class="report-actions">
                     <button type="submit" class="btn-primary">Отчети стаж</button>
@@ -180,8 +216,10 @@
                             </div>
                             <div class="report-history-meta">
                                 <span>Оценка: {{ report.grade|default:"—" }}</span>
-                                <span>Фирма: {{ report.get_company_status_display }}</span>
-                                <span>Ментор: {{ report.get_mentor_status_display }}</span>
+                                {% if report_workflow_enabled %}
+                                    <span>Фирма: {{ report.get_company_status_display }}</span>
+                                    <span>Ментор: {{ report.get_mentor_status_display }}</span>
+                                {% endif %}
                             </div>
                         </article>
                     {% endfor %}
