@@ -13,15 +13,18 @@
 
     <!-- 🔥 HERO БАНЕР -->
     <div class="job-hero">
-        <div class="job-save-btn"
-             data-id="{{ offer.id }}"
-             onclick="toggleSave(this)">
-            {% if is_favorite %}
-                ❤️
-            {% else %}
-                🤍
-            {% endif %}
-        </div>
+        {% if user.is_authenticated and user.role.name == "STUDENT" %}
+            <div class="job-save-btn"
+                 data-id="{{ offer.id }}"
+                 onclick="toggleSave(this)">
+                {% if is_favorite %}
+                    ❤️
+                {% else %}
+                    🤍
+                {% endif %}
+            </div>
+        {% endif %}
+
 
         <div class="job-hero-bg">
             <img src="{{ offer.company.banner_url|default:'/static/images/default-banner.png' }}">
@@ -159,6 +162,8 @@ function getCSRFToken() {
 }
 
 function toggleSave(el) {
+    if (!el) return;
+
 
     const offerId = el.getAttribute("data-id");
 

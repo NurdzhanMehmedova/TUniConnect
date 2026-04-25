@@ -317,6 +317,47 @@
     margin-bottom: 15px;
 }
 
+.error-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+}
+
+.error-popup-backdrop.hidden {
+    display: none;
+}
+
+.error-popup {
+    width: min(560px, 100%);
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #fecaca;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.24);
+    padding: 22px;
+}
+
+.error-popup h3 {
+    margin: 0 0 10px;
+    color: #991b1b;
+}
+
+.error-popup ul {
+    margin: 0;
+    padding-left: 22px;
+    color: #7f1d1d;
+}
+
+.error-popup-close {
+    margin-top: 18px;
+    width: auto;
+    min-width: 140px;
+}
+
 /* BUTTON */
 
 .btn-modern {
@@ -384,7 +425,7 @@
 }
 
 .company-application-card {
-    grid-template-columns: 70px 1fr auto;
+    grid-template-columns: 80px 1fr auto;
 }
 
 .application-actions {

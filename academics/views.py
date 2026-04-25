@@ -1,9 +1,10 @@
 from django.db.models import Q
 from decimal import Decimal, InvalidOperation
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from django.core.paginator import Paginator
 from rest_framework import viewsets
 from internships.models import Favorite
@@ -196,10 +197,17 @@ def get_specialties(request):
 
 
 def student_offers(request):
+    today = timezone.localdate()
 
     offers = InternOffer.objects.filter(
         status=InternOffer.Status.ACTIVE
     ).select_related("company", "location")
+    if not (
+            request.user.is_authenticated
+            and getattr(request.user, "role", None)
+            and request.user.role.name == "SUPER_ADMIN"
+    ):
+        offers = offers.filter(end_date__gte=today)
 
     search = request.GET.get("search")
     field = request.GET.get("field")
@@ -379,7 +387,12 @@ def toggle_favorite(request, offer_id):
         return JsonResponse({"error": "Unauthorized"}, status=403)
 
     student = request.user.student
-    offer = InternOffer.objects.get(id=offer_id)
+    offer = get_object_or_404(
+        InternOffer,
+        id=offer_id,
+        status=InternOffer.Status.ACTIVE,
+        end_date__gte=timezone.localdate(),
+    )
 
     favorite, created = Favorite.objects.get_or_create(
         student=student,
@@ -402,7 +415,10 @@ def saved_offers(request):
 
     favorites = Favorite.objects.filter(
         student=student
-    ).select_related("offer__company", "offer__location")
+    ).select_related("offer__company", "offer__location").filter(
+        offer__status=InternOffer.Status.ACTIVE,
+        offer__end_date__gte=timezone.localdate(),
+    )
 
     offers = [f.offer for f in favorites]
 

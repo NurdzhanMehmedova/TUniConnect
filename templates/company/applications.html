@@ -15,6 +15,13 @@
         <h2>Кандидатури</h2>
     </div>
 
+    <div class="offers-search">
+        <div class="search-box">
+            <span class="search-icon">🔍︎</span>
+            <input type="text" id="companyApplicationsSearch" placeholder="Търсене на обяви">
+        </div>
+    </div>
+
     <div class="offers-page">
         <div class="filters-card">
             <label>Поле</label>
@@ -48,16 +55,8 @@
             <button type="button" class="btn-primary">Филтрирай</button>
         </div>
 
-        <div class="offers-main">
-    <div class="offers-search">
-        <div class="search-box">
-            <span class="search-icon">🔍︎</span>
-            <input type="text" id="companyApplicationsSearch" placeholder="Търсене на обяви">
-        </div>
-    </div>
-
         <div>
-    <div class="offers-list" id="companyApplicationsList">
+        <div class="offers-list" id="companyApplicationsList">
 
         {% for app in applications %}
             <div class="offer-card company-application-card"

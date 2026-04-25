@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from internships.models import InternOffer
 
 
@@ -70,3 +71,20 @@ class InternOfferForm(forms.ModelForm):
                 "placeholder": "Всяко предимство на нов ред"
             }),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+        today = timezone.localdate()
+
+        if start_date and start_date < today:
+            self.add_error("start_date", "Началната дата не може да бъде в миналото.")
+
+        if end_date and end_date < today:
+            self.add_error("end_date", "Крайната дата не може да бъде в миналото.")
+
+        if start_date and end_date and end_date < start_date:
+            self.add_error("end_date", "Крайната дата трябва да е след началната дата.")
+
+        return cleaned_data

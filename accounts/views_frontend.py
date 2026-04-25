@@ -25,6 +25,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.utils import timezone
 from internships.models import Report, Application, Favorite
 from internships.models import InternOffer
 from django.shortcuts import render, redirect
@@ -46,11 +47,13 @@ def report_workflow_enabled():
         return False
 
 def home(request):
-
     context = {
         "total_students": Student.objects.count(),
         "total_companies": Company.objects.count(),
-        "total_offers": InternOffer.objects.filter(status="ACTIVE").count(),
+        "total_offers": InternOffer.objects.filter(
+            status="ACTIVE",
+            end_date__gte=timezone.localdate(),
+        ).count(),
         "total_reports": Report.objects.count(),
     }
 
@@ -348,6 +351,14 @@ def mentor_dashboard(request):
     ).order_by("faculty_number")
 
     unassigned_or_other_students = all_students.exclude(mentor=mentor)
+    available_students_json = [
+        {
+            "id": student.id,
+            "full_name": f"{student.user.first_name} {student.user.last_name}".strip(),
+            "faculty_number": str(student.faculty_number or ""),
+        }
+        for student in unassigned_or_other_students
+    ]
 
     applications = Application.objects.filter(
         student__mentor=mentor
@@ -392,6 +403,7 @@ def mentor_dashboard(request):
         "section": section,
         "students": students,
         "available_students": unassigned_or_other_students,
+        "available_students_json": available_students_json,
         "applications": applications,
         "reports": reports,
         "report_workflow_enabled": workflow_enabled,
@@ -511,8 +523,10 @@ def mentor_offers(request):
     if request.user.role.name != "MENTOR":
         return redirect("home")
 
+    today = timezone.localdate()
     offers = InternOffer.objects.filter(
-        status=InternOffer.Status.ACTIVE
+        status=InternOffer.Status.ACTIVE,
+        end_date__gte=today,
     ).select_related("company", "location")
 
     search = request.GET.get("search")
@@ -886,7 +900,12 @@ def apply_for_offer(request, offer_id):
         return redirect("home")
 
     student = request.user.student
-    offer = InternOffer.objects.get(id=offer_id)
+    offer = get_object_or_404(
+        InternOffer,
+        id=offer_id,
+        status=InternOffer.Status.ACTIVE,
+        end_date__gte=timezone.localdate(),
+    )
 
     if request.method == "POST":
 
@@ -949,12 +968,28 @@ def apply_for_offer(request, offer_id):
     })
 
 def offer_detail(request, offer_id):
+    today = timezone.localdate()
+    base_queryset = InternOffer.objects.filter(id=offer_id)
 
-    offer = get_object_or_404(
-        InternOffer,
-        id=offer_id,
-        status=InternOffer.Status.ACTIVE
-    )
+    if request.user.is_authenticated and getattr(request.user, "role", None):
+        if request.user.role.name == "SUPER_ADMIN":
+            offer = get_object_or_404(base_queryset)
+        elif request.user.role.name == "COMPANY" and hasattr(request.user, "company"):
+            offer = get_object_or_404(base_queryset.filter(company=request.user.company))
+        else:
+            offer = get_object_or_404(
+                base_queryset.filter(
+                    status=InternOffer.Status.ACTIVE,
+                    end_date__gte=today,
+                )
+            )
+    else:
+        offer = get_object_or_404(
+            base_queryset.filter(
+                status=InternOffer.Status.ACTIVE,
+                end_date__gte=today,
+            )
+        )
 
     has_applied = False
     is_favorite = False
@@ -1088,7 +1123,12 @@ def edit_offer(request, pk):
 
 @login_required
 def quick_apply(request, offer_id):
-    offer = get_object_or_404(InternOffer, id=offer_id)
+    offer = get_object_or_404(
+        InternOffer,
+        id=offer_id,
+        status=InternOffer.Status.ACTIVE,
+        end_date__gte=timezone.localdate(),
+    )
     student = request.user.student
 
     # ✅ ПРОВЕРКА
@@ -1147,7 +1187,8 @@ def company_public_profile(request, company_id):
 
     offers = InternOffer.objects.filter(
         company=company,
-        status=InternOffer.Status.ACTIVE
+        status=InternOffer.Status.ACTIVE,
+        end_date__gte=timezone.localdate(),
     )
 
     return render(request, "company/public_profile.html", {

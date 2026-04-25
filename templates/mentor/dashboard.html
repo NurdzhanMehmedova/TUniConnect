@@ -167,29 +167,33 @@ class="{% if section == 'assign' %}active{% endif %}">
     </select>
 
     <label for="student_name">Или въведи име ръчно</label>
-    <input
-        type="text"
-        id="student_name"
-        name="student_name"
-        list="students-list"
-        placeholder="Пример: Иван Иванов"
-    >
-    <datalist id="students-list">
-        {% for s in available_students %}
-            <option value="{{ s.user.first_name }} {{ s.user.last_name }}"></option>
-        {% endfor %}
-    </datalist>
+    <div class="student-search-box">
+        <input
+            type="text"
+            id="student_name"
+            name="student_name"
+            autocomplete="off"
+            placeholder="Пример: Иван Иванов"
+        >
+        <ul id="student-search-results" class="search-results" hidden></ul>
+    </div>
 
     <label for="faculty_number">Факултетен номер (по избор)</label>
-    <input
-        type="text"
-        id="faculty_number"
-        name="faculty_number"
-        placeholder="Пример: 22621610"
-    >
+    <div class="student-search-box">
+        <input
+            type="text"
+            id="faculty_number"
+            name="faculty_number"
+            autocomplete="off"
+            placeholder="Пример: 22621610"
+        >
+        <ul id="faculty-search-results" class="search-results" hidden></ul>
+    </div>
 
     <button type="submit" class="btn-approve">Назначи</button>
 </form>
+
+{{ available_students_json|json_script:"available-students-json" }}
 
 {% endif %}
 
@@ -327,5 +331,92 @@ class="{% if section == 'assign' %}active{% endif %}">
 
 </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const studentsDataScript = document.getElementById("available-students-json");
+    if (!studentsDataScript) return;
+
+    const students = JSON.parse(studentsDataScript.textContent).map((student) => ({
+        id: student.id,
+        faculty_number: String(student.faculty_number || ""),
+        fullName: String(student.full_name || "").trim()
+    }));
+
+    const studentSelect = document.getElementById("student_id");
+    const nameInput = document.getElementById("student_name");
+    const facultyInput = document.getElementById("faculty_number");
+    const nameResults = document.getElementById("student-search-results");
+    const facultyResults = document.getElementById("faculty-search-results");
+
+    if (!studentSelect || !nameInput || !facultyInput || !nameResults || !facultyResults) return;
+
+    const selectStudent = (student) => {
+        studentSelect.value = String(student.id);
+        nameInput.value = student.fullName;
+        facultyInput.value = student.faculty_number;
+        hideResults(nameResults);
+        hideResults(facultyResults);
+    };
+
+    const hideResults = (listEl) => {
+        listEl.innerHTML = "";
+        listEl.hidden = true;
+    };
+
+    const buildResults = (listEl, matchedStudents, query) => {
+        if (!query || !matchedStudents.length) {
+            hideResults(listEl);
+            return;
+        }
+
+        listEl.innerHTML = "";
+        matchedStudents.slice(0, 8).forEach((student) => {
+            const resultItem = document.createElement("li");
+            resultItem.className = "search-result-item";
+            resultItem.innerHTML = `
+                <span class="student-name">${student.fullName}</span>
+                <span class="student-fn">ФН: ${student.faculty_number || "—"}</span>
+            `;
+            resultItem.addEventListener("mousedown", (event) => {
+                event.preventDefault();
+                selectStudent(student);
+            });
+            listEl.appendChild(resultItem);
+        });
+        listEl.hidden = false;
+    };
+
+    nameInput.addEventListener("input", () => {
+        const query = nameInput.value.trim().toLowerCase();
+        const matchedStudents = students.filter((student) =>
+            student.fullName.toLowerCase().includes(query)
+        );
+        buildResults(nameResults, matchedStudents, query);
+    });
+
+    facultyInput.addEventListener("input", () => {
+        const query = facultyInput.value.trim().toLowerCase();
+        const matchedStudents = students.filter((student) =>
+            student.faculty_number.toLowerCase().includes(query)
+        );
+        buildResults(facultyResults, matchedStudents, query);
+    });
+
+    studentSelect.addEventListener("change", () => {
+        const selectedId = studentSelect.value;
+        if (!selectedId) return;
+        const matchedStudent = students.find((student) => String(student.id) === selectedId);
+        if (matchedStudent) selectStudent(matchedStudent);
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest(".student-search-box")) {
+            hideResults(nameResults);
+            hideResults(facultyResults);
+        }
+    });
+});
+</script>
 
 {% endblock %}

@@ -29,19 +29,6 @@
                 </p>
             </div>
 
-            {% if form.errors %}
-                <div class="form-error-panel">
-                    <strong>Моля, коригирайте грешките:</strong>
-                    <ul>
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-
             <!-- GRID LIKE REGISTER -->
             <div class="form-section">
 
@@ -119,5 +106,40 @@
     </form>
 
 </div>
+
+{% if form.errors %}
+<div id="offerErrorsPopup" class="error-popup-backdrop">
+    <div class="error-popup" role="alertdialog" aria-modal="true" aria-labelledby="offerErrorsPopupTitle">
+        <h3 id="offerErrorsPopupTitle">Моля, коригирайте грешките</h3>
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+        <button type="button" id="closeOfferErrorsPopup" class="btn-modern error-popup-close">
+            Разбрах
+        </button>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const popup = document.getElementById("offerErrorsPopup");
+    const closeBtn = document.getElementById("closeOfferErrorsPopup");
+    if (!popup || !closeBtn) return;
+
+    const closePopup = () => {
+        popup.classList.add("hidden");
+    };
+
+    closeBtn.addEventListener("click", closePopup);
+    popup.addEventListener("click", (event) => {
+        if (event.target === popup) closePopup();
+    });
+});
+</script>
+{% endif %}
 
 {% endblock %}

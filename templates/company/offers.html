@@ -10,7 +10,7 @@
 
 {% block content %}
 
-<div class="offers-wrapper">
+<div class="offers-wrapper company-offers-wrapper">
 
     <div class="offers-header">
         <h2>Моите обяви</h2>
@@ -18,6 +18,13 @@
         <a href="{% url 'create_offer' %}" class="btn-primary">
             + Нова обява
         </a>
+    </div>
+
+    <div class="offers-search">
+        <div class="search-box">
+            <span class="search-icon">🔍︎</span>
+            <input type="text" id="companyOffersSearch" placeholder="Търсене на обяви">
+        </div>
     </div>
 
     <div class="offers-page">
@@ -51,14 +58,6 @@
             </select>
 
             <button type="button" class="btn-primary">Филтрирай</button>
-        </div>
-
-        <div class="offers-main">
-        <div class="offers-search">
-            <div class="search-box">
-                <span class="search-icon">🔍︎</span>
-                <input type="text" id="companyOffersSearch" placeholder="Търсене на обяви">
-            </div>
         </div>
 
         <div class="offers-list" id="companyOffersList">
@@ -123,7 +122,6 @@
         {% endfor %}
 
     </div>
-        </div>
     </div>
 
 </div>

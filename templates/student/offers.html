@@ -143,28 +143,18 @@
 
                     {% endif %}
 
-                {% else %}
-
-                    <a href="{% url 'login' %}"
-                       class="apply-btn"
-                       onclick="event.stopPropagation();">
-                       Кандидатствай
-                    </a>
-
-                {% endif %}
-
                 <div class="save-btn"
-                     data-id="{{ offer.id }}"
-                     onclick="event.stopPropagation(); toggleSave(this)">
+                         data-id="{{ offer.id }}"
+                         onclick="event.stopPropagation(); toggleSave(this)">
 
-                    {% if offer.id in favorites %}
-                        ❤️
-                    {% else %}
-                        🤍
-                    {% endif %}
+                        {% if offer.id in favorites %}
+                            ❤️
+                        {% else %}
+                            🤍
+                        {% endif %}
 
-                </div>
-
+                    </div>
+                {% endif %}
             </div>
 
         </div>
