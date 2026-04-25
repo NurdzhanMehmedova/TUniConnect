@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/company.css' %}">
+<link rel="stylesheet" href="{% static 'css/offer_filters.css' %}">
 {% endblock %}
 
 {% block title %}Моите обяви{% endblock %}
@@ -19,11 +20,59 @@
         </a>
     </div>
 
-    <div class="offers-list">
+    <div class="offers-search">
+        <div class="search-box">
+            <span class="search-icon">🔍︎</span>
+            <input type="text" id="companyOffersSearch" placeholder="Търсене на обяви">
+        </div>
+    </div>
+
+    <div class="offers-page">
+        <div class="filters-card">
+            <label>Поле</label>
+            <select id="companyOffersField">
+                <option value="">Всички</option>
+                <option value="IT">ИТ</option>
+                <option value="Marketing">Маркетинг</option>
+                <option value="Finance">Финанси</option>
+            </select>
+
+            <label>Тип работа</label>
+            <select id="companyOffersWorkspace">
+                <option value="">Всички</option>
+                <option value="Remote">Дистанционно</option>
+                <option value="Onsite">Присъствено</option>
+                <option value="Hybrid">Хибридно</option>
+            </select>
+
+            <label>Тип заплащане</label>
+            <select id="companyOffersSalary">
+                <option value="">Всички</option>
+                <option value="Paid">Платен</option>
+                <option value="Unpaid">Неплатен</option>
+            </select>
+
+            <label>Локация</label>
+            <select id="companyOffersLocation">
+                <option value="">Всички</option>
+            </select>
+
+            <button type="button" class="btn-primary">Филтрирай</button>
+        </div>
+
+        <div class="offers-list" id="companyOffersList">
 
         {% for offer in offers %}
 
-        <div class="offer-card">
+        <div class="offer-card"
+             data-title="{{ offer.title|lower }}"
+             data-company="{{ offer.company.name|lower }}"
+             data-description="{{ offer.description|default:''|lower }}"
+             data-field="{{ offer.field }}"
+             data-workspace="{{ offer.workspace_type }}"
+             data-salary="{{ offer.salary_type }}"
+             data-location="{{ offer.location.id }}"
+             data-location-name="{{ offer.location.display_name|default:offer.location }}">
 
             <!-- LEFT -->
             <div class="offer-logo">
@@ -73,7 +122,59 @@
         {% endfor %}
 
     </div>
+    </div>
 
 </div>
+
+<script>
+const companyOffersSearch = document.getElementById("companyOffersSearch");
+const companyOffersField = document.getElementById("companyOffersField");
+const companyOffersWorkspace = document.getElementById("companyOffersWorkspace");
+const companyOffersSalary = document.getElementById("companyOffersSalary");
+const companyOffersLocation = document.getElementById("companyOffersLocation");
+const companyOfferCards = Array.from(document.querySelectorAll("#companyOffersList .offer-card"));
+
+function populateCompanyOfferLocations() {
+    const locationMap = new Map();
+    companyOfferCards.forEach(card => {
+        const locationId = card.dataset.location;
+        const locationName = card.dataset.locationName || "";
+        if (locationId && locationName && !locationMap.has(locationId)) {
+            locationMap.set(locationId, locationName);
+        }
+    });
+
+    locationMap.forEach((name, id) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = name;
+        companyOffersLocation.appendChild(option);
+    });
+}
+
+function applyCompanyOfferFilters() {
+    const searchValue = companyOffersSearch.value.trim().toLowerCase();
+    const fieldValue = companyOffersField.value;
+    const workspaceValue = companyOffersWorkspace.value;
+    const salaryValue = companyOffersSalary.value;
+    const locationValue = companyOffersLocation.value;
+
+    companyOfferCards.forEach(card => {
+        const searchBlob = `${card.dataset.title} ${card.dataset.company} ${card.dataset.description}`;
+        const matchesSearch = !searchValue || searchBlob.includes(searchValue);
+        const matchesField = !fieldValue || card.dataset.field === fieldValue;
+        const matchesWorkspace = !workspaceValue || card.dataset.workspace === workspaceValue;
+        const matchesSalary = !salaryValue || card.dataset.salary === salaryValue;
+        const matchesLocation = !locationValue || card.dataset.location === locationValue;
+        card.style.display = matchesSearch && matchesField && matchesWorkspace && matchesSalary && matchesLocation ? "" : "none";
+    });
+}
+
+populateCompanyOfferLocations();
+[companyOffersSearch, companyOffersField, companyOffersWorkspace, companyOffersSalary, companyOffersLocation].forEach(el => {
+    el.addEventListener("input", applyCompanyOfferFilters);
+    el.addEventListener("change", applyCompanyOfferFilters);
+});
+</script>
 
 {% endblock %}

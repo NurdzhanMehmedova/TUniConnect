@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/mentor.css' %}">
+<link rel="stylesheet" href="{% static 'css/offer_filters.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -12,6 +13,27 @@
 <div class="content-wide">
 
 <h2 class="page-title">Всички студенти</h2>
+
+<div class="offers-wrapper">
+<div class="offers-search">
+    <div class="search-box">
+        <span class="search-icon">🔍︎</span>
+        <input
+            id="allStudentsSearch"
+            type="text"
+            placeholder="Търсене по име или факултетен номер"
+        >
+    </div>
+</div>
+
+<div class="offers-page">
+    <div class="filters-card">
+        <label>Специалност</label>
+        <select id="allStudentsSpecialty">
+            <option value="">Всички</option>
+        </select>
+        <button type="button" class="btn-primary">Филтрирай</button>
+    </div>
 
 <div class="table-card">
 
@@ -30,7 +52,11 @@
 
 {% for student in students %}
 
-<tr>
+<tr class="student-row"
+    data-name="{{ student.user.first_name|lower }} {{ student.user.last_name|lower }}"
+    data-faculty="{{ student.faculty_number|lower }}"
+    data-specialty="{{ student.specialty.name|lower }}">
+
 
 <td>
 {{ student.user.first_name }} {{ student.user.last_name }}
@@ -63,9 +89,44 @@
 </table>
 
 </div>
-
+</div>
 </div>
 
 </div>
+
+</div>
+
+<script>
+const allStudentsSearch = document.getElementById("allStudentsSearch");
+const allStudentsSpecialty = document.getElementById("allStudentsSpecialty");
+const allStudentRows = Array.from(document.querySelectorAll(".student-row"));
+
+function populateAllStudentsSpecialties() {
+    const specialties = new Set();
+    allStudentRows.forEach(row => specialties.add(row.dataset.specialty));
+    Array.from(specialties).sort().forEach(specialty => {
+        if (!specialty) return;
+        const option = document.createElement("option");
+        option.value = specialty;
+        option.textContent = specialty.charAt(0).toUpperCase() + specialty.slice(1);
+        allStudentsSpecialty.appendChild(option);
+    });
+}
+
+function applyAllStudentsFilters() {
+    const searchValue = allStudentsSearch.value.trim().toLowerCase();
+    const specialtyValue = allStudentsSpecialty.value;
+
+    allStudentRows.forEach(row => {
+        const matchesSearch = !searchValue || row.dataset.name.includes(searchValue) || row.dataset.faculty.includes(searchValue);
+        const matchesSpecialty = !specialtyValue || row.dataset.specialty === specialtyValue;
+        row.style.display = matchesSearch && matchesSpecialty ? "" : "none";
+    });
+}
+
+populateAllStudentsSpecialties();
+allStudentsSearch.addEventListener("input", applyAllStudentsFilters);
+allStudentsSpecialty.addEventListener("change", applyAllStudentsFilters);
+</script>
 
 {% endblock %}

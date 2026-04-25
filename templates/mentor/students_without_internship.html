@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/mentor.css' %}">
+<link rel="stylesheet" href="{% static 'css/offer_filters.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -12,6 +13,31 @@
 <div class="content-wide">
 
 <h2 class="page-title">Студенти и статус на стажа</h2>
+
+<div class="offers-wrapper">
+<div class="offers-search">
+    <div class="search-box">
+        <span class="search-icon">🔍︎</span>
+        <input
+            id="studentsStatusSearch"
+            type="text"
+            placeholder="Търсене по име или факултетен номер"
+        >
+    </div>
+</div>
+
+<div class="offers-page">
+    <div class="filters-card">
+        <label>Статус</label>
+        <select id="studentsStatusFilter">
+            <option value="">Всички</option>
+            <option value="INTERNSHIP_SELECTED">✔ Има стаж</option>
+            <option value="APPROVED_BY_COMPANY">Одобрен от компания</option>
+            <option value="WAITING">Чака отговор</option>
+            <option value="NO_INTERNSHIP">Няма стаж</option>
+        </select>
+        <button type="button" class="btn-primary">Филтрирай</button>
+    </div>
 
 <div class="table-card">
 
@@ -30,8 +56,10 @@
 
 {% for item in students %}
 
-<tr>
-
+<tr class="student-status-row"
+    data-name="{{ item.student.user.first_name|lower }} {{ item.student.user.last_name|lower }}"
+    data-faculty="{{ item.student.faculty_number|lower }}"
+    data-status="{{ item.status }}">
 <td>
 {{ item.student.user.first_name }} {{ item.student.user.last_name }}
 </td>
@@ -77,9 +105,31 @@
 </table>
 
 </div>
-
+</div>
 </div>
 
 </div>
+
+</div>
+
+<script>
+const studentsStatusSearch = document.getElementById("studentsStatusSearch");
+const studentsStatusFilter = document.getElementById("studentsStatusFilter");
+const studentStatusRows = Array.from(document.querySelectorAll(".student-status-row"));
+
+function applyStudentsStatusFilters() {
+    const searchValue = studentsStatusSearch.value.trim().toLowerCase();
+    const statusValue = studentsStatusFilter.value;
+
+    studentStatusRows.forEach(row => {
+        const matchesSearch = !searchValue || row.dataset.name.includes(searchValue) || row.dataset.faculty.includes(searchValue);
+        const matchesStatus = !statusValue || row.dataset.status === statusValue;
+        row.style.display = matchesSearch && matchesStatus ? "" : "none";
+    });
+}
+
+studentsStatusSearch.addEventListener("input", applyStudentsStatusFilters);
+studentsStatusFilter.addEventListener("change", applyStudentsStatusFilters);
+</script>
 
 {% endblock %}

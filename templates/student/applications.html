@@ -14,13 +14,58 @@
 
     <h2 style="margin-bottom:20px;">Моите кандидатури</h2>
 
+    <div class="offers-search">
+        <div class="search-box">
+            <span class="search-icon">🔍︎</span>
+            <input type="text" id="applicationsSearch" placeholder="Търсене на обяви">
+        </div>
+    </div>
+
+    <div class="offers-page">
+        <div class="filters-card">
+            <label>Поле</label>
+            <select id="applicationsField">
+                <option value="">Всички</option>
+                <option value="IT">ИТ</option>
+                <option value="Marketing">Маркетинг</option>
+                <option value="Finance">Финанси</option>
+            </select>
+
+            <label>Тип работа</label>
+            <select id="applicationsWorkspace">
+                <option value="">Всички</option>
+                <option value="Remote">Дистанционно</option>
+                <option value="Onsite">Присъствено</option>
+                <option value="Hybrid">Хибридно</option>
+            </select>
+
+            <label>Тип заплащане</label>
+            <select id="applicationsSalary">
+                <option value="">Всички</option>
+                <option value="Paid">Платен</option>
+                <option value="Unpaid">Неплатен</option>
+            </select>
+
+            <label>Локация</label>
+            <select id="applicationsLocation">
+                <option value="">Всички</option>
+            </select>
+        </div>
+
     {% if applications %}
 
-        <div class="offers-list">
+        <div class="offers-list" id="applicationsList">
 
             {% for app in applications %}
 
             <div class="offer-card"
+                 data-title="{{ app.offer.title|lower }}"
+                 data-company="{{ app.offer.company.name|lower }}"
+                 data-description="{{ app.offer.description|default:''|lower }}"
+                 data-field="{{ app.offer.field }}"
+                 data-workspace="{{ app.offer.workspace_type }}"
+                 data-salary="{{ app.offer.salary_type }}"
+                 data-location="{{ app.offer.location.id }}"
                  onclick="window.location.href='{% url 'offer_detail' app.offer.id %}'">
 
                 <!-- LOGO -->
@@ -102,6 +147,61 @@
 
     {% endif %}
 
+    </div>
 </div>
+
+<script>
+const applicationsSearch = document.getElementById("applicationsSearch");
+const applicationsField = document.getElementById("applicationsField");
+const applicationsWorkspace = document.getElementById("applicationsWorkspace");
+const applicationsSalary = document.getElementById("applicationsSalary");
+const applicationsLocation = document.getElementById("applicationsLocation");
+const applicationCards = Array.from(document.querySelectorAll("#applicationsList .offer-card"));
+
+function populateApplicationLocations() {
+    const locationMap = new Map();
+    applicationCards.forEach(card => {
+        const locationId = card.dataset.location;
+        const locationText = card.querySelector(".offer-meta-row")?.textContent || "";
+        const locationMatch = locationText.match(/📍\s*([^•]+)/);
+        const locationName = locationMatch ? locationMatch[1].trim() : "";
+        if (locationId && locationName && !locationMap.has(locationId)) {
+            locationMap.set(locationId, locationName);
+        }
+    });
+
+    locationMap.forEach((name, id) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = name;
+        applicationsLocation.appendChild(option);
+    });
+}
+
+function applyApplicationFilters() {
+    const searchValue = applicationsSearch.value.trim().toLowerCase();
+    const fieldValue = applicationsField.value;
+    const workspaceValue = applicationsWorkspace.value;
+    const salaryValue = applicationsSalary.value;
+    const locationValue = applicationsLocation.value;
+
+    applicationCards.forEach(card => {
+        const searchBlob = `${card.dataset.title} ${card.dataset.company} ${card.dataset.description}`;
+        const matchesSearch = !searchValue || searchBlob.includes(searchValue);
+        const matchesField = !fieldValue || card.dataset.field === fieldValue;
+        const matchesWorkspace = !workspaceValue || card.dataset.workspace === workspaceValue;
+        const matchesSalary = !salaryValue || card.dataset.salary === salaryValue;
+        const matchesLocation = !locationValue || card.dataset.location === locationValue;
+
+        card.style.display = (matchesSearch && matchesField && matchesWorkspace && matchesSalary && matchesLocation) ? "" : "none";
+    });
+}
+
+populateApplicationLocations();
+[applicationsSearch, applicationsField, applicationsWorkspace, applicationsSalary, applicationsLocation].forEach(el => {
+    el.addEventListener("input", applyApplicationFilters);
+    el.addEventListener("change", applyApplicationFilters);
+});
+</script>
 
 {% endblock %}

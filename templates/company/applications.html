@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/company.css' %}">
+<link rel="stylesheet" href="{% static 'css/offer_filters.css' %}">
 {% endblock %}
 
 {% block title %}Кандидатури{% endblock %}
@@ -14,10 +15,60 @@
         <h2>Кандидатури</h2>
     </div>
 
-    <div class="offers-list">
+    <div class="offers-search">
+        <div class="search-box">
+            <span class="search-icon">🔍︎</span>
+            <input type="text" id="companyApplicationsSearch" placeholder="Търсене на обяви">
+        </div>
+    </div>
+
+    <div class="offers-page">
+        <div class="filters-card">
+            <label>Поле</label>
+            <select id="companyApplicationsField">
+                <option value="">Всички</option>
+                <option value="IT">ИТ</option>
+                <option value="Marketing">Маркетинг</option>
+                <option value="Finance">Финанси</option>
+            </select>
+
+            <label>Тип работа</label>
+            <select id="companyApplicationsWorkspace">
+                <option value="">Всички</option>
+                <option value="Remote">Дистанционно</option>
+                <option value="Onsite">Присъствено</option>
+                <option value="Hybrid">Хибридно</option>
+            </select>
+
+            <label>Тип заплащане</label>
+            <select id="companyApplicationsSalary">
+                <option value="">Всички</option>
+                <option value="Paid">Платен</option>
+                <option value="Unpaid">Неплатен</option>
+            </select>
+
+            <label>Локация</label>
+            <select id="companyApplicationsLocation">
+                <option value="">Всички</option>
+            </select>
+
+            <button type="button" class="btn-primary">Филтрирай</button>
+        </div>
+
+        <div>
+    <div class="offers-list" id="companyApplicationsList">
 
         {% for app in applications %}
-            <div class="offer-card company-application-card">
+            <div class="offer-card company-application-card"
+                 data-title="{{ app.offer.title|lower }}"
+                 data-company="{{ app.offer.company.name|lower }}"
+                 data-description="{{ app.offer.description|default:''|lower }}"
+                 data-student="{{ app.student.user.first_name|lower }} {{ app.student.user.last_name|lower }}"
+                 data-field="{{ app.offer.field }}"
+                 data-workspace="{{ app.offer.workspace_type }}"
+                 data-salary="{{ app.offer.salary_type }}"
+                 data-location="{{ app.offer.location.id }}"
+                 data-location-name="{{ app.offer.location.display_name|default:app.offer.location }}">
 
                 <div class="offer-logo">
                     <img src="/static/images/logo_placeholder.png" alt="Student">
@@ -112,8 +163,61 @@
             </tbody>
         </table>
     </div>
+        </div>
+    </div>
 
 
 </div>
+
+<script>
+const companyApplicationsSearch = document.getElementById("companyApplicationsSearch");
+const companyApplicationsField = document.getElementById("companyApplicationsField");
+const companyApplicationsWorkspace = document.getElementById("companyApplicationsWorkspace");
+const companyApplicationsSalary = document.getElementById("companyApplicationsSalary");
+const companyApplicationsLocation = document.getElementById("companyApplicationsLocation");
+const companyApplicationCards = Array.from(document.querySelectorAll("#companyApplicationsList .offer-card"));
+
+function populateCompanyApplicationLocations() {
+    const locationMap = new Map();
+    companyApplicationCards.forEach(card => {
+        const locationId = card.dataset.location;
+        const locationName = card.dataset.locationName || "";
+        if (locationId && locationName && !locationMap.has(locationId)) {
+            locationMap.set(locationId, locationName);
+        }
+    });
+
+    locationMap.forEach((name, id) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = name;
+        companyApplicationsLocation.appendChild(option);
+    });
+}
+
+function applyCompanyApplicationFilters() {
+    const searchValue = companyApplicationsSearch.value.trim().toLowerCase();
+    const fieldValue = companyApplicationsField.value;
+    const workspaceValue = companyApplicationsWorkspace.value;
+    const salaryValue = companyApplicationsSalary.value;
+    const locationValue = companyApplicationsLocation.value;
+
+    companyApplicationCards.forEach(card => {
+        const searchBlob = `${card.dataset.title} ${card.dataset.company} ${card.dataset.description} ${card.dataset.student}`;
+        const matchesSearch = !searchValue || searchBlob.includes(searchValue);
+        const matchesField = !fieldValue || card.dataset.field === fieldValue;
+        const matchesWorkspace = !workspaceValue || card.dataset.workspace === workspaceValue;
+        const matchesSalary = !salaryValue || card.dataset.salary === salaryValue;
+        const matchesLocation = !locationValue || card.dataset.location === locationValue;
+        card.style.display = matchesSearch && matchesField && matchesWorkspace && matchesSalary && matchesLocation ? "" : "none";
+    });
+}
+
+populateCompanyApplicationLocations();
+[companyApplicationsSearch, companyApplicationsField, companyApplicationsWorkspace, companyApplicationsSalary, companyApplicationsLocation].forEach(el => {
+    el.addEventListener("input", applyCompanyApplicationFilters);
+    el.addEventListener("change", applyCompanyApplicationFilters);
+});
+</script>
 
 {% endblock %}

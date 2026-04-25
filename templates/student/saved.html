@@ -14,11 +14,56 @@
 
     <h2 style="margin-bottom:20px;">Запазени обяви</h2>
 
-    <div class="offers-list">
+    <div class="offers-search">
+        <div class="search-box">
+            <span class="search-icon">🔍︎</span>
+            <input type="text" id="savedSearch" placeholder="Търсене на обяви">
+        </div>
+    </div>
+
+    <div class="offers-page">
+        <div class="filters-card">
+            <label>Поле</label>
+            <select id="savedField">
+                <option value="">Всички</option>
+                <option value="IT">ИТ</option>
+                <option value="Marketing">Маркетинг</option>
+                <option value="Finance">Финанси</option>
+            </select>
+
+            <label>Тип работа</label>
+            <select id="savedWorkspace">
+                <option value="">Всички</option>
+                <option value="Remote">Дистанционно</option>
+                <option value="Onsite">Присъствено</option>
+                <option value="Hybrid">Хибридно</option>
+            </select>
+
+            <label>Тип заплащане</label>
+            <select id="savedSalary">
+                <option value="">Всички</option>
+                <option value="Paid">Платен</option>
+                <option value="Unpaid">Неплатен</option>
+            </select>
+
+            <label>Локация</label>
+            <select id="savedLocation">
+                <option value="">Всички</option>
+            </select>
+        </div>
+
+    <div class="offers-list" id="savedOffersList">
 
         {% for offer in offers %}
 
         <div class="offer-card"
+             data-title="{{ offer.title|lower }}"
+             data-company="{{ offer.company.name|lower }}"
+             data-description="{{ offer.description|default:''|lower }}"
+             data-field="{{ offer.field }}"
+             data-workspace="{{ offer.workspace_type }}"
+             data-salary="{{ offer.salary_type }}"
+             data-location="{{ offer.location.id }}"
              onclick="window.location.href='{% url 'offer_detail' offer.id %}'">
 
             <div class="offer-logo">
@@ -84,6 +129,7 @@
         {% endfor %}
 
     </div>
+    </div>
 
 </div>
 
@@ -110,9 +156,61 @@ function toggleSave(el) {
         if (!data.saved) {
             // махаме card-а от страницата
             el.closest(".offer-card").remove();
+            applySavedFilters();
         }
     });
 }
+const savedSearch = document.getElementById("savedSearch");
+const savedField = document.getElementById("savedField");
+const savedWorkspace = document.getElementById("savedWorkspace");
+const savedSalary = document.getElementById("savedSalary");
+const savedLocation = document.getElementById("savedLocation");
+const savedCards = Array.from(document.querySelectorAll("#savedOffersList .offer-card"));
+
+function populateSavedLocations() {
+    const locationMap = new Map();
+    savedCards.forEach(card => {
+        const locationId = card.dataset.location;
+        const locationText = card.querySelector(".offer-meta-row")?.textContent || "";
+        const locationMatch = locationText.match(/📍\s*([^•]+)/);
+        const locationName = locationMatch ? locationMatch[1].trim() : "";
+        if (locationId && locationName && !locationMap.has(locationId)) {
+            locationMap.set(locationId, locationName);
+        }
+    });
+
+    locationMap.forEach((name, id) => {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = name;
+        savedLocation.appendChild(option);
+    });
+}
+
+function applySavedFilters() {
+    const searchValue = savedSearch.value.trim().toLowerCase();
+    const fieldValue = savedField.value;
+    const workspaceValue = savedWorkspace.value;
+    const salaryValue = savedSalary.value;
+    const locationValue = savedLocation.value;
+
+    savedCards.forEach(card => {
+        const searchBlob = `${card.dataset.title} ${card.dataset.company} ${card.dataset.description}`;
+        const matchesSearch = !searchValue || searchBlob.includes(searchValue);
+        const matchesField = !fieldValue || card.dataset.field === fieldValue;
+        const matchesWorkspace = !workspaceValue || card.dataset.workspace === workspaceValue;
+        const matchesSalary = !salaryValue || card.dataset.salary === salaryValue;
+        const matchesLocation = !locationValue || card.dataset.location === locationValue;
+
+        card.style.display = (matchesSearch && matchesField && matchesWorkspace && matchesSalary && matchesLocation) ? "" : "none";
+    });
+}
+
+populateSavedLocations();
+[savedSearch, savedField, savedWorkspace, savedSalary, savedLocation].forEach(el => {
+    el.addEventListener("input", applySavedFilters);
+    el.addEventListener("change", applySavedFilters);
+});
 </script>
 
 {% endblock %}
