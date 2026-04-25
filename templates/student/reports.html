@@ -35,10 +35,6 @@
                         <td>Стаж към университета</td>
                         <td>Прикачена служебна бележка за проведен стаж</td>
                     </tr>
-                    <tr>
-                        <td>Собствен бизнес</td>
-                        <td>Документ, доказващ дейността на бизнеса</td>
-                    </tr>
                 </tbody>
             </table>
         </section>
@@ -50,9 +46,6 @@
             <a href="?type=internship" class="internship-tab {% if report_type == 'internship' %}active{% endif %}">
                 Стаж
             </a>
-            <a href="?type=own_business" class="internship-tab {% if report_type == 'own_business' %}active{% endif %}">
-                Собствен бизнес
-            </a>
         </div>
 
         <section class="report-form-card">
@@ -61,44 +54,84 @@
             {% if report_type == "internship" %}
                 <div class="report-grid">
                     <div class="report-field full">
-                        <label>Наименование на организацията</label>
-                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.company.name }}{% endif %}" placeholder="Напр. ТУниФирма ООД">
+                        <label>Имена на преподавателя-наставник</label>
+                        <input type="text" name="mentor_full_name" placeholder="Напр. доц. д-р Иван Иванов">
                     </div>
 
                     <div class="report-field">
-                        <label>БУЛСТАТ (ЕИК)</label>
-                        <input type="text" placeholder="Въведи ЕИК">
+                        <label>Катедра</label>
+                        <input type="text" name="mentor_department" placeholder="Напр. Софтуерни и интернет технологии">
                     </div>
 
                     <div class="report-field">
-                        <label>Позиция</label>
-                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.title }}{% endif %}" placeholder="Стажант разработчик">
+                        <label>Дисциплина / направление</label>
+                        <input type="text" name="internship_track" placeholder="Напр. Анализ на данни">
                     </div>
 
                     <div class="report-field">
                         <label>От</label>
-                        <input type="date" value="{% if approved_application %}{{ approved_application.offer.start_date|date:'Y-m-d' }}{% endif %}">
+                        <input type="date" name="internship_from">
                     </div>
 
                     <div class="report-field">
                         <label>До</label>
-                        <input type="date" value="{% if approved_application %}{{ approved_application.offer.end_date|date:'Y-m-d' }}{% endif %}">
+                        <input type="date" name="internship_to">
                     </div>
 
                     <div class="report-field">
-                        <label>Общо работни дни</label>
-                        <input type="text" value="{% if internship_days %}{{ internship_days }}{% endif %}" placeholder="Без минимум">
+                        <label>Минимални часове</label>
+                        <input type="text" value="{{ required_hours }}" readonly>
                     </div>
 
                     <div class="report-field">
-                        <label>Общо работни часове</label>
-                        <input type="text" value="{% if internship_hours %}{{ internship_hours }}{% endif %}" placeholder="Минимум 150">
+                        <label>Общо отчетени часове (автоматично)</label>
+                        <input type="text" id="internship-hours-total-display" value="0" readonly>
+                        <input type="hidden" id="internship-hours-total" name="internship_total_hours" value="0">
                     </div>
 
                     <div class="report-field full">
                         <label>Цели на практическото обучение</label>
-                        <textarea rows="4" placeholder="Опиши целите и основните задачи по време на стажа..."></textarea>
+                        <textarea rows="4" name="internship_goals" placeholder="Опиши целите и основните задачи по време на стажа..."></textarea>
                     </div>
+                </div>
+
+                <div class="daily-log-card">
+                    <h4>Дневник на отработените часове (празен шаблон)</h4>
+                    <p class="report-guide-note">Попълвай всеки ден какво си правил. Максимумът е 155 часа.</p>
+                    <div class="daily-log-scroll">
+                        <table class="daily-log-table" id="daily-log-table">
+                            <thead>
+                                <tr>
+                                    <th>Ден / Дата</th>
+                                    <th>Отработени часове</th>
+                                    <th>Задача</th>
+                                </tr>
+                            </thead>
+                            <tbody id="daily-log-body">
+                                <tr class="daily-log-row">
+                                    <td><input type="date" name="daily_date_1"></td>
+                                    <td><input type="number" class="daily-hours-input" name="daily_hours_1" min="0" max="12" step="0.5" placeholder="0"></td>
+                                    <td><textarea name="daily_task_1" rows="2" placeholder="Опиши извършената дейност..."></textarea></td>
+                                </tr>
+                                <tr class="daily-log-row">
+                                    <td><input type="date" name="daily_date_2"></td>
+                                    <td><input type="number" class="daily-hours-input" name="daily_hours_2" min="0" max="12" step="0.5" placeholder="0"></td>
+                                    <td><textarea name="daily_task_2" rows="2" placeholder="Опиши извършената дейност..."></textarea></td>
+                                </tr>
+                                <tr class="daily-log-row">
+                                    <td><input type="date" name="daily_date_3"></td>
+                                    <td><input type="number" class="daily-hours-input" name="daily_hours_3" min="0" max="12" step="0.5" placeholder="0"></td>
+                                    <td><textarea name="daily_task_3" rows="2" placeholder="Опиши извършената дейност..."></textarea></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="daily-log-actions">
+                        <button type="button" id="add-daily-row-btn" class="btn-outline">+ Добави ден</button>
+                    </div>
+                    <p id="hours-limit-message" class="report-guide-note report-guide-warning hidden">
+                        Надвишен е лимитът от 155 часа. Намали часовете в дневника.
+                    </p>
                 </div>
             {% elif report_type == "employment_contract" %}
                 <div class="report-grid">
@@ -132,49 +165,22 @@
                         <textarea rows="4" placeholder="Опиши дейностите по трудов договор..."></textarea>
                     </div>
                 </div>
-            {% else %}
-                <div class="report-grid">
-                    <div class="report-field full">
-                        <label>Име на бизнес / проект</label>
-                        <input type="text" placeholder="Напр. StudioLab">
-                    </div>
-
-                    <div class="report-field">
-                        <label>ЕИК / Булстат</label>
-                        <input type="text" placeholder="Въведи ЕИК">
-                    </div>
-
-                    <div class="report-field">
-                        <label>Роля в бизнеса</label>
-                        <input type="text" placeholder="Основател / Мениджър">
-                    </div>
-
-                    <div class="report-field full">
-                        <label>Дейност на бизнеса</label>
-                        <textarea rows="3" placeholder="Опиши предмета на дейност..."></textarea>
-                    </div>
-
-                    <div class="report-field full">
-                        <label>Цели и постигнати резултати</label>
-                        <textarea rows="4" placeholder="Опиши целите и резултатите от проекта..."></textarea>
-                    </div>
-                </div>
             {% endif %}
 
             <div class="contact-card">
-                <h4>Лице за контакт</h4>
+                <h4>{% if report_type == "internship" %}Лице за контакт (преподавател){% else %}Лице за контакт{% endif %}</h4>
                 <div class="report-grid">
                     <div class="report-field">
                         <label>Имена</label>
-                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.company.contact_person }}{% endif %}" placeholder="Име на представител">
+                        <input type="text" value="{% if report_type != 'internship' and approved_application %}{{ approved_application.offer.company.contact_person }}{% endif %}" placeholder="{% if report_type == 'internship' %}Име на преподавател{% else %}Име на представител{% endif %}">
                     </div>
                     <div class="report-field">
                         <label>Имейл</label>
-                        <input type="email" value="{% if approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.email }}{% endif %}" placeholder="contact@company.com">
+                        <input type="email" value="{% if report_type != 'internship' and approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.email }}{% endif %}" placeholder="{% if report_type == 'internship' %}teacher@tu-varna.bg{% else %}contact@company.com{% endif %}">
                     </div>
                     <div class="report-field">
                         <label>Телефон</label>
-                        <input type="text" value="{% if approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.phone }}{% endif %}" placeholder="+359...">
+                        <input type="text" value="{% if report_type != 'internship' and approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.phone }}{% endif %}" placeholder="+359...">
                     </div>
                 </div>
             </div>
@@ -191,9 +197,9 @@
                     </div>
                 </div>
 
-                {% if report_type == "internship" and internship_hours is not None %}
-                    <p class="report-guide-note {% if not hours_requirement_met %}report-guide-warning{% endif %}">
-                        Отчетени часове: <strong>{{ internship_hours }}</strong> / изискване: <strong>{{ required_hours }}</strong>.
+                {% if report_type == "internship" %}
+                    <p class="report-guide-note">
+                        Изискване за стаж към университета: минимум <strong>{{ required_hours }}</strong> часа и максимум <strong>155</strong> часа.
                     </p>
                 {% endif %}
 
@@ -230,4 +236,83 @@
         </section>
     </div>
 </div>
+{% if report_type == "internship" %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector(".report-upload-form");
+    const dailyLogBody = document.getElementById("daily-log-body");
+    const addDailyRowBtn = document.getElementById("add-daily-row-btn");
+    const totalDisplay = document.getElementById("internship-hours-total-display");
+    const totalHidden = document.getElementById("internship-hours-total");
+    const limitMessage = document.getElementById("hours-limit-message");
+    const maxHours = 155;
+    let rowCount = 3;
+
+    function getHoursInputs() {
+        return dailyLogBody ? dailyLogBody.querySelectorAll(".daily-hours-input") : [];
+    }
+
+    function recalcTotal() {
+        let total = 0;
+
+        getHoursInputs().forEach((input) => {
+            const value = parseFloat(input.value);
+            if (!Number.isNaN(value) && value > 0) {
+                total += value;
+            }
+        });
+
+        const rounded = Math.round(total * 10) / 10;
+        totalDisplay.value = rounded.toString();
+        totalHidden.value = rounded.toString();
+
+        if (rounded > maxHours) {
+            limitMessage.classList.remove("hidden");
+        } else {
+            limitMessage.classList.add("hidden");
+        }
+    }
+
+    if (dailyLogBody) {
+        dailyLogBody.addEventListener("input", function (event) {
+            if (event.target.classList.contains("daily-hours-input")) {
+                recalcTotal();
+            }
+        });
+    }
+
+    if (addDailyRowBtn && dailyLogBody) {
+        addDailyRowBtn.addEventListener("click", function () {
+            rowCount += 1;
+            const row = document.createElement("tr");
+            row.className = "daily-log-row";
+            row.innerHTML = `
+                <td><input type="date" name="daily_date_${rowCount}"></td>
+                <td><input type="number" class="daily-hours-input" name="daily_hours_${rowCount}" min="0" max="12" step="0.5" placeholder="0"></td>
+                <td><textarea name="daily_task_${rowCount}" rows="2" placeholder="Опиши извършената дейност..."></textarea></td>
+            `;
+            dailyLogBody.appendChild(row);
+        });
+    }
+
+    if (form) {
+        form.addEventListener("submit", function (event) {
+            recalcTotal();
+            const total = parseFloat(totalHidden.value || "0");
+
+            if (total > maxHours) {
+                event.preventDefault();
+                alert("Общите часове не могат да надвишават 155.");
+                return;
+            }
+
+            if (total < 150) {
+                event.preventDefault();
+                alert("Общите часове трябва да са минимум 150.");
+            }
+        });
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

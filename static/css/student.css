@@ -2193,7 +2193,7 @@ button[disabled] {
 
 .internship-type-tabs {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
 }
 
@@ -2374,6 +2374,10 @@ button[disabled] {
     border-radius: 10px;
 }
 
+.hidden {
+    display: none;
+}
+
 .report-guide-table {
     width: 100%;
     border-collapse: collapse;
@@ -2389,4 +2393,48 @@ button[disabled] {
 
 .report-guide-table thead {
     background: #eef4ff;
+}
+
+.daily-log-card {
+    margin-top: 16px;
+    border: 1px solid #dbe7ff;
+    border-radius: 14px;
+    padding: 16px;
+    background: #fff;
+}
+
+.daily-log-card h4 {
+    margin: 0 0 10px;
+    color: #1e293b;
+}
+
+.daily-log-scroll {
+    overflow-x: auto;
+}
+
+.daily-log-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 840px;
+}
+
+.daily-log-table th,
+.daily-log-table td {
+    border: 1px solid #dbe7ff;
+    padding: 8px;
+    vertical-align: top;
+}
+
+.daily-log-table th {
+    background: #eef4ff;
+    color: #334155;
+}
+
+.daily-log-table input,
+.daily-log-table textarea {
+    width: 100%;
+    border: 1px solid #cfdcf6;
+    border-radius: 8px;
+    padding: 8px 10px;
+    box-sizing: border-box;
 }

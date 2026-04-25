@@ -1,4 +1,5 @@
 from django.db.models import Q
+from decimal import Decimal, InvalidOperation
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -292,7 +293,7 @@ def student_reports(request):
     if not workflow_enabled:
         reports = reports.only("id", "student_id", "report_file", "grade", "comments", "submitted_at")
     report_type = request.GET.get("type", "internship")
-    valid_report_types = {"employment_contract", "internship", "own_business"}
+    valid_report_types = {"employment_contract", "internship"}
     if report_type not in valid_report_types:
         report_type = "internship"
 
@@ -307,7 +308,7 @@ def student_reports(request):
         if action == "upload_report":
             report_file = request.FILES.get("report_file")
 
-            if not approved_application:
+            if report_type == "employment_contract" and not approved_application:
                 messages.error(request, "Нямате одобрен стаж, за който да подадете отчет.")
                 return redirect(f"{request.path}?type={report_type}")
 
@@ -315,23 +316,22 @@ def student_reports(request):
                 messages.error(request, "Моля, качете файл с отчет.")
                 return redirect(f"{request.path}?type={report_type}")
 
-            if report_type == "internship" and approved_application:
-                start_date = approved_application.offer.start_date
-                end_date = approved_application.offer.end_date
-                if start_date and end_date:
-                    worked_days = (end_date - start_date).days + 1
-                    worked_hours = worked_days * 8 if worked_days > 0 else 0
-                    if worked_hours < 150:
-                        messages.error(
-                            request,
-                            "За УП/успешен стаж са нужни минимум 150 часа. В момента са отчетени по-малко."
-                        )
-                        return redirect(f"{request.path}?type={report_type}")
+            if report_type == "internship":
+                total_hours_raw = (request.POST.get("internship_total_hours") or "").strip()
+                try:
+                    total_hours = Decimal(total_hours_raw)
+                except (InvalidOperation, ValueError):
+                    messages.error(request, "Въведи валидни часове в дневника за стажа.")
+                    return redirect(f"{request.path}?type={report_type}")
+
+                if total_hours < Decimal("150") or total_hours > Decimal("155"):
+                    messages.error(request, "Общият брой часове за стаж към университета трябва да е между 150 и 155.")
+                    return redirect(f"{request.path}?type={report_type}")
 
             Report.objects.create(
                 student=student,
                 mentor=student.mentor,
-                company=approved_application.offer.company,
+                company=approved_application.offer.company if approved_application else None,
                 report_file=report_file,
                 **(
                     {
@@ -348,30 +348,18 @@ def student_reports(request):
                 messages.warning(request, "Докладът е качен, но е нужна миграция за фирмено/менторско одобрение.")
             return redirect(f"{request.path}?type={report_type}")
 
-    internship_days = None
-    internship_hours = None
-    if approved_application and approved_application.offer.start_date and approved_application.offer.end_date:
-        internship_days = (approved_application.offer.end_date - approved_application.offer.start_date).days + 1
-        internship_hours = internship_days * 8 if internship_days > 0 else 0
-
     required_hours = 150
-    hours_requirement_met = True
-    if report_type == "internship" and internship_hours is not None:
-        hours_requirement_met = internship_hours >= required_hours
 
     proof_label_map = {
         "employment_contract": "Прикачи трудов договор",
-        "internship": "Прикачи служебна бележка за стаж",
-        "own_business": "Прикачи документ за дейност на собствен бизнес",
+        "internship": "Прикачи служебна бележка, подписана от преподавателя",
     }
 
     return render(request, "student/reports.html", {
         "reports": reports,
         "approved_application": approved_application,
-        "internship_days": internship_days,
-        "internship_hours": internship_hours,
+        "daily_log_rows": range(1, 32),
         "required_hours": required_hours,
-        "hours_requirement_met": hours_requirement_met,
         "proof_label": proof_label_map.get(report_type, "Прикачи доказателство"),
         "report_type": report_type,
         "report_workflow_enabled": workflow_enabled,
