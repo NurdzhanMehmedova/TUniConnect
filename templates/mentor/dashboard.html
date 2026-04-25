@@ -122,10 +122,11 @@ class="{% if section == 'assign' %}active{% endif %}">
 </td>
 
 <td>
-<form method="post">
+<form method="post" class="unassign-student-form" data-student-name="{{ student.user.first_name }} {{ student.user.last_name }}">
     {% csrf_token %}
     <input type="hidden" name="action" value="unassign_student">
     <input type="hidden" name="student_id" value="{{ student.id }}">
+    <input type="hidden" name="removal_reason" value="">
     <button type="submit" class="btn-reject">Премахни</button>
 </form>
 </td>
@@ -332,8 +333,109 @@ class="{% if section == 'assign' %}active{% endif %}">
 </div>
 </div>
 
+<div id="unassign-reason-modal" class="reason-modal" hidden>
+    <div class="reason-modal__backdrop" data-close-modal></div>
+    <div class="reason-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="reason-modal-title">
+        <h3 id="reason-modal-title">Причина за премахване на студент</h3>
+        <p id="reason-modal-description" class="reason-modal__description"></p>
+        <textarea
+            id="unassign-reason-textarea"
+            class="reason-modal__textarea"
+            rows="4"
+            placeholder="Въведи основателна причина..."
+        ></textarea>
+        <p id="unassign-reason-error" class="reason-modal__error" hidden>
+            Моля, въведи основателна причина.
+        </p>
+        <div class="reason-modal__actions">
+            <button type="button" id="unassign-reason-cancel" class="reason-modal__btn reason-modal__btn--secondary">
+                Отказ
+            </button>
+            <button type="button" id="unassign-reason-confirm" class="reason-modal__btn reason-modal__btn--primary">
+                Потвърди
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+    const reasonModal = document.getElementById("unassign-reason-modal");
+    const reasonDescription = document.getElementById("reason-modal-description");
+    const reasonTextarea = document.getElementById("unassign-reason-textarea");
+    const reasonError = document.getElementById("unassign-reason-error");
+    const reasonCancelBtn = document.getElementById("unassign-reason-cancel");
+    const reasonConfirmBtn = document.getElementById("unassign-reason-confirm");
+    const modalCloseTriggers = document.querySelectorAll("[data-close-modal]");
+    const unassignForms = document.querySelectorAll(".unassign-student-form");
+    let pendingUnassignForm = null;
+
+    const closeReasonModal = () => {
+        if (!reasonModal) return;
+        reasonModal.hidden = true;
+        reasonTextarea.value = "";
+        reasonError.hidden = true;
+        pendingUnassignForm = null;
+    };
+
+    const openReasonModal = (form) => {
+        if (!reasonModal) return;
+        pendingUnassignForm = form;
+        const studentName = form.dataset.studentName || "този студент";
+        reasonDescription.textContent = `Въведи основателна причина за премахване на ${studentName}.`;
+        reasonTextarea.value = "";
+        reasonError.hidden = true;
+        reasonModal.hidden = false;
+        reasonTextarea.focus();
+    };
+
+    unassignForms.forEach((form) => {
+        form.addEventListener("submit", (event) => {
+            if (form.dataset.allowSubmit === "1") {
+                form.dataset.allowSubmit = "0";
+                return;
+            }
+            event.preventDefault();
+            openReasonModal(form);
+        });
+    });
+
+    reasonConfirmBtn?.addEventListener("click", () => {
+        if (!pendingUnassignForm) return;
+
+        const normalizedReason = reasonTextarea.value.trim();
+        if (!normalizedReason) {
+            reasonError.hidden = false;
+            reasonTextarea.focus();
+            return;
+        }
+
+        const reasonField = pendingUnassignForm.querySelector('input[name="removal_reason"]');
+        if (reasonField) {
+            reasonField.value = normalizedReason;
+        }
+        pendingUnassignForm.dataset.allowSubmit = "1";
+        pendingUnassignForm.submit();
+        closeReasonModal();
+    });
+
+    reasonCancelBtn?.addEventListener("click", closeReasonModal);
+    modalCloseTriggers.forEach((trigger) => {
+        trigger.addEventListener("click", closeReasonModal);
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && reasonModal && !reasonModal.hidden) {
+            closeReasonModal();
+        }
+    });
+
+    reasonTextarea?.addEventListener("input", () => {
+        if (!reasonTextarea.value.trim()) {
+            return;
+        }
+        reasonError.hidden = true;
+    });
     const studentsDataScript = document.getElementById("available-students-json");
     if (!studentsDataScript) return;
 

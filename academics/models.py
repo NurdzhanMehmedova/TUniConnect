@@ -65,3 +65,28 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
+
+
+class MentorStudentRemovalReason(models.Model):
+    mentor = models.ForeignKey(
+        Mentor,
+        on_delete=models.CASCADE,
+        related_name="student_removal_reasons",
+    )
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name="mentor_removal_reasons",
+    )
+    reason = models.TextField()
+    removed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Причина за премахване на студент"
+        verbose_name_plural = "Причини за премахване на студенти"
+        ordering = ("-removed_at",)
+
+    def __str__(self):
+        student_name = f"{self.student.user.first_name} {self.student.user.last_name}".strip()
+        mentor_name = f"{self.mentor.user.first_name} {self.mentor.user.last_name}".strip()
+        return f"{student_name} -> {mentor_name}"

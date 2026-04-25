@@ -6,7 +6,13 @@ from django.contrib import messages
 
 from companies.forms import InternOfferForm
 from .models import User, Role, StudentCV
-from academics.models import Student, Specialty, Mentor, Department
+from academics.models import (
+    Student,
+    Specialty,
+    Mentor,
+    Department,
+    MentorStudentRemovalReason,
+)
 from .forms import RegisterForm
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
@@ -335,7 +341,20 @@ def mentor_dashboard(request):
             return redirect(f"{request.path}?section=assign")
 
         if action == "unassign_student" and student_id:
+            removal_reason = (request.POST.get("removal_reason") or "").strip()
+            if not removal_reason:
+                messages.error(
+                    request,
+                    "Моля, добави основателна причина, за да премахнеш студента.",
+                )
+                return redirect(f"{request.path}?section=students")
+
             student = get_object_or_404(Student, id=student_id, mentor=mentor)
+            MentorStudentRemovalReason.objects.create(
+                mentor=mentor,
+                student=student,
+                reason=removal_reason,
+            )
             student.mentor = None
             student.save(update_fields=["mentor"])
             messages.success(request, "Студентът е премахнат от твоите студенти.")
