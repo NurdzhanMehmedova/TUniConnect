@@ -289,11 +289,6 @@ class="{% if section == 'assign' %}active{% endif %}">
 {% endif %}
 <td>
     {% if report_workflow_enabled %}
-<td>{{ report.get_company_status_display }}</td>
-<td>{{ report.get_mentor_status_display }}</td>
-{% endif %}
-<td>
-    {% if report_workflow_enabled %}
         {% if report.company_status == "APPROVED" and report.mentor_status == "PENDING" %}
             <a href="{% url 'mentor_approve_report' report.id %}" class="btn-approve">Одобри</a>
         {% elif report.mentor_status == "APPROVED" %}
