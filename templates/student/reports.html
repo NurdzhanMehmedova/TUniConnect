@@ -11,7 +11,7 @@
 
         <div class="reports-header">
             <h1>Информация за стажа и отчет</h1>
-            <p>Попълни данните за практиката в структуриран формат, съвместим с останалия дизайн на платформата.</p>
+            <p>Попълнете данните за практиката в структуриран формат.</p>
         </div>
 
         <section class="report-guide-card">
@@ -54,7 +54,7 @@
             {% if report_type == "internship" %}
                 <div class="report-grid">
                     <div class="report-field full">
-                        <label>Имена на преподавателя-наставник</label>
+                        <label>Имена на ментор</label>
                         <input type="text" name="mentor_full_name" placeholder="Напр. доц. д-р Иван Иванов">
                     </div>
 
@@ -91,7 +91,7 @@
 
                     <div class="report-field full">
                         <label>Цели на практическото обучение</label>
-                        <textarea rows="4" name="internship_goals" placeholder="Опиши целите и основните задачи по време на стажа..."></textarea>
+                        <textarea rows="4" name="internship_goals" placeholder="Опишете целите и основните задачи по време на стажа..."></textarea>
                     </div>
                 </div>
 
@@ -129,7 +129,7 @@
                     <div class="daily-log-actions">
                         <button type="button" id="add-daily-row-btn" class="btn-outline">+ Добави ден</button>
                     </div>
-                    <p id="hours-limit-message" class="report-guide-note report-guide-warning hidden">
+                    <p id="hours-limit-message" class="report-guide-note report-guide-warning">
                         Надвишен е лимитът от 155 часа. Намали часовете в дневника.
                     </p>
                 </div>
@@ -142,7 +142,7 @@
 
                     <div class="report-field">
                         <label>ЕИК на работодател</label>
-                        <input type="text" placeholder="Въведи ЕИК">
+                        <input type="text" placeholder="Въведете ЕИК">
                     </div>
 
                     <div class="report-field">
@@ -162,13 +162,13 @@
 
                     <div class="report-field full">
                         <label>Описание на изпълняваните дейности</label>
-                        <textarea rows="4" placeholder="Опиши дейностите по трудов договор..."></textarea>
+                        <textarea rows="4" placeholder="Опишете дейностите по трудов договор..."></textarea>
                     </div>
                 </div>
             {% endif %}
 
             <div class="contact-card">
-                <h4>{% if report_type == "internship" %}Лице за контакт (преподавател){% else %}Лице за контакт{% endif %}</h4>
+                <h4>{% if report_type == "internship" %}Лице за контакт (преподавател, при когото сте карали стажа){% else %}Лице за контакт{% endif %}</h4>
                 <div class="report-grid">
                     <div class="report-field">
                         <label>Имена</label>
@@ -204,9 +204,16 @@
                 {% endif %}
 
                 <div class="report-actions">
-                    <button type="submit" class="btn-primary">Отчети стаж</button>
+                    <button type="submit" class="btn-primary" {% if has_uploaded_report %}disabled title="Вече е подаден доклад"{% endif %}>
+                        Отчети стаж
+                    </button>
                 </div>
             </form>
+            {% if has_uploaded_report %}
+                <p class="report-guide-note report-guide-warning">
+                    Вече имате подаден доклад.
+                </p>
+            {% endif %}
         </section>
 
         <section class="report-history-card">
@@ -266,11 +273,8 @@ document.addEventListener("DOMContentLoaded", function () {
         totalDisplay.value = rounded.toString();
         totalHidden.value = rounded.toString();
 
-        if (rounded > maxHours) {
-            limitMessage.classList.remove("hidden");
-        } else {
-            limitMessage.classList.add("hidden");
-        }
+        const overLimit = Number.isFinite(rounded) && rounded > maxHours;
+        limitMessage.style.display = overLimit ? "block" : "none";
     }
 
     if (dailyLogBody) {
@@ -294,6 +298,8 @@ document.addEventListener("DOMContentLoaded", function () {
             dailyLogBody.appendChild(row);
         });
     }
+
+    recalcTotal();
 
     if (form) {
         form.addEventListener("submit", function (event) {

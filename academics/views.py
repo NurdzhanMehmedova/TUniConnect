@@ -290,6 +290,7 @@ def student_reports(request):
     student = request.user.student
     workflow_enabled = report_workflow_enabled()
     reports = Report.objects.filter(student=student).order_by("-submitted_at")
+    has_uploaded_report = reports.exists()
     if not workflow_enabled:
         reports = reports.only("id", "student_id", "report_file", "grade", "comments", "submitted_at")
     report_type = request.GET.get("type", "internship")
@@ -306,6 +307,10 @@ def student_reports(request):
         action = request.POST.get("action")
 
         if action == "upload_report":
+            if has_uploaded_report:
+                messages.error(request, "Вече имаш подаден доклад. Не можеш да качваш втори.")
+                return redirect(f"{request.path}?type={report_type}")
+
             report_file = request.FILES.get("report_file")
 
             if report_type == "employment_contract" and not approved_application:
@@ -351,8 +356,8 @@ def student_reports(request):
     required_hours = 150
 
     proof_label_map = {
-        "employment_contract": "Прикачи трудов договор",
-        "internship": "Прикачи служебна бележка, подписана от преподавателя",
+        "employment_contract": "Прикачете трудов договор",
+        "internship": "Прикачете служебна бележка, подписана от преподавателя",
     }
 
     return render(request, "student/reports.html", {
@@ -360,9 +365,10 @@ def student_reports(request):
         "approved_application": approved_application,
         "daily_log_rows": range(1, 32),
         "required_hours": required_hours,
-        "proof_label": proof_label_map.get(report_type, "Прикачи доказателство"),
+        "proof_label": proof_label_map.get(report_type, "Прикачете доказателство"),
         "report_type": report_type,
         "report_workflow_enabled": workflow_enabled,
+        "has_uploaded_report": has_uploaded_report,
     })
 
 @login_required

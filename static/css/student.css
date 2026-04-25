@@ -2414,20 +2414,28 @@ button[disabled] {
 
 .daily-log-table {
     width: 100%;
-    border-collapse: collapse;
-    min-width: 840px;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    min-width: 680px;
 }
 
 .daily-log-table th,
 .daily-log-table td {
-    border: 1px solid #dbe7ff;
-    padding: 8px;
+    border: 0;
+    padding: 0 8px 0 0;
     vertical-align: top;
 }
 
+.daily-log-table th:last-child,
+.daily-log-table td:last-child {
+    padding-right: 0;
+}
+
 .daily-log-table th {
-    background: #eef4ff;
     color: #334155;
+    font-size: 1rem;
+    font-weight: 700;
+    padding-bottom: 6px;
 }
 
 .daily-log-table input,
@@ -2437,4 +2445,19 @@ button[disabled] {
     border-radius: 8px;
     padding: 8px 10px;
     box-sizing: border-box;
+}
+
+.daily-log-table textarea {
+    min-height: 44px;
+    resize: vertical;
+}
+
+#hours-limit-message {
+    display: none;
+}
+
+.daily-log-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-start;
 }
