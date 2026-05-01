@@ -46,7 +46,7 @@
                     <h1>{{ company.name }}</h1>
 
                     <p class="company-meta">
-                        📍 {{ company.location.city_name }}
+                        📍 {{ company.location.city_name|default:"Няма зададен централен офис" }}
                     </p>
                 </div>
 

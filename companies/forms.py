@@ -1,9 +1,13 @@
 from django import forms
 from django.utils import timezone
 from internships.models import InternOffer
-
+from companies.models import Location
 
 class InternOfferForm(forms.ModelForm):
+    location_text = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Пример: София"})
+    )
 
     class Meta:
         model = InternOffer
@@ -16,7 +20,6 @@ class InternOfferForm(forms.ModelForm):
             "field",
             "salary_type",
             "workspace_type",
-            "location",
             "start_date",
             "end_date",
         ]
@@ -44,8 +47,8 @@ class InternOfferForm(forms.ModelForm):
                 "placeholder": " "
             }),
 
-            "location": forms.Select(attrs={
-                "placeholder": " "
+            "location": forms.TextInput(attrs={
+                "placeholder": "Пример: София"
             }),
 
             "start_date": forms.DateInput(attrs={
@@ -71,6 +74,30 @@ class InternOfferForm(forms.ModelForm):
                 "placeholder": "Всяко предимство на нов ред"
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["location_text"].required = True
+
+        if self.instance and self.instance.pk and self.instance.location:
+            self.initial["location_text"] = self.instance.location.city_name
+
+    def clean_location_text(self):
+        location_name = (self.cleaned_data.get("location_text") or "").strip()
+        if not location_name:
+            raise forms.ValidationError("Моля, въведете град.")
+        return location_name
+
+    def save(self, commit=True):
+        offer = super().save(commit=False)
+        location_name = self.cleaned_data.get("location_text")
+        if location_name:
+            location_obj, _ = Location.objects.get_or_create(city_name=location_name)
+            offer.location = location_obj
+
+        if commit:
+            offer.save()
+        return offer
 
     def clean(self):
         cleaned_data = super().clean()

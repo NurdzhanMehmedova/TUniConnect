@@ -57,7 +57,7 @@
                     <h1>{{ company.name }}</h1>
 
                     <p class="company-meta">
-                        📍 {{ company.location.city_name }}
+                       📍 {{ company.location.city_name|default:"Няма зададен централен офис" }}
                     </p>
                 </div>
 
@@ -117,12 +117,14 @@
 
                     <p class="view-field">
                         👥 {{ company.employees_count|default:"-" }} служители<br>
-                        📅 {{ company.founded_year|default:"-" }}
+                        📅 {{ company.founded_year|default:"-" }}<br>
+                        📍 Централен офис: {{ company.location.city_name|default:"-" }}
                     </p>
 
                     <div class="edit-field hidden">
                         <input type="number" name="employees_count" placeholder="Брой служители" value="{{ company.employees_count }}">
                         <input type="number" name="founded_year" placeholder="Година на основаване" value="{{ company.founded_year }}">
+                        <input type="text" name="central_office_city" placeholder="Централен офис (град)" value="{{ company.location.city_name|default_if_none:'' }}">
                     </div>
                 </div>
 

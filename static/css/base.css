@@ -82,8 +82,12 @@ html {
     transition: 0.25s;
 }
 
-.nav-links a:hover {
-    color: var(--primary);
+/* FIX: Вход бутон hover */
+
+.nav-links a.nav-btn-outline:hover {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: white !important;
+    border: 1px solid transparent;
 }
 
 .nav-links a.nav-btn-gradient {

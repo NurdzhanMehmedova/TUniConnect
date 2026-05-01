@@ -259,6 +259,8 @@ TUniConnect
 
 @login_required
 def change_password(request):
+    if not request.user.must_change_password:
+        return redirect_by_role(request.user)
 
     if request.method == "POST":
 
@@ -1186,6 +1188,10 @@ def company_profile(request):
         company.employees_count = request.POST.get("employees_count") or None
         company.founded_year = request.POST.get("founded_year") or None
 
+        central_office_city = (request.POST.get("central_office_city") or "").strip()
+        if central_office_city:
+            location_obj, _ = Location.objects.get_or_create(city_name=central_office_city)
+            company.location = location_obj
 
         if request.FILES.get("logo"):
             company.logo = request.FILES["logo"]
