@@ -28,8 +28,18 @@
 
 <div class="offers-page">
     <div class="filters-card">
+        <label>Име</label>
+        <input id="allStudentsName" type="text" list="allStudentsNameOptions" placeholder="Всички">
+        <datalist id="allStudentsNameOptions"></datalist>
+        <label>Фак. номер</label>
+        <input id="allStudentsFaculty" type="text" list="allStudentsFacultyOptions" placeholder="Всички">
+        <datalist id="allStudentsFacultyOptions"></datalist>
         <label>Специалност</label>
         <select id="allStudentsSpecialty">
+            <option value="">Всички</option>
+        </select>
+        <label>Катедра</label>
+        <select id="allStudentsDepartment">
             <option value="">Всички</option>
         </select>
         <button type="button" class="btn-primary">Филтрирай</button>
@@ -55,7 +65,8 @@
 <tr class="student-row"
     data-name="{{ student.user.first_name|lower }} {{ student.user.last_name|lower }}"
     data-faculty="{{ student.faculty_number|lower }}"
-    data-specialty="{{ student.specialty.name|lower }}">
+    data-specialty="{{ student.specialty.name|lower }}"
+    data-department="{{ student.specialty.department.name|lower }}">
 
 
 <td>
@@ -98,12 +109,38 @@
 
 <script>
 const allStudentsSearch = document.getElementById("allStudentsSearch");
+const allStudentsName = document.getElementById("allStudentsName");
+const allStudentsFaculty = document.getElementById("allStudentsFaculty");
+const allStudentsNameOptions = document.getElementById("allStudentsNameOptions");
+const allStudentsFacultyOptions = document.getElementById("allStudentsFacultyOptions");
 const allStudentsSpecialty = document.getElementById("allStudentsSpecialty");
+const allStudentsDepartment = document.getElementById("allStudentsDepartment");
 const allStudentRows = Array.from(document.querySelectorAll(".student-row"));
 
 function populateAllStudentsSpecialties() {
+    const names = new Set();
+    const facultyNumbers = new Set();
     const specialties = new Set();
+    const departments = new Set();
+    allStudentRows.forEach(row => names.add(row.dataset.name));
+    allStudentRows.forEach(row => facultyNumbers.add(row.dataset.faculty));
     allStudentRows.forEach(row => specialties.add(row.dataset.specialty));
+    allStudentRows.forEach(row => departments.add(row.dataset.department));
+
+    Array.from(names).sort().forEach(name => {
+        if (!name) return;
+        const option = document.createElement("option");
+        option.value = name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+        allStudentsNameOptions.appendChild(option);
+    });
+
+    Array.from(facultyNumbers).sort().forEach(faculty => {
+        if (!faculty) return;
+        const option = document.createElement("option");
+        option.value = faculty;
+        allStudentsFacultyOptions.appendChild(option);
+    });
+
     Array.from(specialties).sort().forEach(specialty => {
         if (!specialty) return;
         const option = document.createElement("option");
@@ -111,22 +148,38 @@ function populateAllStudentsSpecialties() {
         option.textContent = specialty.charAt(0).toUpperCase() + specialty.slice(1);
         allStudentsSpecialty.appendChild(option);
     });
+    Array.from(departments).sort().forEach(department => {
+        if (!department) return;
+        const option = document.createElement("option");
+        option.value = department;
+        option.textContent = department.charAt(0).toUpperCase() + department.slice(1);
+        allStudentsDepartment.appendChild(option);
+    });
 }
 
 function applyAllStudentsFilters() {
     const searchValue = allStudentsSearch.value.trim().toLowerCase();
+    const nameValue = allStudentsName.value.trim().toLowerCase();
+    const facultyValue = allStudentsFaculty.value.trim().toLowerCase();
     const specialtyValue = allStudentsSpecialty.value;
+    const departmentValue = allStudentsDepartment.value;
 
     allStudentRows.forEach(row => {
         const matchesSearch = !searchValue || row.dataset.name.includes(searchValue) || row.dataset.faculty.includes(searchValue);
+        const matchesName = !nameValue || row.dataset.name.includes(nameValue);
+        const matchesFaculty = !facultyValue || row.dataset.faculty.includes(facultyValue);
         const matchesSpecialty = !specialtyValue || row.dataset.specialty === specialtyValue;
-        row.style.display = matchesSearch && matchesSpecialty ? "" : "none";
+        const matchesDepartment = !departmentValue || row.dataset.department === departmentValue;
+        row.style.display = matchesSearch && matchesName && matchesFaculty && matchesSpecialty && matchesDepartment ? "" : "none";
     });
 }
 
 populateAllStudentsSpecialties();
 allStudentsSearch.addEventListener("input", applyAllStudentsFilters);
+allStudentsName.addEventListener("input", applyAllStudentsFilters);
+allStudentsFaculty.addEventListener("input", applyAllStudentsFilters);
 allStudentsSpecialty.addEventListener("change", applyAllStudentsFilters);
+allStudentsDepartment.addEventListener("change", applyAllStudentsFilters);
 </script>
 
 {% endblock %}

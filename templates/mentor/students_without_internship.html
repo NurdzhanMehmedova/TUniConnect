@@ -28,13 +28,19 @@
 
 <div class="offers-page">
     <div class="filters-card">
+        <label>Име</label>
+        <input id="studentsNameFilter" type="text" list="studentsNameFilterOptions" placeholder="Всички">
+        <datalist id="studentsNameFilterOptions"></datalist>
+        <label>Фак. номер</label>
+        <input id="studentsFacultyFilter" type="text" list="studentsFacultyFilterOptions" placeholder="Всички">
+        <datalist id="studentsFacultyFilterOptions"></datalist>
         <label>Статус</label>
         <select id="studentsStatusFilter">
             <option value="">Всички</option>
-            <option value="INTERNSHIP_SELECTED">✔ Има стаж</option>
-            <option value="APPROVED_BY_COMPANY">Одобрен от компания</option>
-            <option value="WAITING">Чака отговор</option>
-            <option value="NO_INTERNSHIP">Няма стаж</option>
+        </select>
+        <label>Специалност</label>
+        <select id="studentsSpecialtyFilter">
+            <option value="">Всички</option>
         </select>
         <button type="button" class="btn-primary">Филтрирай</button>
     </div>
@@ -59,7 +65,8 @@
 <tr class="student-status-row"
     data-name="{{ item.student.user.first_name|lower }} {{ item.student.user.last_name|lower }}"
     data-faculty="{{ item.student.faculty_number|lower }}"
-    data-status="{{ item.status }}">
+    data-status="{{ item.status }}"
+    data-specialty="{{ item.student.specialty.name|lower }}">
 <td>
 {{ item.student.user.first_name }} {{ item.student.user.last_name }}
 </td>
@@ -114,22 +121,84 @@
 
 <script>
 const studentsStatusSearch = document.getElementById("studentsStatusSearch");
+const studentsNameFilter = document.getElementById("studentsNameFilter");
+const studentsFacultyFilter = document.getElementById("studentsFacultyFilter");
+const studentsNameFilterOptions = document.getElementById("studentsNameFilterOptions");
+const studentsFacultyFilterOptions = document.getElementById("studentsFacultyFilterOptions");
 const studentsStatusFilter = document.getElementById("studentsStatusFilter");
+const studentsSpecialtyFilter = document.getElementById("studentsSpecialtyFilter");
 const studentStatusRows = Array.from(document.querySelectorAll(".student-status-row"));
 
-function applyStudentsStatusFilters() {
-    const searchValue = studentsStatusSearch.value.trim().toLowerCase();
-    const statusValue = studentsStatusFilter.value;
+function populateStudentsStatusFilters() {
+    const statuses = new Map([
+        ["INTERNSHIP_SELECTED", "✔ Има стаж"],
+        ["APPROVED_BY_COMPANY", "Одобрен от компания"],
+        ["WAITING", "Чака отговор"],
+        ["NO_INTERNSHIP", "Няма стаж"],
+    ]);
+    const names = new Set();
+    const facultyNumbers = new Set();
+    const specialties = new Set();
 
     studentStatusRows.forEach(row => {
-        const matchesSearch = !searchValue || row.dataset.name.includes(searchValue) || row.dataset.faculty.includes(searchValue);
-        const matchesStatus = !statusValue || row.dataset.status === statusValue;
-        row.style.display = matchesSearch && matchesStatus ? "" : "none";
+        names.add(row.dataset.name);
+        facultyNumbers.add(row.dataset.faculty);
+        specialties.add(row.dataset.specialty);
+    });
+
+    Array.from(names).sort().forEach(name => {
+        if (!name) return;
+        const option = document.createElement("option");
+        option.value = name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+        studentsNameFilterOptions.appendChild(option);
+    });
+
+    Array.from(facultyNumbers).sort().forEach(faculty => {
+        if (!faculty) return;
+        const option = document.createElement("option");
+        option.value = faculty;
+        studentsFacultyFilterOptions.appendChild(option);
+    });
+
+    Array.from(statuses.entries()).forEach(([value, label]) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = label;
+        studentsStatusFilter.appendChild(option);
+    });
+
+    Array.from(specialties).sort().forEach(specialty => {
+        if (!specialty) return;
+        const option = document.createElement("option");
+        option.value = specialty;
+        option.textContent = specialty.charAt(0).toUpperCase() + specialty.slice(1);
+        studentsSpecialtyFilter.appendChild(option);
     });
 }
 
+function applyStudentsStatusFilters() {
+    const searchValue = studentsStatusSearch.value.trim().toLowerCase();
+    const nameValue = studentsNameFilter.value.trim().toLowerCase();
+    const facultyValue = studentsFacultyFilter.value.trim().toLowerCase();
+    const statusValue = studentsStatusFilter.value;
+    const specialtyValue = studentsSpecialtyFilter.value;
+
+    studentStatusRows.forEach(row => {
+        const matchesSearch = !searchValue || row.dataset.name.includes(searchValue) || row.dataset.faculty.includes(searchValue);
+        const matchesName = !nameValue || row.dataset.name.includes(nameValue);
+        const matchesFaculty = !facultyValue || row.dataset.faculty.includes(facultyValue);
+        const matchesStatus = !statusValue || row.dataset.status === statusValue;
+        const matchesSpecialty = !specialtyValue || row.dataset.specialty === specialtyValue;
+        row.style.display = matchesSearch && matchesName && matchesFaculty && matchesStatus && matchesSpecialty ? "" : "none";
+    });
+}
+
+populateStudentsStatusFilters();
 studentsStatusSearch.addEventListener("input", applyStudentsStatusFilters);
+studentsNameFilter.addEventListener("input", applyStudentsStatusFilters);
+studentsFacultyFilter.addEventListener("input", applyStudentsStatusFilters);
 studentsStatusFilter.addEventListener("change", applyStudentsStatusFilters);
+studentsSpecialtyFilter.addEventListener("change", applyStudentsStatusFilters);
 </script>
 
 {% endblock %}
