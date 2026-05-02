@@ -50,12 +50,12 @@
     color: var(--muted);
 }
 
-.offers-wrapper .filters-card select,
-.offers-wrapper .filters-card input {
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: white;
+.offers-wrapper .filters-card input,
+.offers-wrapper .filters-card select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box; /* 🔥 най-важното */
+    display: block;
 }
 
 .offers-wrapper .filters-card .btn-primary {

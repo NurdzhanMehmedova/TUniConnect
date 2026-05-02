@@ -602,22 +602,16 @@ def mentor_students_without_internship(request):
 
     for student in students:
 
-        application = Application.objects.filter(
-            student=student
-        ).order_by("-submitted_at").first()
+        applications = Application.objects.filter(student=student)
 
         status = "NO_INTERNSHIP"
 
-        if application:
-
-            if application.status == Application.Status.SELECTED:
-                status = "INTERNSHIP_SELECTED"
-
-            elif application.status == Application.Status.APPROVED:
-                status = "APPROVED_BY_COMPANY"
-
-            elif application.status == Application.Status.WAITING:
-                status = "WAITING"
+        if applications.filter(status=Application.Status.SELECTED).exists():
+            status = "INTERNSHIP_SELECTED"
+        elif applications.filter(status=Application.Status.APPROVED).exists():
+            status = "APPROVED_BY_COMPANY"
+        elif applications.filter(status=Application.Status.WAITING).exists():
+            status = "WAITING"
 
         student_data.append({
             "student": student,
