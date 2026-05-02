@@ -60,7 +60,10 @@
             <button type="button" class="btn-primary">Филтрирай</button>
         </div>
 
-        <div class="offers-list" id="companyOffersList">
+
+        <div class="offers-content">
+
+    <div class="offers-list" id="companyOffersList">
 
         {% for offer in offers %}
 
@@ -81,7 +84,6 @@
 
             <!-- CENTER -->
             <div class="offer-content">
-
                 <div class="offer-company">
                     {{ offer.company.name }}
                 </div>
@@ -99,12 +101,10 @@
                     <span class="tag">{{ offer.get_workspace_type_display }}</span>
                     <span class="tag salary">{{ offer.get_salary_type_display }}</span>
                 </div>
-
             </div>
 
             <!-- RIGHT -->
             <div class="offer-actions">
-
                 <span class="status-badge {{ offer.status|lower }}">
                     {{ offer.get_status_display }}
                 </span>
@@ -112,7 +112,6 @@
                 <a href="{% url 'edit_offer' offer.id %}" class="btn-outline">
                     Редактирай
                 </a>
-
             </div>
 
         </div>
@@ -121,6 +120,27 @@
             <p>Нямате създадени обяви.</p>
         {% endfor %}
 
+    </div> <!-- ✅ край на offers-list -->
+
+
+    <!-- ✅ ПАГИНАЦИЯ (извън list-а, но вътре в десния блок) -->
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&field={{ request.GET.field }}&workspace={{ request.GET.workspace }}&salary={{ request.GET.salary }}&location={{ request.GET.location }}">⬅</a>
+        {% endif %}
+
+        <span>
+            Страница {{ page_obj.number }} от {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}&field={{ request.GET.field }}&workspace={{ request.GET.workspace }}&salary={{ request.GET.salary }}&location={{ request.GET.location }}">➡</a>
+        {% endif %}
+
+    </div>
+
+</div> <!-- ✅ край на offers-content -->
     </div>
     </div>
 

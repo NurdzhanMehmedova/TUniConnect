@@ -680,9 +680,14 @@ def company_offers(request):
 
     offers = InternOffer.objects.filter(company=company).order_by("-created_at")
 
+    paginator = Paginator(offers, 5)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "company/offers.html", {
         "company": company,
-        "offers": offers
+        "offers": page_obj,
+        "page_obj": page_obj,
     })
 
 @login_required
