@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin_theme.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <section class="admin-quick-audit" aria-label="Админ дашборд">
+        <a class="audit-card" href="{% url 'admin:admin_logentry_changelist' %}"><span class="audit-card__label">Одит</span><strong>Всички действия</strong><small>Пълен журнал на действията</small></a>
+        <a class="audit-card" href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=1"><span class="audit-card__label">Одит</span><strong>Нови записи</strong><small>Само добавяния</small></a>
+        <a class="audit-card" href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=2"><span class="audit-card__label">Одит</span><strong>Промени</strong><small>Само редакции</small></a>
+        <a class="audit-card" href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=3"><span class="audit-card__label">Одит</span><strong>Изтривания</strong><small>Само изтривания</small></a>
+        <a class="audit-card" href="{% url 'admin:academics_student_changelist' %}"><span class="audit-card__label">Академични</span><strong>Студенти</strong><small>Списък и управление</small></a>
+        <a class="audit-card" href="{% url 'admin:academics_mentor_changelist' %}"><span class="audit-card__label">Академични</span><strong>Ментори</strong><small>Назначения и данни</small></a>
+        <a class="audit-card" href="{% url 'admin:companies_company_changelist' %}"><span class="audit-card__label">Компании</span><strong>Фирми</strong><small>Партньори и профили</small></a>
+        <a class="audit-card" href="{% url 'admin:internships_internoffer_changelist' %}"><span class="audit-card__label">Стажове</span><strong>Обяви</strong><small>Активни и архивни позиции</small></a>
+    </section>
+
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+</div>
+{% endblock %}
