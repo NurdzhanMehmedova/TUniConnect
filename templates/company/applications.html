@@ -23,7 +23,8 @@
     </div>
 
     <div class="offers-page">
-        <div class="filters-card">
+        <div class="offers-sidebar">
+            <div class="filters-card">
             <label>Поле</label>
             <select id="companyApplicationsField">
                 <option value="">Всички</option>
@@ -55,120 +56,65 @@
             <button type="button" class="btn-primary">Филтрирай</button>
         </div>
 
-        <div>
-        <div class="offers-list" id="companyApplicationsList">
+            <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">⬅</a>
+            {% endif %}
 
-        {% for app in applications %}
-            <div class="offer-card company-application-card"
-                 data-title="{{ app.offer.title|lower }}"
-                 data-company="{{ app.offer.company.name|lower }}"
-                 data-description="{{ app.offer.description|default:''|lower }}"
-                 data-student="{{ app.student.user.first_name|lower }} {{ app.student.user.last_name|lower }}"
-                 data-field="{{ app.offer.field }}"
-                 data-workspace="{{ app.offer.workspace_type }}"
-                 data-salary="{{ app.offer.salary_type }}"
-                 data-location="{{ app.offer.location.id }}"
-                 data-location-name="{{ app.offer.location.display_name|default:app.offer.location }}">
+            <span>Страница {{ page_obj.number }} от {{ page_obj.paginator.num_pages }}</span>
 
-                <div class="offer-logo">
-                    <img src="/static/images/logo_placeholder.png" alt="Student">
-                </div>
-
-                <div class="offer-content">
-                    <div class="offer-company">
-                        {{ app.student.user.first_name }} {{ app.student.user.last_name }}
-                    </div>
-
-                    <div class="offer-title">
-                        {{ app.offer.title }}
-                    </div>
-
-                    <div class="offer-meta-row">
-                        Подадена: {{ app.submitted_at|date:"d.m.Y H:i" }}
-                    </div>
-
-                    <div class="offer-tags">
-                        <span class="tag">{{ app.offer.get_field_display }}</span>
-                        <span class="tag">{{ app.offer.get_workspace_type_display }}</span>
-                        <span class="tag salary">{{ app.offer.get_salary_type_display }}</span>
-                    </div>
-                </div>
-
-                <div class="offer-actions application-actions">
-                    {% if app.status == "Approved" %}
-                        <span class="btn-status btn-approved">Одобрена</span>
-                    {% elif app.status == "Rejected" %}
-                        <span class="btn-status btn-rejected">Отхвърлена</span>
-                    {% else %}
-                        <a href="{% url 'company_application_detail' app.id %}" class="btn-primary">
-                            Преглед
-                        </a>
-                    {% endif %}
-                </div>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">➡</a>
+            {% endif %}
             </div>
-        {% empty %}
-            <p>Няма кандидатури.</p>
-        {% endfor %}
-
-    </div>
-
-    <div class="offers-header" style="margin-top: 30px;">
-        <h2>Доклади за одобрение</h2>
-    </div>
-
-    <div class="table-card">
-        <table class="app-table">
-            <thead>
-                <tr>
-                    <th>Студент</th>
-                    <th>Дата</th>
-                    <th>Файл</th>
-                    {% if report_workflow_enabled %}
-                        <th>Статус фирма</th>
-                        <th>Статус ментор</th>
-                    {% endif %}
-                    <th>Действие</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for report in reports %}
-                    <tr>
-                        <td>{{ report.student.user.first_name }} {{ report.student.user.last_name }}</td>
-                        <td>{{ report.submitted_at|date:"d.m.Y" }}</td>
-                        <td><a href="{{ report.report_file.url }}" target="_blank" class="btn-primary">Преглед</a></td>
-                        {% if report_workflow_enabled %}
-                            <td>{{ report.get_company_status_display }}</td>
-                            <td>{{ report.get_mentor_status_display }}</td>
-                        {% endif %}
-                        <td>
-                            {% if report_workflow_enabled %}
-                                {% if report.company_status == "PENDING" %}
-                                    <a href="{% url 'company_approve_report' report.id %}" class="btn-primary">Одобри</a>
-                                    <a href="{% url 'company_reject_report' report.id %}" class="btn-outline">Върни</a>
-                                {% elif report.company_status == "APPROVED" %}
-                                    <span class="status-badge approved">Одобрен</span>
-                                {% else %}
-                                    <span class="status-badge rejected">Върнат</span>
-                                {% endif %}
-                            {% else %}
-                                <span class="status-badge pending">Изпълни migrate</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="{% if report_workflow_enabled %}6{% else %}4{% endif %}">Няма подадени доклади.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
         </div>
+
+        <div class="offers-list" id="companyApplicationsList">
+            {% for app in applications %}
+                <div class="offer-card company-application-card"
+                     data-title="{{ app.offer.title|lower }}"
+                     data-company="{{ app.offer.company.name|lower }}"
+                     data-description="{{ app.offer.description|default:''|lower }}"
+                     data-student="{{ app.student.user.first_name|lower }} {{ app.student.user.last_name|lower }}"
+                     data-field="{{ app.offer.field }}"
+                     data-workspace="{{ app.offer.workspace_type }}"
+                     data-salary="{{ app.offer.salary_type }}"
+                     data-location="{{ app.offer.location.id }}"
+                     data-location-name="{{ app.offer.location.display_name|default:app.offer.location }}">
+
+                    <div class="offer-logo">
+                        <img src="/static/images/logo_placeholder.png" alt="Student">
+                    </div>
+
+                    <div class="offer-content">
+                        <div class="offer-company">{{ app.student.user.first_name }} {{ app.student.user.last_name }}</div>
+                        <div class="offer-title">{{ app.offer.title }}</div>
+                        <div class="offer-meta-row">Подадена: {{ app.submitted_at|date:"d.m.Y H:i" }}</div>
+                        <div class="offer-tags">
+                            <span class="tag">{{ app.offer.get_field_display }}</span>
+                            <span class="tag">{{ app.offer.get_workspace_type_display }}</span>
+                            <span class="tag salary">{{ app.offer.get_salary_type_display }}</span>
+                        </div>
+                    </div>
+
+                    <div class="offer-actions application-actions">
+                        {% if app.status == "Approved" %}
+                            <span class="btn-status btn-approved">Одобрена</span>
+                        {% elif app.status == "Rejected" %}
+                            <span class="btn-status btn-rejected">Отхвърлена</span>
+                        {% else %}
+                            <a href="{% url 'company_application_detail' app.id %}" class="btn-primary">Преглед</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p>Няма кандидатури.</p>
+            {% endfor %}
+
         </div>
     </div>
 
 </div>
-
 <script>
 const companyApplicationsSearch = document.getElementById("companyApplicationsSearch");
 const companyApplicationsField = document.getElementById("companyApplicationsField");

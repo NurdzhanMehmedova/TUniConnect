@@ -369,19 +369,22 @@
         }
 
         function updateSubmitState(){
-            const selectedRole = roleSelect.value;
+            const selectedRoleName = roleSelect.options[roleSelect.selectedIndex]
+                ?.text
+                .trim()
+                .toUpperCase();
 
             let roleValid = false;
 
-            if (selectedRole === "STUDENT") {
+            if (selectedRoleName === "СТУДЕНТ") {
                 roleValid = facultyAvailable;
             }
 
-            if (selectedRole === "MENTOR") {
+            if (selectedRoleName === "МЕНТОР") {
                 roleValid = true;  // няма ФН при ментор
             }
 
-            if (selectedRole === "COMPANY") {
+            if (selectedRoleName === "КОМПАНИЯ") {
                 roleValid = true;  // засега няма AJAX проверки
             }
 

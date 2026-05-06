@@ -72,6 +72,7 @@
                     <a href="{% url 'company_profile' %}">Профил</a>
                     <a href="{% url 'company_offers' %}">Моите обяви</a>
                     <a href="{% url 'company_applications' %}">Кандидатури</a>
+                    <a href="{% url 'company_reports' %}">Доклади</a>
                 {% endif %}
 
                 {% if user.role.name == "SUPER_ADMIN" %}

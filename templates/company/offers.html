@@ -28,7 +28,8 @@
     </div>
 
     <div class="offers-page">
-        <div class="filters-card">
+        <div class="offers-sidebar">
+            <div class="filters-card">
             <label>Поле</label>
             <select id="companyOffersField">
                 <option value="">Всички</option>
@@ -58,6 +59,19 @@
             </select>
 
             <button type="button" class="btn-primary">Филтрирай</button>
+        </div>
+
+            <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">⬅</a>
+            {% endif %}
+
+            <span>Страница {{ page_obj.number }} от {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">➡</a>
+            {% endif %}
+            </div>
         </div>
 
 
@@ -120,27 +134,9 @@
             <p>Нямате създадени обяви.</p>
         {% endfor %}
 
-    </div> <!-- ✅ край на offers-list -->
-
-
-    <!-- ✅ ПАГИНАЦИЯ (извън list-а, но вътре в десния блок) -->
-    <div class="pagination">
-
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}&field={{ request.GET.field }}&workspace={{ request.GET.workspace }}&salary={{ request.GET.salary }}&location={{ request.GET.location }}">⬅</a>
-        {% endif %}
-
-        <span>
-            Страница {{ page_obj.number }} от {{ page_obj.paginator.num_pages }}
-        </span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}&field={{ request.GET.field }}&workspace={{ request.GET.workspace }}&salary={{ request.GET.salary }}&location={{ request.GET.location }}">➡</a>
-        {% endif %}
-
     </div>
 
-</div> <!-- ✅ край на offers-content -->
+</div>
     </div>
     </div>
 

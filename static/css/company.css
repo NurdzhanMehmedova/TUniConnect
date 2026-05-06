@@ -784,6 +784,18 @@
     width: 100%;
 }
 
+.company-offers-wrapper .offers-sidebar,
+.company-applications-wrapper .offers-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.company-offers-wrapper .offers-sidebar .pagination,
+.company-applications-wrapper .offers-sidebar .pagination {
+    margin-top: 0;
+}
+
 @media (max-width: 1200px) {
     .company-offers-wrapper .offers-page,
     .company-applications-wrapper .offers-page {

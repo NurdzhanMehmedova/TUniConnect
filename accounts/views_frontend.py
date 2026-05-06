@@ -703,16 +703,42 @@ def company_applications(request):
         offer__company=company
     ).select_related("student", "student__user", "offer").order_by("-submitted_at")
 
+    paginator = Paginator(applications, 5)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "company/applications.html", {
+        "company": company,
+        "applications": page_obj,
+        "page_obj": page_obj,
+        "report_workflow_enabled": workflow_enabled,
+    })
+
+
+
+@login_required
+def company_reports(request):
+
+    if request.user.role.name != "COMPANY":
+        return redirect("home")
+
+    company = Company.objects.filter(user=request.user).first()
+    workflow_enabled = report_workflow_enabled()
+
     reports = Report.objects.filter(
         company=company
     ).select_related("student", "student__user").order_by("-submitted_at")
     if not workflow_enabled:
         reports = reports.only("id", "student_id", "company_id", "report_file", "submitted_at")
 
-    return render(request, "company/applications.html", {
+    paginator = Paginator(reports, 5)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "company/reports.html", {
         "company": company,
-        "applications": applications,
-        "reports": reports,
+        "reports": page_obj,
+        "page_obj": page_obj,
         "report_workflow_enabled": workflow_enabled,
     })
 
