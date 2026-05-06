@@ -17,6 +17,12 @@
                 <img src="{% static 'images/TU Varna.png' %}" alt="TU Varna" class="logo-img">
                 <span>TUniConnect</span>
             </a>
+            <div class="language-switcher notranslate" translate="no">
+                <select id="languageSwitcher" class="language-select nav-btn-gradient notranslate" aria-label="Избери език" translate="no">
+                    <option value="bg">🇧🇬 BG</option>
+                    <option value="en">🇬🇧 EN</option>
+                </select>
+            </div>
         </div>
 
         <nav class="nav-links">
@@ -113,6 +119,65 @@
         </div>
     </div>
 </footer>
+
+<script>
+    var translateSwitcher = null;
+
+    function setTranslateCookie(languageCode) {
+        var cookieValue = "/bg/" + languageCode;
+        document.cookie = "googtrans=" + cookieValue + ";path=/;max-age=31536000";
+        document.cookie = "googtrans=" + cookieValue + ";path=/;domain=" + window.location.hostname + ";max-age=31536000";
+    }
+
+    function getCurrentLanguage() {
+        var match = document.cookie.match(/(?:^|;\s*)googtrans=([^;]+)/);
+        if (!match || !match[1]) return "bg";
+        var parts = decodeURIComponent(match[1]).split("/");
+        return parts[2] || "bg";
+    }
+
+    function hardReloadWithoutCache() {
+        var url = new URL(window.location.href);
+        url.searchParams.set("_tr", Date.now().toString());
+        window.location.replace(url.toString());
+    }
+
+    function normalizeLanguageOptions() {
+        if (!translateSwitcher) return;
+        var labels = { bg: "BG", en: "EN" };
+        Array.from(translateSwitcher.options).forEach(function (option) {
+            if (labels[option.value]) {
+                option.textContent = labels[option.value];
+            }
+        });
+    }
+
+    (function () {
+        translateSwitcher = document.getElementById("languageSwitcher");
+        if (!translateSwitcher) return;
+
+        translateSwitcher.value = getCurrentLanguage();
+        normalizeLanguageOptions();
+        translateSwitcher.addEventListener("change", function () {
+            setTranslateCookie(this.value);
+            hardReloadWithoutCache();
+        });
+
+        setInterval(normalizeLanguageOptions, 1000);
+    })();
+</script>
+
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script>
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: "bg",
+            includedLanguages: "bg,en",
+            autoDisplay: false
+        }, "google_translate_element");
+    }
+</script>
+<div id="google_translate_element" style="position:absolute;left:-9999px;top:-9999px;"></div>
 
 </body>
 </html>
