@@ -68,24 +68,51 @@ html, body {
 .audit-card strong { display: block; margin-top: 4px; }
 .audit-card small { color: var(--muted); }
 
-/* Changelist with left filter */
+/* Changelist with left filter and no search */
 .change-list #changelist {
-    display: grid;
-    grid-template-columns: 300px minmax(0,1fr);
-    grid-template-areas:
-        "filter search"
-        "filter actions"
-        "filter results"
-        "filter paginator";
-    gap: 14px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
 }
-.change-list #changelist-form { display: contents; }
-.change-list #changelist-filter { grid-area: filter; width: 100%; margin: 0; }
-.change-list #changelist-search { grid-area: search; width: 100%; }
-.change-list #changelist .actions { grid-area: actions; width: 100%; }
-.change-list #changelist-form .results { grid-area: results; width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
-.change-list .paginator { grid-area: paginator; width: 100%; }
-.change-list #result_list { width: 100%; min-width: 1180px; table-layout: auto; }
+
+.change-list #changelist-filter {
+    order: 1;
+    flex: 0 0 320px;
+    max-width: 320px;
+    width: 320px;
+    position: sticky;
+    top: 110px;
+    margin: 0;
+}
+
+.change-list #changelist-search {
+    display: none;
+}
+
+.change-list #changelist-form {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.change-list #changelist .actions,
+.change-list .paginator {
+    width: 100%;
+}
+
+.change-list #changelist-form .results {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+}
+
+.change-list #result_list {
+    width: 100%;
+    min-width: 1050px;
+    table-layout: auto;
+}
 
 .button, input[type=submit], input[type=button], a.button, .submit-row input, .object-tools a {
     background: linear-gradient(90deg,var(--primary),var(--secondary));
@@ -97,9 +124,14 @@ html, body {
 
 @media (max-width: 1320px) { .admin-quick-audit { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 1200px) {
-    .change-list #changelist {
-        grid-template-columns: 1fr;
-        grid-template-areas: "search" "actions" "results" "paginator" "filter";
+        .change-list #changelist {
+        display: block;
+    }
+    .change-list #changelist-filter {
+        position: static;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 12px;
     }
 }
 @media (max-width: 900px) {
