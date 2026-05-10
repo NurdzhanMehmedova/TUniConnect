@@ -8,17 +8,75 @@
 
 {% block content %}
 <div id="content-main">
-    <section class="admin-quick-audit" aria-label="Админ дашборд">
-        <a class="audit-card" href="{% url 'admin:admin_logentry_changelist' %}"><span class="audit-card__label">Одит</span><strong>Всички действия</strong><small>Пълен журнал на действията</small></a>
-        <a class="audit-card" href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=1"><span class="audit-card__label">Одит</span><strong>Нови записи</strong><small>Само добавяния</small></a>
-        <a class="audit-card" href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=2"><span class="audit-card__label">Одит</span><strong>Промени</strong><small>Само редакции</small></a>
-        <a class="audit-card" href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=3"><span class="audit-card__label">Одит</span><strong>Изтривания</strong><small>Само изтривания</small></a>
-        <a class="audit-card" href="{% url 'admin:academics_student_changelist' %}"><span class="audit-card__label">Академични</span><strong>Студенти</strong><small>Списък и управление</small></a>
-        <a class="audit-card" href="{% url 'admin:academics_mentor_changelist' %}"><span class="audit-card__label">Академични</span><strong>Ментори</strong><small>Назначения и данни</small></a>
-        <a class="audit-card" href="{% url 'admin:companies_company_changelist' %}"><span class="audit-card__label">Компании</span><strong>Фирми</strong><small>Партньори и профили</small></a>
-        <a class="audit-card" href="{% url 'admin:internships_internoffer_changelist' %}"><span class="audit-card__label">Стажове</span><strong>Обяви</strong><small>Активни и архивни позиции</small></a>
+    <section class="admin-hero" aria-label="Основна навигация за администратор">
+        <div class="admin-hero__text">
+            <p class="admin-hero__eyebrow">Супер админ панел</p>
+            <h1>Централизирано управление и детайлни дашборди</h1>
+            <p>Бързи преки пътища към управление на потребители, стажове, публикации и одит на системните действия.</p>
+        </div>
+        <div class="admin-hero__actions">
+            <a class="hero-btn" href="{% url 'admin_overview_dashboard' %}">Оперативен дашборд</a>
+            <a class="hero-btn hero-btn--ghost" href="{% url 'admin_quality_dashboard' %}">Дашборд за проследяване</a>
+        </div>
     </section>
 
-    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+
+    <section class="admin-dashboards" aria-label="Дашборди">
+        <h2>Дашборди</h2>
+        <p>Тук са директните бутони към двата основни дашборда:</p>
+        <div class="admin-dashboards__grid">
+            <a class="dashboard-link" href="{% url 'admin_overview_dashboard' %}">📊 Оперативен дашборд</a>
+            <a class="dashboard-link" href="{% url 'admin_quality_dashboard' %}">📈 Дашборд за проследяване</a>
+        </div>
+    </section>
+
+    <section class="admin-kpi-grid" aria-label="Оперативни панели">
+        <a class="kpi-card kpi-card--teal" href="{% url 'admin:internships_application_changelist' %}"><span>Стажове</span><strong>Кандидатури</strong><small>Преглед, статуси и оценка на процеса</small></a>
+        <a class="kpi-card kpi-card--blue" href="{% url 'admin:internships_internoffer_changelist' %}"><span>Обяви</span><strong>Позиции</strong><small>Активни и архивни предложения</small></a>
+        <a class="kpi-card kpi-card--purple" href="{% url 'admin:academics_student_changelist' %}"><span>Академични</span><strong>Студенти</strong><small>Данни, профили и проследяване</small></a>
+        <a class="kpi-card kpi-card--green" href="{% url 'admin:companies_company_changelist' %}"><span>Партньори</span><strong>Компании</strong><small>Профили и активност на фирмите</small></a>
+    </section>
+
+    <section class="admin-panels" aria-label="Детайлна навигация">
+        <article class="admin-panel">
+            <header>
+                <h2>Одит и системни промени</h2>
+            </header>
+            <div class="admin-links">
+                <a href="{% url 'admin:admin_logentry_changelist' %}">Пълен журнал</a>
+                <a href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=1">Нови записи</a>
+                <a href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=2">Редакции</a>
+                <a href="{% url 'admin:admin_logentry_changelist' %}?action_flag__exact=3">Изтривания</a>
+            </div>
+        </article>
+
+        <article class="admin-panel">
+            <header>
+                <h2>Потребители и роли</h2>
+            </header>
+            <div class="admin-links">
+                <a href="{% url 'admin:accounts_user_changelist' %}">Всички потребители</a>
+                <a href="{% url 'admin:academics_mentor_changelist' %}">Ментори</a>
+                <a href="{% url 'admin:academics_student_changelist' %}">Студенти</a>
+                <a href="{% url 'admin:auth_group_changelist' %}">Групи и права</a>
+            </div>
+        </article>
+
+        <article class="admin-panel">
+            <header>
+                <h2>Стажове и партньори</h2>
+            </header>
+            <div class="admin-links">
+                <a href="{% url 'admin:internships_internoffer_changelist' %}">Обяви за стаж</a>
+                <a href="{% url 'admin:internships_application_changelist' %}">Кандидатури</a>
+                <a href="{% url 'admin:companies_company_changelist' %}">Фирми</a>
+                <a href="{% url 'admin:companies_company_changelist' %}">Отзиви за компании</a>
+            </div>
+        </article>
+    </section>
+
+    <div id="admin-modules">
+        {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+    </div>
 </div>
 {% endblock %}

@@ -5,6 +5,7 @@ from accounts import views_frontend
 from academics.views import get_specialties
 from django.conf import settings
 from django.conf.urls.static import static
+from accounts.admin_dashboards import admin_overview_dashboard, admin_quality_dashboard
 
 # ================= API VIEWSETS =================
 
@@ -82,6 +83,10 @@ router.register(r'users', UserViewSet)
 router.register(r'roles', RoleViewSet)
 
 urlpatterns = [
+
+    # Admin dashboards (must be before admin.site.urls catch-all)
+    path('admin/dashboards/overview/', admin_overview_dashboard, name='admin_overview_dashboard'),
+    path('admin/dashboards/tracking/', admin_quality_dashboard, name='admin_quality_dashboard'),
 
     # Admin
     path('admin/', admin.site.urls),

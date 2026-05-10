@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>{{ title }}</h1>
+  <div class="admin-panels" style="grid-template-columns:1fr; margin-bottom:16px;">
+    <article class="admin-panel">
+      <h2>Тренд за последните 14 дни</h2>
+      <canvas id="trendChart"></canvas>
+    </article>
+  </div>
+
+  <div class="admin-panels" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+    <article class="admin-panel">
+      <h2>Последни кандидатури</h2>
+      <ul>
+        {% for application in latest_applications %}
+          <li>{{ application.submitted_at|date:"d.m.Y H:i" }} — {{ application.student.user.get_full_name|default:application.student.user.username }} / {{ application.offer.title }} ({{ application.status }})</li>
+        {% empty %}
+          <li>Няма кандидатури.</li>
+        {% endfor %}
+      </ul>
+    </article>
+    <article class="admin-panel">
+      <h2>Последни обяви</h2>
+      <ul>
+        {% for offer in latest_offers %}
+          <li>{{ offer.created_at|date:"d.m.Y H:i" }} — {{ offer.title }} / {{ offer.company.name }} ({{ offer.status }})</li>
+        {% empty %}
+          <li>Няма обяви.</li>
+        {% endfor %}
+      </ul>
+    </article>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ day_labels|json_script:"day-labels" }}
+{{ app_daily_values|json_script:"app-daily-values" }}
+{{ offer_daily_values|json_script:"offer-daily-values" }}
+<script>
+const dayLabels = JSON.parse(document.getElementById('day-labels').textContent);
+const appDaily = JSON.parse(document.getElementById('app-daily-values').textContent);
+const offerDaily = JSON.parse(document.getElementById('offer-daily-values').textContent);
+
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: dayLabels,
+    datasets: [
+      { label: 'Кандидатури', data: appDaily, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.15)', tension: 0.25, fill: true },
+      { label: 'Обяви', data: offerDaily, borderColor: '#14b8a6', backgroundColor: 'rgba(20,184,166,0.14)', tension: 0.25, fill: true }
+    ]
+  },
+  options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>{{ title }}</h1>
+  <div class="admin-kpi-grid">
+    <div class="kpi-card kpi-card--blue"><span>Потребители</span><strong>{{ total_users }}</strong></div>
+    <div class="kpi-card kpi-card--green"><span>Компании</span><strong>{{ total_companies }}</strong></div>
+    <div class="kpi-card kpi-card--teal"><span>Обяви</span><strong>{{ total_offers }}</strong></div>
+    <div class="kpi-card kpi-card--purple"><span>Кандидатури</span><strong>{{ total_applications }}</strong></div>
+  </div>
+
+  <div class="admin-panels" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+    <article class="admin-panel"><h2>Кандидатури по статус</h2><canvas id="applicationsStatusChart"></canvas></article>
+    <article class="admin-panel"><h2>Обяви по статус</h2><canvas id="offersStatusChart"></canvas></article>
+  </div>
+
+  <div class="admin-panels" style="grid-template-columns:1fr;">
+    <article class="admin-panel"><h2>Потребители по роля</h2><canvas id="rolesChart"></canvas></article>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ app_status_labels|json_script:"app-status-labels" }}
+{{ app_status_values|json_script:"app-status-values" }}
+{{ offer_status_labels|json_script:"offer-status-labels" }}
+{{ offer_status_values|json_script:"offer-status-values" }}
+{{ role_labels|json_script:"role-labels" }}
+{{ role_values|json_script:"role-values" }}
+<script>
+const appLabels = JSON.parse(document.getElementById('app-status-labels').textContent);
+const appValues = JSON.parse(document.getElementById('app-status-values').textContent);
+const offerLabels = JSON.parse(document.getElementById('offer-status-labels').textContent);
+const offerValues = JSON.parse(document.getElementById('offer-status-values').textContent);
+const roleLabels = JSON.parse(document.getElementById('role-labels').textContent);
+const roleValues = JSON.parse(document.getElementById('role-values').textContent);
+
+new Chart(document.getElementById('applicationsStatusChart'), {
+  type: 'doughnut',
+  data: { labels: appLabels, datasets: [{ data: appValues, backgroundColor: ['#2563eb', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'] }] },
+  options: { plugins: { legend: { position: 'bottom' } } }
+});
+
+new Chart(document.getElementById('offersStatusChart'), {
+  type: 'polarArea',
+  data: { labels: offerLabels, datasets: [{ data: offerValues, backgroundColor: ['#0891b2', '#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b'] }] },
+  options: { plugins: { legend: { position: 'bottom' } } }
+});
+
+new Chart(document.getElementById('rolesChart'), {
+  type: 'bar',
+  data: { labels: roleLabels, datasets: [{ label: 'Брой потребители', data: roleValues, borderRadius: 8, backgroundColor: '#2563eb' }] },
+  options: { indexAxis: 'y', scales: { x: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+});
+</script>
+{% endblock %}
