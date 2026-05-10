@@ -278,10 +278,15 @@ def student_applications(request):
         return redirect("home")
 
     student = request.user.student
-    applications = Application.objects.filter(student=student)
+    applications = Application.objects.filter(
+        student=student
+    ).select_related("offer", "offer__company", "offer__location").order_by("-submitted_at")
+
+    today = timezone.localdate()
 
     return render(request, "student/applications.html", {
-        "applications": applications
+        "applications": applications,
+        "today": today,
     })
 
 

@@ -58,7 +58,7 @@
 
             {% for app in applications %}
 
-            <div class="offer-card"
+            <div class="offer-card {% if app.offer.end_date < today %}offer-card-expired{% endif %}"
                  data-title="{{ app.offer.title|lower }}"
                  data-company="{{ app.offer.company.name|lower }}"
                  data-description="{{ app.offer.description|default:''|lower }}"
@@ -66,7 +66,9 @@
                  data-workspace="{{ app.offer.workspace_type }}"
                  data-salary="{{ app.offer.salary_type }}"
                  data-location="{{ app.offer.location.id }}"
-                 onclick="window.location.href='{% url 'offer_detail' app.offer.id %}'">
+                 {% if app.offer.end_date >= today %}
+                 onclick="window.location.href='{% url 'offer_detail' app.offer.id %}'"
+                 {% endif %}>
 
                 <!-- LOGO -->
                 <div class="offer-logo">

@@ -859,6 +859,53 @@
     box-shadow: 0 20px 50px rgba(0,0,0,0.12);
 }
 
+.offer-card-expired {
+    position: relative;
+    cursor: not-allowed;
+
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+
+    opacity: 0.78;
+
+    transition: none;
+}
+
+/* лек сив overlay */
+.offer-card-expired::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: rgba(148, 163, 184, 0.08);
+
+    border-radius: 18px;
+    pointer-events: none;
+}
+
+/* махаме hover ефекта */
+.offer-card-expired:hover {
+    transform: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+}
+
+/* правим текста по-приглушен */
+.offer-card-expired .offer-title,
+.offer-card-expired .offer-company,
+.offer-card-expired .offer-meta-row {
+    color: #64748b;
+}
+
+/* tags по-бледи */
+.offer-card-expired .tag {
+    opacity: 0.7;
+}
+
+/* логото леко избледняло */
+.offer-card-expired .offer-logo img {
+    filter: grayscale(20%);
+}
+
 /* LEFT */
 
 .offer-title {
