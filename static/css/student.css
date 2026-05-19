@@ -1142,17 +1142,24 @@
 /* ===== PRO JOB DETAIL ===== */
 
 .job-container {
-    max-width: 1200px;
-    margin: 70px auto;
-    margin-top: 0px;
-    padding: 0 20px;
+    width: 100%;
+    max-width: 1600px;
+
+    margin: 0 auto;
+    margin-top: 0;
+
+    padding: 0 40px;
 }
 
 .job-layout {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 30px;
+
+    grid-template-columns: minmax(0, 1fr) 340px;
+
+    gap: 40px;
     align-items: start;
+
+    width: 100%;
 }
 
 /* LEFT */
@@ -1553,6 +1560,7 @@
 /* content */
 .job-hero-content {
     position: absolute;
+    display: flex;
     bottom: 25px;
     left: 25px;
 
@@ -1615,20 +1623,21 @@
 
 /* вътрешен контейнер */
 .job-hero-inner {
+    width: 100%;
     max-width: 1200px;
+
     margin: 0 auto;
+
     height: 100%;
     position: relative;
 }
 
 /* content */
 .job-hero-content {
-    position: absolute;
-    bottom: 20px;
+    left: 0;
+    right: 0;
 
-    display: flex;
-    align-items: center;
-    gap: 20px;
+    padding: 0 24px;
 }
 
 /* logo */
@@ -1639,12 +1648,15 @@
     border-radius: 12px;
     padding: 8px;
 }
+.job-hero-info {
+    flex: 1;
+    min-width: 0;
+}
 
-/* text */
-.job-hero-info h1 {
-    color: white;
-    font-size: 26px;
-    margin: 0;
+.job-hero-info h1,
+.job-company,
+.job-tags {
+    width: 100%;
 }
 
 .job-company {
@@ -2419,6 +2431,7 @@ button[disabled] {
     border: 1px solid #fdba74;
     padding: 10px 12px;
     border-radius: 10px;
+    margin-top:10px;
 }
 
 .hidden {

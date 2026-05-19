@@ -296,8 +296,10 @@ body {
 .contact-form textarea {
     min-height: 100px;
     resize: none;
+    width: 100%;
 }
 
 .contact-form button {
     margin-top: 10px;
+    width: 108%;
 }

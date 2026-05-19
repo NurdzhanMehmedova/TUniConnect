@@ -1,56 +1,791 @@
 {% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+
+<link rel="stylesheet" href="{% static 'css/admin_theme.css' %}">
+
+<style>
+
+.dashboard-shell{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+}
+
+/* HERO */
+
+.dashboard-hero{
+    position:relative;
+    overflow:hidden;
+
+    padding:40px;
+
+    border-radius:30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1d4ed8 0%,
+            #2563eb 35%,
+            #06b6d4 100%
+        );
+
+    color:white;
+
+    box-shadow:
+        0 30px 60px rgba(37,99,235,.28);
+}
+
+.dashboard-hero::before{
+    content:"";
+
+    position:absolute;
+
+    width:420px;
+    height:420px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.08);
+
+    top:-180px;
+    right:-120px;
+}
+
+.dashboard-hero h1{
+    margin:0 0 12px;
+    font-size:2.6rem;
+    position:relative;
+    z-index:2;
+}
+
+.dashboard-hero p{
+    margin:0;
+    max-width:850px;
+    opacity:.92;
+    position:relative;
+    z-index:2;
+}
+
+/* KPI */
+
+.stats-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,minmax(0,1fr));
+
+    gap:18px;
+}
+
+.stat-card{
+    position:relative;
+
+    overflow:hidden;
+
+    text-decoration:none;
+
+    padding:26px;
+
+    border-radius:24px;
+
+    background:rgba(255,255,255,.94);
+
+    backdrop-filter:blur(14px);
+
+    border:1px solid rgba(255,255,255,.45);
+
+    box-shadow:
+        0 16px 34px rgba(15,23,42,.08);
+
+    transition:.25s;
+}
+
+.stat-card:hover{
+    transform:translateY(-5px);
+}
+
+.stat-icon{
+    position:absolute;
+    top:18px;
+    right:18px;
+
+    font-size:2rem;
+
+    opacity:.12;
+}
+
+.stat-label{
+    color:#64748b;
+    font-size:.92rem;
+    font-weight:700;
+}
+
+.stat-value{
+    margin-top:12px;
+
+    color:#0f172a;
+
+    font-size:2.7rem;
+
+    font-weight:800;
+}
+
+.stat-link{
+    margin-top:14px;
+
+    color:#2563eb;
+
+    font-weight:700;
+}
+
+/* GRID */
+
+.dashboard-grid{
+    display:grid;
+
+    grid-template-columns:
+        1.2fr
+        .8fr;
+
+    gap:22px;
+}
+
+.dashboard-stack{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+}
+
+/* PANELS */
+
+.dashboard-panel{
+    background:rgba(255,255,255,.95);
+    width:90%;
+    border-radius:26px;
+
+    border:1px solid #dbeafe;
+
+    padding:24px;
+
+    box-shadow:
+        0 16px 34px rgba(15,23,42,.06);
+}
+
+.panel-head{
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:16px;
+
+    margin-bottom:20px;
+}
+
+.panel-head h2{
+    margin:0;
+    color:#0f172a;
+}
+
+.panel-link{
+    text-decoration:none;
+
+    color:#2563eb;
+
+    font-weight:700;
+}
+
+/* CHARTS */
+
+.chart-wrap{
+    position:relative;
+    height:340px;
+}
+
+.chart-small{
+    height:280px;
+}
+
+/* ACTIONS */
+
+.quick-actions{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:14px;
+}
+
+.quick-action{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    text-decoration:none;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    background:#f8fafc;
+
+    border:1px solid #dbeafe;
+
+    transition:.2s;
+}
+
+.quick-action:hover{
+    background:#eff6ff;
+    transform:translateY(-2px);
+}
+
+.quick-action strong{
+    color:#0f172a;
+}
+
+.quick-action span{
+    color:#64748b;
+    font-size:.92rem;
+}
+
+/* MINI FEED */
+
+.activity-feed{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.activity-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+
+    padding:14px 16px;
+
+    border-radius:16px;
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+}
+
+.activity-info{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+.activity-title{
+    font-weight:700;
+    color:#0f172a;
+}
+
+.activity-meta{
+    color:#64748b;
+    font-size:.85rem;
+}
+
+.activity-badge{
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    background:#dbeafe;
+
+    color:#1d4ed8;
+
+    font-size:.78rem;
+
+    font-weight:700;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1200px){
+
+    .stats-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .dashboard-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:700px){
+
+    .stats-grid{
+        grid-template-columns:1fr;
+    }
+
+    .quick-actions{
+        grid-template-columns:1fr;
+    }
+
+    .dashboard-hero{
+        padding:28px;
+    }
+
+    .dashboard-hero h1{
+        font-size:2rem;
+    }
+}
+
+</style>
+
+{% endblock %}
 
 {% block content %}
-<div id="content-main">
-  <h1>{{ title }}</h1>
-  <div class="admin-kpi-grid">
-    <div class="kpi-card kpi-card--blue"><span>Потребители</span><strong>{{ total_users }}</strong></div>
-    <div class="kpi-card kpi-card--green"><span>Компании</span><strong>{{ total_companies }}</strong></div>
-    <div class="kpi-card kpi-card--teal"><span>Обяви</span><strong>{{ total_offers }}</strong></div>
-    <div class="kpi-card kpi-card--purple"><span>Кандидатури</span><strong>{{ total_applications }}</strong></div>
-  </div>
 
-  <div class="admin-panels" style="grid-template-columns:repeat(2,minmax(0,1fr));">
-    <article class="admin-panel"><h2>Кандидатури по статус</h2><canvas id="applicationsStatusChart"></canvas></article>
-    <article class="admin-panel"><h2>Обяви по статус</h2><canvas id="offersStatusChart"></canvas></article>
-  </div>
+<div class="dashboard-shell">
 
-  <div class="admin-panels" style="grid-template-columns:1fr;">
-    <article class="admin-panel"><h2>Потребители по роля</h2><canvas id="rolesChart"></canvas></article>
-  </div>
+    <!-- HERO -->
+
+    <section class="dashboard-hero">
+
+        <h1>{{ title }}</h1>
+
+        <p>
+            Централизирано управление на платформата,
+            активностите, потребителите,
+            стажовете и кандидатурите.
+        </p>
+
+    </section>
+
+    <!-- KPI -->
+
+    <section class="stats-grid">
+
+        <a href="{% url 'admin:accounts_user_changelist' %}"
+           class="stat-card">
+
+            <div class="stat-icon">👥</div>
+
+            <div class="stat-label">
+                Потребители
+            </div>
+
+            <div class="stat-value">
+                {{ total_users }}
+            </div>
+
+            <div class="stat-link">
+                Виж всички →
+            </div>
+
+        </a>
+
+        <a href="{% url 'admin:companies_company_changelist' %}"
+           class="stat-card">
+
+            <div class="stat-icon">🏢</div>
+
+            <div class="stat-label">
+                Компании
+            </div>
+
+            <div class="stat-value">
+                {{ total_companies }}
+            </div>
+
+            <div class="stat-link">
+                Виж всички →
+            </div>
+
+        </a>
+
+        <a href="{% url 'admin:internships_internoffer_changelist' %}"
+           class="stat-card">
+
+            <div class="stat-icon">📄</div>
+
+            <div class="stat-label">
+                Обяви
+            </div>
+
+            <div class="stat-value">
+                {{ total_offers }}
+            </div>
+
+            <div class="stat-link">
+                Управление →
+            </div>
+
+        </a>
+
+        <a href="{% url 'admin:internships_application_changelist' %}"
+           class="stat-card">
+
+            <div class="stat-icon">🚀</div>
+
+            <div class="stat-label">
+                Кандидатури
+            </div>
+
+            <div class="stat-value">
+                {{ total_applications }}
+            </div>
+
+            <div class="stat-link">
+                Преглед →
+            </div>
+
+        </a>
+
+    </section>
+
+    <!-- MAIN GRID -->
+
+    <section class="dashboard-grid">
+
+        <!-- LEFT -->
+
+        <div class="dashboard-stack">
+
+            <article class="dashboard-panel">
+
+                <div class="panel-head">
+
+                    <h2>Кандидатури по статус</h2>
+
+                    <a class="panel-link"
+                       href="{% url 'admin:internships_application_changelist' %}">
+                        Всички кандидатури →
+                    </a>
+
+                </div>
+
+                <div class="chart-wrap chart-small">
+                    <canvas id="applicationsStatusChart"></canvas>
+                </div>
+
+            </article>
+
+            <article class="dashboard-panel">
+
+                <div class="panel-head">
+
+                    <h2>Потребители по роля</h2>
+
+                    <a class="panel-link"
+                       href="{% url 'admin:accounts_user_changelist' %}">
+                        Управление →
+                    </a>
+
+                </div>
+
+                <div class="chart-wrap">
+                    <canvas id="rolesChart"></canvas>
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="dashboard-stack">
+
+            <article class="dashboard-panel">
+
+                <div class="panel-head">
+
+                    <h2>Бързи действия</h2>
+
+                </div>
+
+                <div class="quick-actions">
+
+                    <a href="{% url 'admin:accounts_user_add' %}"
+                       class="quick-action">
+
+                        <strong>➕ Нов потребител</strong>
+
+                        <span>
+                            Добавяне на акаунт
+                        </span>
+
+                    </a>
+
+                    <a href="{% url 'admin:companies_company_add' %}"
+                       class="quick-action">
+
+                        <strong>🏢 Нова компания</strong>
+
+                        <span>
+                            Нов партньор
+                        </span>
+
+                    </a>
+
+                    <a href="{% url 'admin:internships_internoffer_add' %}"
+                       class="quick-action">
+
+                        <strong>📄 Нова обява</strong>
+
+                        <span>
+                            Публикуване на стаж
+                        </span>
+
+                    </a>
+
+                    <a href="{% url 'admin:auth_group_add' %}"
+                       class="quick-action">
+
+                        <strong>🔐 Нова роля</strong>
+
+                        <span>
+                            Права и групи
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </article>
+
+            <article class="dashboard-panel">
+
+                <div class="panel-head">
+
+                    <h2>Бърз достъп</h2>
+
+                </div>
+
+                <div class="activity-feed">
+
+                    <div class="activity-item">
+
+                        <div class="activity-info">
+
+                            <div class="activity-title">
+                                Всички обяви
+                            </div>
+
+                            <div class="activity-meta">
+                                Управление на стажове
+                            </div>
+
+                        </div>
+
+                        <a class="activity-badge"
+                           href="{% url 'admin:internships_internoffer_changelist' %}">
+                            Отвори
+                        </a>
+
+                    </div>
+
+                    <div class="activity-item">
+
+                        <div class="activity-info">
+
+                            <div class="activity-title">
+                                Всички кандидатури
+                            </div>
+
+                            <div class="activity-meta">
+                                Преглед на статуси
+                            </div>
+
+                        </div>
+
+                        <a class="activity-badge"
+                           href="{% url 'admin:internships_application_changelist' %}">
+                            Отвори
+                        </a>
+
+                    </div>
+
+                    <div class="activity-item">
+
+                        <div class="activity-info">
+
+                            <div class="activity-title">
+                                Всички потребители
+                            </div>
+
+                            <div class="activity-meta">
+                                Акаунти и роли
+                            </div>
+
+                        </div>
+
+                        <a class="activity-badge"
+                           href="{% url 'admin:accounts_user_changelist' %}">
+                            Отвори
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="dashboard-panel">
+
+                <div class="panel-head">
+
+                    <h2>Обяви по статус</h2>
+
+                    <a class="panel-link"
+                       href="{% url 'admin:internships_internoffer_changelist' %}">
+                        Всички →
+                    </a>
+
+                </div>
+
+                <div class="chart-wrap chart-small">
+                    <canvas id="offersStatusChart"></canvas>
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 {{ app_status_labels|json_script:"app-status-labels" }}
 {{ app_status_values|json_script:"app-status-values" }}
+
 {{ offer_status_labels|json_script:"offer-status-labels" }}
 {{ offer_status_values|json_script:"offer-status-values" }}
+
 {{ role_labels|json_script:"role-labels" }}
 {{ role_values|json_script:"role-values" }}
+
 <script>
+
 const appLabels = JSON.parse(document.getElementById('app-status-labels').textContent);
 const appValues = JSON.parse(document.getElementById('app-status-values').textContent);
+
 const offerLabels = JSON.parse(document.getElementById('offer-status-labels').textContent);
 const offerValues = JSON.parse(document.getElementById('offer-status-values').textContent);
+
 const roleLabels = JSON.parse(document.getElementById('role-labels').textContent);
 const roleValues = JSON.parse(document.getElementById('role-values').textContent);
 
+Chart.defaults.font.family = "Inter, system-ui";
+Chart.defaults.color = "#475569";
+
 new Chart(document.getElementById('applicationsStatusChart'), {
-  type: 'doughnut',
-  data: { labels: appLabels, datasets: [{ data: appValues, backgroundColor: ['#2563eb', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'] }] },
-  options: { plugins: { legend: { position: 'bottom' } } }
+    type:'doughnut',
+
+    data:{
+        labels:appLabels,
+        datasets:[{
+            data:appValues,
+            borderWidth:0,
+            spacing:3,
+            hoverOffset:12,
+            backgroundColor:[
+                '#2563eb',
+                '#22c55e',
+                '#f59e0b',
+                '#ef4444',
+                '#8b5cf6'
+            ]
+        }]
+    },
+
+    options:{
+        maintainAspectRatio:false,
+        cutout:'68%',
+
+        plugins:{
+            legend:{
+                position:'bottom',
+                labels:{
+                    usePointStyle:true,
+                    padding:18
+                }
+            }
+        }
+    }
 });
 
 new Chart(document.getElementById('offersStatusChart'), {
-  type: 'polarArea',
-  data: { labels: offerLabels, datasets: [{ data: offerValues, backgroundColor: ['#0891b2', '#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b'] }] },
-  options: { plugins: { legend: { position: 'bottom' } } }
+    type:'polarArea',
+
+    data:{
+        labels:offerLabels,
+        datasets:[{
+            data:offerValues,
+            borderWidth:0,
+            backgroundColor:[
+                '#0891b2',
+                '#2563eb',
+                '#0ea5e9',
+                '#14b8a6',
+                '#f59e0b'
+            ]
+        }]
+    },
+
+    options:{
+        maintainAspectRatio:false,
+
+        plugins:{
+            legend:{
+                position:'bottom'
+            }
+        }
+    }
 });
 
 new Chart(document.getElementById('rolesChart'), {
-  type: 'bar',
-  data: { labels: roleLabels, datasets: [{ label: 'Брой потребители', data: roleValues, borderRadius: 8, backgroundColor: '#2563eb' }] },
-  options: { indexAxis: 'y', scales: { x: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+    type:'bar',
+
+    data:{
+        labels:roleLabels,
+        datasets:[{
+            label:'Потребители',
+            data:roleValues,
+            borderRadius:14,
+            backgroundColor:'#2563eb'
+        }]
+    },
+
+    options:{
+        maintainAspectRatio:false,
+        indexAxis:'y',
+
+        plugins:{
+            legend:{
+                display:false
+            }
+        },
+
+        scales:{
+            x:{
+                beginAtZero:true,
+                grid:{
+                    color:'rgba(148,163,184,.15)'
+                }
+            },
+
+            y:{
+                grid:{
+                    display:false
+                }
+            }
+        }
+    }
 });
+
 </script>
+
 {% endblock %}

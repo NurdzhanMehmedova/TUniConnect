@@ -74,7 +74,7 @@
                 {% endif %}
 
                 {% if user.role.name == "COMPANY" %}
-                    <a href="{% url 'company_dashboard' %}">Dashboard</a>
+                    <a href="{% url 'company_dashboard' %}">Дашборд</a>
                     <a href="{% url 'company_profile' %}">Профил</a>
                     <a href="{% url 'company_offers' %}">Моите обяви</a>
                     <a href="{% url 'company_applications' %}">Кандидатури</a>
@@ -82,7 +82,7 @@
                 {% endif %}
 
                 {% if user.role.name == "SUPER_ADMIN" %}
-                    <a href="/admin/">Admin</a>
+                    <a href="/admin/">Админ панел</a>
                 {% endif %}
 
                 <a href="{% url 'logout' %}" class="nav-btn-outline">Изход</a>

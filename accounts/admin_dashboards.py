@@ -82,7 +82,7 @@ def admin_quality_dashboard(request):
         offer_daily_values.append(offer_map.get(day, 0))
 
     context = {
-        "title": "Дашборд за проследяване",
+        "title": "Дашборд за активност",
         "latest_applications": latest_applications,
         "latest_offers": latest_offers,
         "day_labels": day_labels,

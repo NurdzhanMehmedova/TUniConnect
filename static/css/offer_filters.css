@@ -20,6 +20,9 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.4);
 }
+.search-box {
+    width:99%;
+}
 
 .offers-wrapper .search-box input {
     border: none;

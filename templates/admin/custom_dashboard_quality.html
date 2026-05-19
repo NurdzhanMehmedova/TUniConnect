@@ -1,58 +1,749 @@
 {% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+
+<link rel="stylesheet" href="{% static 'css/admin_theme.css' %}">
+
+<style>
+
+.quality-shell{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+}
+
+/* HERO */
+
+.quality-hero{
+    position:relative;
+    overflow:hidden;
+
+    padding:40px;
+
+    border-radius:30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0f172a 0%,
+            #111827 35%,
+            #1e293b 100%
+        );
+
+    color:white;
+
+    box-shadow:
+        0 30px 60px rgba(15,23,42,.28);
+}
+
+.quality-hero::before{
+    content:"";
+
+    position:absolute;
+
+    width:420px;
+    height:420px;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.04);
+
+    top:-160px;
+    right:-120px;
+}
+
+.quality-hero h1{
+    position:relative;
+    z-index:2;
+
+    margin:0 0 12px;
+
+    font-size:2.5rem;
+}
+
+.quality-hero p{
+    position:relative;
+    z-index:2;
+
+    margin:0;
+
+    max-width:860px;
+
+    opacity:.9;
+}
+
+/* HEALTH GRID */
+
+.health-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,minmax(0,1fr));
+
+    gap:18px;
+}
+
+.health-card{
+    position:relative;
+
+    overflow:hidden;
+
+    text-decoration:none;
+
+    padding:24px;
+
+    border-radius:24px;
+
+    background:rgba(255,255,255,.95);
+
+    border:1px solid #dbeafe;
+
+    box-shadow:
+        0 18px 36px rgba(15,23,42,.06);
+
+    transition:.22s;
+}
+
+.health-card:hover{
+    transform:translateY(-4px);
+}
+
+.health-label{
+    color:#64748b;
+    font-size:.9rem;
+    font-weight:700;
+}
+
+.health-value{
+    margin-top:12px;
+
+    color:#0f172a;
+
+    font-size:2.5rem;
+
+    font-weight:800;
+}
+
+.health-meta{
+    margin-top:10px;
+
+    color:#2563eb;
+
+    font-weight:700;
+}
+
+.health-icon{
+    position:absolute;
+
+    top:18px;
+    right:18px;
+
+    font-size:2rem;
+
+    opacity:.12;
+}
+
+/* GRID */
+
+.quality-grid{
+    display:grid;
+
+    grid-template-columns:
+        1.15fr
+        .85fr;
+
+    gap:22px;
+}
+
+.quality-stack{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+}
+
+/* PANELS */
+
+.quality-panel{
+    background:rgba(255,255,255,.96);
+
+    border-radius:28px;
+
+    border:1px solid #dbeafe;
+
+    padding:24px;
+
+    box-shadow:
+        0 16px 34px rgba(15,23,42,.05);
+}
+
+.panel-head{
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:16px;
+
+    margin-bottom:20px;
+}
+
+.panel-head h2{
+    margin:0;
+    color:#0f172a;
+}
+
+.panel-link{
+    text-decoration:none;
+
+    color:#2563eb;
+
+    font-weight:700;
+}
+
+/* CHART */
+
+.chart-wrap{
+    position:relative;
+    height:420px;
+}
+
+/* ACTION CENTER */
+
+.action-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:14px;
+}
+
+.action-card{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+
+    text-decoration:none;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+
+    transition:.2s;
+}
+
+.action-card:hover{
+    background:#eff6ff;
+    transform:translateY(-2px);
+}
+
+.action-card strong{
+    color:#0f172a;
+}
+
+.action-card span{
+    color:#64748b;
+    font-size:.9rem;
+}
+
+/* QUALITY INFO */
+
+.info-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.info-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+
+    padding:16px;
+
+    border-radius:18px;
+
+    background:#f8fafc;
+
+    border:1px solid #e2e8f0;
+}
+
+.info-main{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+.info-title{
+    font-weight:700;
+    color:#0f172a;
+}
+
+.info-desc{
+    color:#64748b;
+    font-size:.88rem;
+}
+
+.info-badge{
+    padding:7px 14px;
+
+    border-radius:999px;
+
+    background:#dbeafe;
+
+    color:#1d4ed8;
+
+    font-size:.78rem;
+
+    font-weight:700;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1200px){
+
+    .health-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .quality-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:700px){
+
+    .health-grid,
+    .action-grid,
+    .status-grid{
+        grid-template-columns:1fr;
+    }
+
+    .quality-hero{
+        padding:28px;
+    }
+
+    .quality-hero h1{
+        font-size:2rem;
+    }
+}
+
+</style>
+
+{% endblock %}
 
 {% block content %}
-<div id="content-main">
-  <h1>{{ title }}</h1>
-  <div class="admin-panels" style="grid-template-columns:1fr; margin-bottom:16px;">
-    <article class="admin-panel">
-      <h2>Тренд за последните 14 дни</h2>
-      <canvas id="trendChart"></canvas>
-    </article>
-  </div>
 
-  <div class="admin-panels" style="grid-template-columns:repeat(2,minmax(0,1fr));">
-    <article class="admin-panel">
-      <h2>Последни кандидатури</h2>
-      <ul>
-        {% for application in latest_applications %}
-          <li>{{ application.submitted_at|date:"d.m.Y H:i" }} — {{ application.student.user.get_full_name|default:application.student.user.username }} / {{ application.offer.title }} ({{ application.status }})</li>
-        {% empty %}
-          <li>Няма кандидатури.</li>
-        {% endfor %}
-      </ul>
-    </article>
-    <article class="admin-panel">
-      <h2>Последни обяви</h2>
-      <ul>
-        {% for offer in latest_offers %}
-          <li>{{ offer.created_at|date:"d.m.Y H:i" }} — {{ offer.title }} / {{ offer.company.name }} ({{ offer.status }})</li>
-        {% empty %}
-          <li>Няма обяви.</li>
-        {% endfor %}
-      </ul>
-    </article>
-  </div>
+<div class="quality-shell">
+
+    <!-- HERO -->
+
+    <section class="quality-hero">
+
+        <h1>{{ title }}</h1>
+
+        <p>
+            Център за наблюдение на
+            активността
+            на платформата.
+        </p>
+
+    </section>
+
+    <!-- HEALTH -->
+
+    <section class="health-grid">
+
+        <a href="{% url 'admin:internships_application_changelist' %}"
+           class="health-card">
+
+            <div class="health-icon">🚀</div>
+
+            <div class="health-label">
+                Кандидатури
+            </div>
+
+            <div class="health-value">
+                {{ latest_applications|length }}
+            </div>
+
+            <div class="health-meta">
+                Преглед →
+            </div>
+
+        </a>
+
+        <a href="{% url 'admin:internships_internoffer_changelist' %}"
+           class="health-card">
+
+            <div class="health-icon">📄</div>
+
+            <div class="health-label">
+                Активни обяви
+            </div>
+
+            <div class="health-value">
+                {{ latest_offers|length }}
+            </div>
+
+            <div class="health-meta">
+                Управление →
+            </div>
+
+        </a>
+
+        <a href="{% url 'admin:companies_company_changelist' %}"
+           class="health-card">
+
+            <div class="health-icon">🏢</div>
+
+            <div class="health-label">
+                Компании
+            </div>
+
+            <div class="health-value">
+                🌐
+            </div>
+
+            <div class="health-meta">
+                Отвори →
+            </div>
+
+        </a>
+
+        <a href="{% url 'admin:accounts_user_changelist' %}"
+           class="health-card">
+
+            <div class="health-icon">👥</div>
+
+            <div class="health-label">
+                Потребители
+            </div>
+
+            <div class="health-value">
+                🌐
+            </div>
+
+            <div class="health-meta">
+                Преглед →
+            </div>
+
+        </a>
+
+    </section>
+
+    <!-- MAIN -->
+
+    <section class="quality-grid">
+
+        <!-- LEFT -->
+
+        <div class="quality-stack">
+
+            <article class="quality-panel">
+
+                <div class="panel-head">
+
+                    <h2>
+                        Активност за последните 14 дни
+                    </h2>
+
+                </div>
+
+                <div class="chart-wrap">
+                    <canvas id="trendChart"></canvas>
+                </div>
+
+            </article>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="quality-stack">
+
+            <article class="quality-panel">
+
+                <div class="panel-head">
+
+                    <h2>
+                        Действия
+                    </h2>
+
+                </div>
+
+                <div class="action-grid">
+
+                    <a href="{% url 'admin:internships_application_changelist' %}"
+                       class="action-card">
+
+                        <strong>
+                            🚀 Кандидатури
+                        </strong>
+
+                        <span>
+                            Преглед и модерация
+                        </span>
+
+                    </a>
+
+                    <a href="{% url 'admin:internships_internoffer_changelist' %}"
+                       class="action-card">
+
+                        <strong>
+                            📄 Обяви
+                        </strong>
+
+                        <span>
+                            Управление на стажове
+                        </span>
+
+                    </a>
+
+                    <a href="{% url 'admin:admin_logentry_changelist' %}"
+                       class="action-card">
+
+                        <strong>
+                            🧾 Audit Log
+                        </strong>
+
+                        <span>
+                            Последни admin действия
+                        </span>
+
+                    </a>
+
+                    <a href="{% url 'admin:accounts_user_changelist' %}"
+                       class="action-card">
+
+                        <strong>
+                            👥 Потребители
+                        </strong>
+
+                        <span>
+                            Управление на акаунти
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </article>
+
+            <article class="quality-panel">
+
+                <div class="panel-head">
+
+                    <h2>
+                        Бързо меню
+                    </h2>
+
+                </div>
+
+                <div class="info-list">
+
+                    <div class="info-item">
+
+                        <div class="info-main">
+
+                            <div class="info-title">
+                                Всички кандидатури
+                            </div>
+
+                            <div class="info-desc">
+                                Управление на статуси
+                            </div>
+
+                        </div>
+
+                        <a href="{% url 'admin:internships_application_changelist' %}"
+                           class="info-badge">
+                            Отвори
+                        </a>
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <div class="info-main">
+
+                            <div class="info-title">
+                                Всички обяви
+                            </div>
+
+                            <div class="info-desc">
+                                Публикувани стажове
+                            </div>
+
+                        </div>
+
+                        <a href="{% url 'admin:internships_internoffer_changelist' %}"
+                           class="info-badge">
+                            Отвори
+                        </a>
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <div class="info-main">
+
+                            <div class="info-title">
+                                Компании
+                            </div>
+
+                            <div class="info-desc">
+                                Партньорски профили
+                            </div>
+
+                        </div>
+
+                        <a href="{% url 'admin:companies_company_changelist' %}"
+                           class="info-badge">
+                            Отвори
+                        </a>
+
+                    </div>
+
+                    <div class="info-item">
+
+                        <div class="info-main">
+
+                            <div class="info-title">
+                                Потребители
+                            </div>
+
+                            <div class="info-desc">
+                                Управление и роли
+                            </div>
+
+                        </div>
+
+                        <a href="{% url 'admin:accounts_user_changelist' %}"
+                           class="info-badge">
+                            Отвори
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </section>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 {{ day_labels|json_script:"day-labels" }}
 {{ app_daily_values|json_script:"app-daily-values" }}
 {{ offer_daily_values|json_script:"offer-daily-values" }}
+
 <script>
+
 const dayLabels = JSON.parse(document.getElementById('day-labels').textContent);
+
 const appDaily = JSON.parse(document.getElementById('app-daily-values').textContent);
+
 const offerDaily = JSON.parse(document.getElementById('offer-daily-values').textContent);
 
+Chart.defaults.font.family = "Inter, system-ui";
+Chart.defaults.color = "#64748b";
+
 new Chart(document.getElementById('trendChart'), {
-  type: 'line',
-  data: {
-    labels: dayLabels,
-    datasets: [
-      { label: 'Кандидатури', data: appDaily, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.15)', tension: 0.25, fill: true },
-      { label: 'Обяви', data: offerDaily, borderColor: '#14b8a6', backgroundColor: 'rgba(20,184,166,0.14)', tension: 0.25, fill: true }
-    ]
-  },
-  options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+
+    type:'line',
+
+    data:{
+        labels:dayLabels,
+
+        datasets:[
+            {
+                label:'Кандидатури',
+
+                data:appDaily,
+
+                borderColor:'#2563eb',
+
+                backgroundColor:'rgba(37,99,235,.10)',
+
+                fill:true,
+
+                tension:.35,
+
+                borderWidth:3,
+
+                pointRadius:4,
+
+                pointHoverRadius:7
+            },
+
+            {
+                label:'Обяви',
+
+                data:offerDaily,
+
+                borderColor:'#14b8a6',
+
+                backgroundColor:'rgba(20,184,166,.10)',
+
+                fill:true,
+
+                tension:.35,
+
+                borderWidth:3,
+
+                pointRadius:4,
+
+                pointHoverRadius:7
+            }
+        ]
+    },
+
+    options:{
+        maintainAspectRatio:false,
+
+        interaction:{
+            intersect:false,
+            mode:'index'
+        },
+
+        plugins:{
+            legend:{
+                position:'top'
+            }
+        },
+
+        scales:{
+            x:{
+                grid:{
+                    display:false
+                }
+            },
+
+            y:{
+                beginAtZero:true,
+
+                grid:{
+                    color:'rgba(148,163,184,.12)'
+                }
+            }
+        }
+    }
+
 });
+
 </script>
+
 {% endblock %}
