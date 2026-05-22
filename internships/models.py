@@ -100,15 +100,15 @@ class Application(models.Model):
         else:
             old_status = None
 
-        # --------------------------------------------------
-        # 1️⃣ SELECTED може да стане само ако е било APPROVED
-        # --------------------------------------------------
-        if self.status == Application.Status.SELECTED:
+            # --------------------------------------------------
+            # 1️⃣ SELECTED може да стане само ако е било APPROVED
+            # --------------------------------------------------
+            if self.status == Application.Status.SELECTED:
 
-            if old_status != Application.Status.OFFER:
-                raise ValidationError(
-                    "Application can be selected only if it was previously offered."
-                )
+                if old_status not in [Application.Status.OFFER, Application.Status.APPROVED]:
+                    raise ValidationError(
+                        "Application can be selected only if it was previously approved/offered."
+                    )
 
             # --------------------------------------------------
             # 2️⃣ Само 1 SELECTED на студент
@@ -124,11 +124,11 @@ class Application(models.Model):
                 )
 
                 # --------------------------------------------------
-                # 3️⃣ Всички други OFFER стават REJECTED_BY_STUDENT
+                # 3️⃣ Всички други OFFER/APPROVED стават REJECTED_BY_STUDENT
                 # --------------------------------------------------
                 Application.objects.filter(
                     student=self.student,
-                    status=Application.Status.OFFER
+                    status__in=[Application.Status.OFFER, Application.Status.APPROVED]
                 ).exclude(pk=self.pk).update(
                     status=Application.Status.REJECTED_BY_STUDENT
                 )

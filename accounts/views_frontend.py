@@ -630,7 +630,7 @@ def mentor_students_without_internship(request):
 
         if applications.filter(status=Application.Status.SELECTED).exists():
             status = "INTERNSHIP_SELECTED"
-        elif applications.filter(status=Application.Status.APPROVED).exists():
+        elif applications.filter(status__in=[Application.Status.APPROVED, Application.Status.OFFER]).exists():
             status = "APPROVED_BY_COMPANY"
         elif applications.filter(status=Application.Status.WAITING).exists():
             status = "WAITING"
@@ -968,6 +968,10 @@ def apply_for_offer(request, offer_id):
         return redirect("home")
 
     student = request.user.student
+    if Application.objects.filter(student=student, status=Application.Status.SELECTED).exists():
+        messages.error(request, "Вече си избрал стаж и не можеш да кандидатстваш за повече обяви.")
+        return redirect("student_offers")
+
     offer = get_object_or_404(
         InternOffer,
         id=offer_id,
@@ -976,6 +980,9 @@ def apply_for_offer(request, offer_id):
     )
 
     if request.method == "POST":
+        if Application.objects.filter(student=student, status=Application.Status.SELECTED).exists():
+            messages.error(request, "Вече си избрал стаж и не можеш да кандидатстваш за повече обяви.")
+            return redirect("student_offers")
 
         cv_type = request.POST.get("cv_type")
         motivation_type = request.POST.get("motivation_type", "text")
