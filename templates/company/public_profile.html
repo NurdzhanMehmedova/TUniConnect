@@ -167,6 +167,12 @@
 
                 {% endfor %}
 
+                {% if has_more_offers %}
+                <div style="text-align:right; margin-bottom:10px; margin-top: 20px;">
+                    <a href="{% url 'company_offers' %}" class="btn-primary">Виж всички</a>
+                </div>
+                {% endif %}
+
             </div>
 
         </div>

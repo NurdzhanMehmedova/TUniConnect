@@ -1041,12 +1041,22 @@ def offer_detail(request, offer_id):
     is_favorite = False
 
     has_cv = False
+    has_full_cv_template = False
 
     if request.user.is_authenticated and hasattr(request.user, "student"):
         cv = StudentCV.objects.filter(student=request.user.student).first()
 
         if cv and any([cv.summary, cv.experience, cv.skills, cv.education]):
             has_cv = True
+
+        has_full_cv_template = bool(
+            cv
+            and (cv.summary or "").strip()
+            and (cv.experience or "").strip()
+            and (cv.skills or "").strip()
+            and (cv.education or "").strip()
+            and request.user.profile_image
+        )
 
     if request.user.is_authenticated and hasattr(request.user, "student"):
         has_applied = Application.objects.filter(
@@ -1069,6 +1079,7 @@ def offer_detail(request, offer_id):
         "has_applied": has_applied,
         "is_favorite": is_favorite,
         "has_cv": has_cv,
+        "has_full_cv_template": has_full_cv_template,
     })
 
 from django.core.mail import EmailMessage
@@ -1185,6 +1196,16 @@ def quick_apply(request, offer_id):
     # ✅ ако НЕ е кандидатствал
     cv, _ = StudentCV.objects.get_or_create(student=student)
 
+    if not (
+            (cv.summary or "").strip()
+            and (cv.experience or "").strip()
+            and (cv.skills or "").strip()
+            and (cv.education or "").strip()
+            and request.user.profile_image
+    ):
+        messages.error(request, "За кандидатстване с шаблонно CV попълни всички CV полета и качи профилна снимка.")
+        return redirect('offer_detail', offer_id=offer.id)
+
     Application.objects.create(
         student=student,
         offer=offer,
@@ -1204,7 +1225,7 @@ def company_profile(request):
         return redirect("home")
 
     company = Company.objects.filter(user=request.user).first()
-    offers = InternOffer.objects.filter(company=company)
+    offers_qs = InternOffer.objects.filter(company=company)
 
     if request.method == "POST":
         company.description = request.POST.get("description")
@@ -1229,13 +1250,14 @@ def company_profile(request):
 
     return render(request, "company/profile.html", {
         "company": company,
-        "offers": offers
+        "offers": offers_qs[:6],
+        "has_more_offers": offers_qs.count() > 6,
     })
 
 def company_public_profile(request, company_id):
     company = get_object_or_404(Company, id=company_id)
 
-    offers = InternOffer.objects.filter(
+    offers_qs = InternOffer.objects.filter(
         company=company,
         status=InternOffer.Status.ACTIVE,
         end_date__gte=timezone.localdate(),
@@ -1243,7 +1265,54 @@ def company_public_profile(request, company_id):
 
     return render(request, "company/public_profile.html", {
         "company": company,
-        "offers": offers
+        "offers": offers_qs[:6],
+        "has_more_offers": offers_qs.count() > 6,
+    })
+
+
+def company_public_offers(request, company_id):
+    company = get_object_or_404(Company, id=company_id)
+    offers = InternOffer.objects.filter(
+        company=company,
+        status=InternOffer.Status.ACTIVE,
+        end_date__gte=timezone.localdate(),
+    ).select_related("company", "location")
+
+    search = request.GET.get("search")
+    field = request.GET.get("field")
+    workspace = request.GET.get("workspace")
+    salary = request.GET.get("salary")
+    location = request.GET.get("location")
+
+    if field:
+        offers = offers.filter(field=field)
+
+    if workspace:
+        offers = offers.filter(workspace_type=workspace)
+
+    if salary:
+        offers = offers.filter(salary_type=salary)
+
+    if location:
+        offers = offers.filter(location_id=location)
+
+    if search:
+        offers = offers.filter(
+            Q(title__icontains=search) |
+            Q(description__icontains=search) |
+            Q(company__name__icontains=search)
+        )
+
+    locations = Location.objects.all()
+    paginator = Paginator(offers, 5)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "company/public_offers.html", {
+        "company": company,
+        "offers": page_obj,
+        "locations": locations,
+        "page_obj": page_obj,
     })
 
     if not report_workflow_enabled():

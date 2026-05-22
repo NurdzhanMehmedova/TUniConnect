@@ -285,7 +285,7 @@ class="{% if section == 'assign' %}active{% endif %}">
 </td>
 
 <td>
-<a href="{{ report.report_file.url }}" target="_blank" class="btn-approve">Преглед</a>
+<a href="{{ report.report_file.url }}" download class="btn-approve">Преглед</a>
 </td>
 
 {% if report_workflow_enabled %}

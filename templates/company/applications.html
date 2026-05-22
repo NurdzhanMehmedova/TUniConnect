@@ -83,7 +83,7 @@
                      data-location-name="{{ app.offer.location.display_name|default:app.offer.location }}">
 
                     <div class="offer-logo">
-                        <img src="/static/images/logo_placeholder.png" alt="Student">
+                        <img src="{% if app.offer.company.logo %}{{ app.offer.company.logo.url }}?v={{ app.offer.company.id }}{% else %}{{ app.offer.company.image_url|default:'/static/images/logo_placeholder.png' }}{% endif %}" alt="{{ app.offer.company.name }}">
                     </div>
 
                     <div class="offer-content">

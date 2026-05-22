@@ -133,7 +133,8 @@ urlpatterns = [
     path("company/reports/<int:report_id>/reject/", company_reject_report, name="company_reject_report"),
     path("company/profile/", views_frontend.company_profile, name="company_profile"),
     path("companies/<int:company_id>/", views_frontend.company_public_profile, name="company_public_profile"),
-    path("offers/<int:offer_id>/apply/",views_frontend.apply_for_offer,name="apply_for_offer"),
+    path("companies/<int:company_id>/offers/", views_frontend.company_public_offers, name="company_public_offers"),
+    path("offers/<int:offer_id>/apply/", views_frontend.apply_for_offer, name="apply_for_offer"),
     path('offer/<int:pk>/edit/', views_frontend.edit_offer, name='edit_offer'),
     path('offers/<int:offer_id>/quick-apply/', quick_apply, name='quick_apply'),
 

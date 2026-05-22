@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/company.css' %}">
+<link rel="stylesheet" href="{% static 'css/student.css' %}">
 {% endblock %}
 
 {% block title %}Кандидатура{% endblock %}
@@ -45,50 +46,83 @@
                         <a href="{{ application.cv_file.url }}" class="btn-success">Изтегли CV</a>
                     </div>
 
-                {% elif has_meaningful_cv_text %}
-                    <p>CV е подадено като текст от шаблона на сайта.</p>
                 {% elif not application.cv_file and student_cv %}
                     <p>CV е подадено от профила на студента.</p>
+                {% elif has_meaningful_cv_text %}
+                    <p>CV е подадено като текст от шаблона на сайта.</p>
                 {% else %}
                     <p>Няма прикачено CV</p>
                 {% endif %}
             </div>
         </div>
 
-        {% if has_meaningful_cv_text %}
+        {% if student_cv and not application.cv_file %}
+            <div class="application-text-block">
+                <h4>CV от профил на студента</h4>
+
+                <div class="cv-wrapper">
+                    <div class="cv-layout-modern">
+
+                        <aside class="cv-sidebar-modern">
+                            <div class="cv-sidebar-photo-wrap">
+                                <div class="cv-photo-upload cv-photo-upload-modern" title="Профилна снимка">
+                                    {% if application.student.user.profile_image %}
+                                        <img src="{{ application.student.user.profile_image.url }}" class="cv-photo-img">
+                                    {% else %}
+                                        <span>Няма снимка</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <h2 class="cv-name-modern">{{ application.student.user.first_name }} {{ application.student.user.last_name }}</h2>
+
+                            <div class="cv-side-section">
+                                <h4>Умения</h4>
+                                {% if student_cv.skills %}
+                                    <p>{{ student_cv.skills|linebreaks }}</p>
+                                {% else %}
+                                    <p class="cv-empty">Няма попълнени умения.</p>
+                                {% endif %}
+                            </div>
+                        </aside>
+
+                        <section class="cv-main-modern">
+                            <h2 class="cv-title-modern">Професионално CV</h2>
+
+                            <article class="cv-block">
+                                <h3>Профил</h3>
+                                {% if student_cv.summary %}
+                                    <div class="cv-block-content">{{ student_cv.summary|linebreaks }}</div>
+                                {% else %}
+                                    <p class="cv-empty">Няма попълнено резюме.</p>
+                                {% endif %}
+                            </article>
+
+                            <article class="cv-block">
+                                <h3>Професионален опит</h3>
+                                {% if student_cv.experience %}
+                                    <div class="cv-block-content">{{ student_cv.experience|linebreaks }}</div>
+                                {% else %}
+                                    <p class="cv-empty">Няма попълнен опит.</p>
+                                {% endif %}
+                            </article>
+
+                            <article class="cv-block">
+                                <h3>Образование</h3>
+                                {% if student_cv.education %}
+                                    <div class="cv-block-content">{{ student_cv.education|linebreaks }}</div>
+                                {% else %}
+                                    <p class="cv-empty">Няма попълнено образование.</p>
+                                {% endif %}
+                            </article>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        {% elif has_meaningful_cv_text %}
             <div class="application-text-block">
                 <h4>CV (текст)</h4>
                 <pre>{{ application.cv_text }}</pre>
-            </div>
-        {% elif student_cv and not application.cv_file %}
-            <div class="application-text-block">
-                <h4>CV от профил на студента</h4>
-                <div class="cv-sections">
-                    {% if student_cv.summary %}
-                        <div>
-                            <h5>Профил</h5>
-                            <p>{{ student_cv.summary }}</p>
-                        </div>
-                    {% endif %}
-                    {% if student_cv.experience %}
-                        <div>
-                            <h5>Опит</h5>
-                            <p>{{ student_cv.experience }}</p>
-                        </div>
-                    {% endif %}
-                    {% if student_cv.skills %}
-                        <div>
-                            <h5>Умения</h5>
-                            <p>{{ student_cv.skills }}</p>
-                        </div>
-                    {% endif %}
-                    {% if student_cv.education %}
-                        <div>
-                            <h5>Образование</h5>
-                            <p>{{ student_cv.education }}</p>
-                        </div>
-                    {% endif %}
-                </div>
             </div>
         {% endif %}
 

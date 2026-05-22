@@ -85,10 +85,10 @@
                         {% for offer in offers %}
                             <tr>
                                 <td>{{ offer.title }}</td>
-                                <td>{{ offer.field }}</td>
+                                <td>{{ offer.get_field_display }}</td>
                                 <td>
                                     <span class="status-badge {{ offer.status|lower }}">
-                                        {{ offer.status }}
+                                        {{ offer.get_status_display }}
                                     </span>
                                 </td>
                             </tr>
