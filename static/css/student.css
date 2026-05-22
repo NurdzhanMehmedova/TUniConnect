@@ -1114,6 +1114,13 @@
     flex-direction: column;
 }
 
+.sidebar-card .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
 .company-box {
     text-align: center;
     margin-bottom: 15px;

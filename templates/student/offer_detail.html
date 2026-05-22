@@ -134,9 +134,16 @@
 
                     {% else %}
 
-                        <a href="{% url 'quick_apply' offer.id %}" class="btn-primary full">
-                            Кандидатствай с твоето CV
-                        </a>
+                        {% if has_full_cv_template %}
+                            <a href="{% url 'quick_apply' offer.id %}" class="btn-primary">
+                                Кандидатствай с твоето CV
+                            </a>
+                        {% else %}
+                            <button class="btn-primary" disabled
+                                    style="opacity:0.5; cursor:not-allowed;">
+                                Попълни CV и качи снимка
+                            </button>
+                        {% endif %}
 
                         <a href="{% url 'apply_for_offer' offer.id %}" class="btn-secondary full">
                             Кандидатствай с форма

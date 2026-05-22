@@ -52,6 +52,8 @@ def report_workflow_enabled():
     except (OperationalError, ProgrammingError):
         return False
 
+
+
 def home(request):
     context = {
         "total_students": Student.objects.count(),
@@ -65,6 +67,26 @@ def home(request):
 
     return render(request, "home.html", context)
 
+def _is_meaningful_cv_value(value):
+    text = (value or "").strip()
+
+    if not text:
+        return False
+
+    placeholders = [
+        "добави кратко професионално резюме",
+        "опиши стажове",
+        "добави учебна информация",
+        "добави ключови умения",
+    ]
+
+    normalized = text.lower()
+
+    for placeholder in placeholders:
+        if placeholder in normalized:
+            return False
+
+    return len(text) >= 5
 
 # ================= LOGIN =================
 
@@ -967,7 +989,21 @@ def apply_for_offer(request, offer_id):
         if cv_type == "profile":
             cv = StudentCV.objects.filter(student=student).first()
 
-            if not cv or not any([cv.summary, cv.experience, cv.skills, cv.education]):
+            cv_placeholders = {
+                "добави кратко професионално резюме.",
+                "опиши стажове, практики или проекти.",
+                "добави учебна информация и релевантни курсове.",
+                "добави ключови умения в полето отдолу.",
+            }
+
+            if not (
+                    cv
+                    and _is_meaningful_cv_value(cv.summary)
+                    and _is_meaningful_cv_value(cv.experience)
+                    and _is_meaningful_cv_value(cv.skills)
+                    and _is_meaningful_cv_value(cv.education)
+                    and request.user.profile_image
+            ):
                 messages.error(request, "Нямате попълнено CV.")
                 return redirect(request.path)
 
@@ -1004,9 +1040,21 @@ def apply_for_offer(request, offer_id):
 
     cv = StudentCV.objects.filter(student=student).first()
 
-    has_cv = False
-    if cv and any([cv.summary, cv.experience, cv.skills, cv.education]):
-        has_cv = True
+    cv_placeholders = {
+        "добави кратко професионално резюме.",
+        "опиши стажове, практики или проекти.",
+        "добави учебна информация и релевантни курсове.",
+        "добави ключови умения в полето отдолу.",
+    }
+
+    has_cv = bool(
+        cv
+        and _is_meaningful_cv_value(cv.summary)
+        and _is_meaningful_cv_value(cv.experience)
+        and _is_meaningful_cv_value(cv.skills)
+        and _is_meaningful_cv_value(cv.education)
+        and request.user.profile_image
+    )
 
     return render(request, "student/apply.html", {
         "offer": offer,
@@ -1049,12 +1097,18 @@ def offer_detail(request, offer_id):
         if cv and any([cv.summary, cv.experience, cv.skills, cv.education]):
             has_cv = True
 
+        cv_placeholders = {
+            "добави кратко професионално резюме.",
+            "опиши стажове, практики или проекти.",
+            "добави учебна информация и релевантни курсове.",
+            "добави ключови умения в полето отдолу.",
+        }
         has_full_cv_template = bool(
             cv
-            and (cv.summary or "").strip()
-            and (cv.experience or "").strip()
-            and (cv.skills or "").strip()
-            and (cv.education or "").strip()
+            and _is_meaningful_cv_value(cv.summary)
+            and _is_meaningful_cv_value(cv.experience)
+            and _is_meaningful_cv_value(cv.skills)
+            and _is_meaningful_cv_value(cv.education)
             and request.user.profile_image
         )
 
@@ -1082,7 +1136,7 @@ def offer_detail(request, offer_id):
         "has_full_cv_template": has_full_cv_template,
     })
 
-from django.core.mail import EmailMessage
+    from django.core.mail import EmailMessage
 
 
 def contact_submit(request):
@@ -1188,20 +1242,24 @@ def quick_apply(request, offer_id):
     )
     student = request.user.student
 
-    # ✅ ПРОВЕРКА
     if Application.objects.filter(student=student, offer=offer).exists():
         messages.warning(request, "Вече си кандидатствал по тази обява.")
         return redirect('offer_detail', offer_id=offer.id)
 
-    # ✅ ако НЕ е кандидатствал
     cv, _ = StudentCV.objects.get_or_create(student=student)
 
+    cv_placeholders = {
+        "добави кратко професионално резюме.",
+        "опиши стажове, практики или проекти.",
+        "добави учебна информация и релевантни курсове.",
+        "добави ключови умения в полето отдолу.",
+    }
     if not (
-            (cv.summary or "").strip()
-            and (cv.experience or "").strip()
-            and (cv.skills or "").strip()
-            and (cv.education or "").strip()
-            and request.user.profile_image
+        _is_meaningful_cv_value(cv.summary)
+        and _is_meaningful_cv_value(cv.experience)
+        and _is_meaningful_cv_value(cv.skills)
+        and _is_meaningful_cv_value(cv.education)
+        and request.user.profile_image
     ):
         messages.error(request, "За кандидатстване с шаблонно CV попълни всички CV полета и качи профилна снимка.")
         return redirect('offer_detail', offer_id=offer.id)
