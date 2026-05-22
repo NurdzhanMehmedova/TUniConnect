@@ -102,16 +102,19 @@
 <main class="main-content">
     {% if messages %}
         <div class="alert-container">
-            {% for message in messages %}
-                <div class="custom-alert {% if message.tags == 'error' %}error{% else %}success{% endif %}">
-                    {{ message }}
+            <div id="messageModal" class="message-modal-backdrop hidden" aria-hidden="true">
+                <div class="message-modal" role="dialog" aria-modal="true" aria-labelledby="message-modal-title">
+                    <h3 id="message-modal-title">Грешка</h3>
+                    <ul id="message-modal-list">
+                    {% for message in messages %}
+                        {% if message.level_tag == "error" or "error" in message.tags %}
+                            <li>{{ message }}</li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                    <button type="button" id="message-modal-close" class="btn-primary message-modal-close">Затвори</button>
                 </div>
-                {% if message.tags == 'error' %}
-                    <script>
-                        alert("{{ message|escapejs }}");
-                    </script>
-                {% endif %}
-            {% endfor %}
+            </div>
         </div>
     {% endif %}
     {% block content %}{% endblock %}
@@ -169,6 +172,28 @@
         });
 
         setInterval(normalizeLanguageOptions, 1000);
+    })();
+
+    (function () {
+        const modal = document.getElementById("messageModal");
+        if (!modal) return;
+
+        const closeBtn = document.getElementById("message-modal-close");
+        const list = document.getElementById("message-modal-list");
+        if (!closeBtn || !list || !list.children.length) return;
+
+        modal.classList.remove("hidden");
+        modal.setAttribute("aria-hidden", "false");
+
+        function closeModal() {
+            modal.classList.add("hidden");
+            modal.setAttribute("aria-hidden", "true");
+        }
+
+        closeBtn.addEventListener("click", closeModal);
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) closeModal();
+        });
     })();
 </script>
 

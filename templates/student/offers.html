@@ -187,13 +187,6 @@
 </div>
 
 <script>
-{% if messages %}
-    {% for message in messages %}
-        {% if message.tags == "error" %}
-            alert("{{ message|escapejs }}");
-        {% endif %}
-    {% endfor %}
-{% endif %}
 function getCSRFToken() {
     return document.cookie.split('; ')
         .find(row => row.startsWith('csrftoken='))

@@ -614,6 +614,22 @@
     box-shadow: 0 12px 30px rgba(99,102,241,0.4);
 }
 
+.offers-wrapper .btn-danger {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 2px solid #1f2937;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.offers-wrapper .btn-danger:hover {
+    background: #dc2626;
+}
+
 /* RESPONSIVE */
 
 @media (max-width: 900px) {
