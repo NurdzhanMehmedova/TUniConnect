@@ -109,9 +109,10 @@
                 </div>
 
                 <!-- STATUS -->
-                <div class="offer-actions">
+                <div class="offer-actions offer-actions--applications">
 
                     <span class="status-badge
+                        status-badge--fixed
                         {% if app.status == 'Approved' %}approved
                         {% elif app.status == 'Seen' %}seen
                         {% elif app.status == 'Rejected' %}rejected
@@ -139,18 +140,18 @@
 
                     </span>
                     {% if app.status == 'Offer' %}
-                    <div style="margin-top:10px; display:flex; gap:8px;" onclick="event.stopPropagation();">
+                    <div class="application-offer-actions" onclick="event.stopPropagation();">
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="application_id" value="{{ app.id }}">
                             <input type="hidden" name="action" value="accept_offer">
-                            <button type="submit" class="btn-primary">Приеми</button>
+                            <button type="submit" class="btn-primary application-action-btn">Приеми</button>
                         </form>
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="application_id" value="{{ app.id }}">
                             <input type="hidden" name="action" value="reject_offer">
-                            <button type="submit" class="btn-danger">Отхвърли</button>
+                            <button type="submit" class="btn-danger application-action-btn">Отхвърли</button>
                         </form>
                     </div>
                     {% endif %}

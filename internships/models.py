@@ -93,47 +93,37 @@ class Application(models.Model):
         verbose_name_plural = "Кандидатури"
 
     def save(self, *args, **kwargs):
-
-        # Вземаме стария статус ако съществува
+        old_status = None
         if self.pk:
             old_status = Application.objects.get(pk=self.pk).status
-        else:
-            old_status = None
 
-            # --------------------------------------------------
-            # 1️⃣ SELECTED може да стане само ако е било APPROVED
-            # --------------------------------------------------
-            if self.status == Application.Status.SELECTED:
+        is_transition_to_selected = (
+            self.status == Application.Status.SELECTED
+            and old_status != Application.Status.SELECTED
+        )
 
-                if old_status not in [Application.Status.OFFER, Application.Status.APPROVED]:
-                    raise ValidationError(
-                        "Application can be selected only if it was previously approved/offered."
-                    )
+        if is_transition_to_selected:
+            if old_status not in [Application.Status.OFFER, Application.Status.APPROVED]:
+                raise ValidationError(
+                    "Application can be selected only if it was previously approved/offered."
+                )
 
-            # --------------------------------------------------
-            # 2️⃣ Само 1 SELECTED на студент
-            # --------------------------------------------------
             existing_selected = Application.objects.filter(
                 student=self.student,
                 status=Application.Status.SELECTED
             ).exclude(pk=self.pk)
-
             if existing_selected.exists():
-                raise ValidationError(
-                    "Student can select only one internship."
-                )
-
-                # --------------------------------------------------
-                # 3️⃣ Всички други OFFER/APPROVED стават REJECTED_BY_STUDENT
-                # --------------------------------------------------
-                Application.objects.filter(
-                    student=self.student,
-                    status__in=[Application.Status.OFFER, Application.Status.APPROVED]
-                ).exclude(pk=self.pk).update(
-                    status=Application.Status.REJECTED_BY_STUDENT
-                )
+                raise ValidationError("Student can select only one internship.")
 
         super().save(*args, **kwargs)
+
+        if is_transition_to_selected:
+            Application.objects.filter(
+                student=self.student,
+                status__in=[Application.Status.OFFER, Application.Status.APPROVED],
+            ).exclude(pk=self.pk).update(
+                status=Application.Status.REJECTED_BY_STUDENT
+            )
 
     def __str__(self):
         return f"{self.student} -> {self.offer}"

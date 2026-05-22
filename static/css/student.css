@@ -447,6 +447,45 @@
     align-items: center;
 }
 
+.offer-actions--applications {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+.status-badge--fixed {
+    min-width: 114px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    text-align: center;
+    margin-top: 6px;
+}
+
+.application-offer-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.application-offer-actions form {
+    margin: 0;
+}
+
+.application-action-btn {
+    min-width: 114px;
+    height: 40px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin-top: 6px;
+}
+
 /* ===== FIX DETAIL WIDTH ===== */
 
 /* override само за detail страницата */

@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
 from rest_framework import viewsets
 from internships.models import Favorite
 from django.http import JsonResponse
@@ -288,8 +289,19 @@ def student_applications(request):
                 messages.error(request, "Можеш да приемеш само кандидатура със статус Оферта.")
                 return redirect("student_applications")
 
+            if Application.objects.filter(
+                    student=student,
+                    status=Application.Status.SELECTED
+            ).exclude(pk=application.pk).exists():
+                messages.error(request, "Вече имаш избран стаж. Не можеш да приемеш нова оферта.")
+                return redirect("student_applications")
+
             application.status = Application.Status.SELECTED
-            application.save()
+            try:
+                application.save()
+            except ValidationError as exc:
+                messages.error(request, "; ".join(exc.messages))
+                return redirect("student_applications")
             messages.success(request, "Офертата е приета. Всички други оферти са автоматично отхвърлени.")
             return redirect("student_applications")
 
