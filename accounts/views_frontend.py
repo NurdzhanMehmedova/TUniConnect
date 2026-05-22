@@ -836,7 +836,7 @@ def company_application_detail(request, application_id):
         student_name = application.student.user.first_name
 
         if action == "approve":
-            application.status = Application.Status.APPROVED
+            application.status = Application.Status.OFFER
             application.rejection_reason = ""  # чистим ако има старо
             application.save()
 

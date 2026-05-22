@@ -278,6 +278,30 @@ def student_applications(request):
         return redirect("home")
 
     student = request.user.student
+    if request.method == "POST":
+        action = request.POST.get("action")
+        application_id = request.POST.get("application_id")
+        application = get_object_or_404(Application, id=application_id, student=student)
+
+        if action == "accept_offer":
+            if application.status != Application.Status.OFFER:
+                messages.error(request, "Можеш да приемеш само кандидатура със статус Оферта.")
+                return redirect("student_applications")
+
+            application.status = Application.Status.SELECTED
+            application.save()
+            messages.success(request, "Офертата е приета. Всички други оферти са автоматично отхвърлени.")
+            return redirect("student_applications")
+
+        if action == "reject_offer":
+            if application.status != Application.Status.OFFER:
+                messages.error(request, "Можеш да отхвърлиш само кандидатура със статус Оферта.")
+                return redirect("student_applications")
+
+            application.status = Application.Status.REJECTED_BY_STUDENT
+            application.save(update_fields=["status"])
+            messages.info(request, "Офертата е отхвърлена.")
+            return redirect("student_applications")
     applications = Application.objects.filter(
         student=student
     ).select_related("offer", "offer__company", "offer__location").order_by("-submitted_at")

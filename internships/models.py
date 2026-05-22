@@ -63,7 +63,9 @@ class Application(models.Model):
         WAITING = "Waiting", "Чакащи.."
         SEEN = "Seen", "Видяно"
         APPROVED = "Approved", "Одобрен"
+        OFFER = "Offer", "Оферта"
         REJECTED = "Rejected", "Отхвърлен"
+        REJECTED_BY_STUDENT = "RejectedByStudent", "Отхвърлено от студента"
         SELECTED = "Selected", "Избрано от Студент"
 
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -103,9 +105,9 @@ class Application(models.Model):
         # --------------------------------------------------
         if self.status == Application.Status.SELECTED:
 
-            if old_status != Application.Status.APPROVED:
+            if old_status != Application.Status.OFFER:
                 raise ValidationError(
-                    "Application can be selected only if it was previously approved."
+                    "Application can be selected only if it was previously offered."
                 )
 
             # --------------------------------------------------
@@ -121,15 +123,15 @@ class Application(models.Model):
                     "Student can select only one internship."
                 )
 
-            # --------------------------------------------------
-            # 3️⃣ Всички други APPROVED стават REJECTED
-            # --------------------------------------------------
-            Application.objects.filter(
-                student=self.student,
-                status=Application.Status.APPROVED
-            ).exclude(pk=self.pk).update(
-                status=Application.Status.REJECTED
-            )
+                # --------------------------------------------------
+                # 3️⃣ Всички други OFFER стават REJECTED_BY_STUDENT
+                # --------------------------------------------------
+                Application.objects.filter(
+                    student=self.student,
+                    status=Application.Status.OFFER
+                ).exclude(pk=self.pk).update(
+                    status=Application.Status.REJECTED_BY_STUDENT
+                )
 
         super().save(*args, **kwargs)
 

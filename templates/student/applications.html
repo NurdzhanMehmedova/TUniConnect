@@ -115,7 +115,9 @@
                         {% if app.status == 'Approved' %}approved
                         {% elif app.status == 'Seen' %}seen
                         {% elif app.status == 'Rejected' %}rejected
+                        {% elif app.status == 'RejectedByStudent' %}rejected
                         {% elif app.status == 'Selected' %}approved
+                        {% elif app.status == 'Offer' %}seen
                         {% else %}pending
                         {% endif %}">
 
@@ -125,13 +127,33 @@
                             Прочетена
                         {% elif app.status == 'Rejected' %}
                             Отхвърлена
+                        {% elif app.status == 'RejectedByStudent' %}
+                            Отхвърлена от теб
                         {% elif app.status == 'Selected' %}
                             Избрана
+                        {% elif app.status == 'Offer' %}
+                            Оферта
                         {% else %}
                              В изчакване
                         {% endif %}
 
                     </span>
+                    {% if app.status == 'Offer' %}
+                    <div style="margin-top:10px; display:flex; gap:8px;" onclick="event.stopPropagation();">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="application_id" value="{{ app.id }}">
+                            <input type="hidden" name="action" value="accept_offer">
+                            <button type="submit" class="btn-primary">Приеми</button>
+                        </form>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="application_id" value="{{ app.id }}">
+                            <input type="hidden" name="action" value="reject_offer">
+                            <button type="submit" class="btn-danger">Отхвърли</button>
+                        </form>
+                    </div>
+                    {% endif %}
 
                 </div>
 

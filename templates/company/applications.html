@@ -98,10 +98,16 @@
                     </div>
 
                     <div class="offer-actions application-actions">
-                        {% if app.status == "Approved" %}
+                        {% if app.status == "Offer" %}
+                            <span class="btn-status btn-approved">Изпратена оферта</span>
+                        {% elif app.status == "Approved" %}
                             <span class="btn-status btn-approved">Одобрена</span>
                         {% elif app.status == "Rejected" %}
                             <span class="btn-status btn-rejected">Отхвърлена</span>
+                        {% elif app.status == "RejectedByStudent" %}
+                            <span class="btn-status btn-rejected">Отхвърлена от студента</span>
+                        {% elif app.status == "Selected" %}
+                            <span class="btn-status btn-approved">Приета оферта</span>
                         {% else %}
                             <a href="{% url 'company_application_detail' app.id %}" class="btn-primary">Преглед</a>
                         {% endif %}
