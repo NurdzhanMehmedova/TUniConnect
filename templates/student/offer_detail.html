@@ -132,6 +132,16 @@
                             Кандидатствай с форма
                         </button>
 
+                    {% elif has_selected_internship %}
+
+                        <button class="btn-primary full" disabled>
+                            Имате избран стаж
+                        </button>
+
+                        <button class="btn-secondary full" disabled>
+                            Кандидатстване е блокирано
+                        </button>
+
                     {% else %}
 
                         {% if has_full_cv_template %}

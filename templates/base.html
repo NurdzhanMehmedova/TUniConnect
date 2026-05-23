@@ -107,7 +107,7 @@
                     <h3 id="message-modal-title">Грешка</h3>
                     <ul id="message-modal-list">
                     {% for message in messages %}
-                        {% if message.level_tag == "error" or "error" in message.tags %}
+                        {% if message.level_tag == "error" or "error" in message.tags or "warning" in message.tags %}
                             <li>{{ message }}</li>
                         {% endif %}
                     {% endfor %}
@@ -179,8 +179,8 @@
         if (!modal) return;
 
         const closeBtn = document.getElementById("message-modal-close");
-        const list = document.getElementById("message-modal-list");
-        if (!closeBtn || !list || !list.children.length) return;
+        const messageItems = document.querySelectorAll("#message-modal-list li");
+        if (!closeBtn || messageItems.length === 0) return;
 
         modal.classList.remove("hidden");
         modal.setAttribute("aria-hidden", "false");

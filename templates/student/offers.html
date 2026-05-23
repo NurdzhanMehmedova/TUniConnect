@@ -133,6 +133,14 @@
                             ✔ Вече кандидатства
                         </button>
 
+                    {% elif has_selected_internship %}
+
+                        <button class="btn-primary full"
+                                onclick="event.stopPropagation();"
+                                disabled>
+                            Имате избран стаж
+                        </button>
+
                     {% else %}
 
                         <a href="{% url 'apply_for_offer' offer.id %}"

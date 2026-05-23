@@ -1098,7 +1098,13 @@ def offer_detail(request, offer_id):
     has_cv = False
     has_full_cv_template = False
 
+    has_selected_internship = False
+
     if request.user.is_authenticated and hasattr(request.user, "student"):
+        has_selected_internship = Application.objects.filter(
+            student=request.user.student,
+            status=Application.Status.SELECTED,
+        ).exists()
         cv = StudentCV.objects.filter(student=request.user.student).first()
 
         if cv and any([cv.summary, cv.experience, cv.skills, cv.education]):
@@ -1141,6 +1147,7 @@ def offer_detail(request, offer_id):
         "is_favorite": is_favorite,
         "has_cv": has_cv,
         "has_full_cv_template": has_full_cv_template,
+        "has_selected_internship": has_selected_internship,
     })
 
     from django.core.mail import EmailMessage
@@ -1248,6 +1255,10 @@ def quick_apply(request, offer_id):
         end_date__gte=timezone.localdate(),
     )
     student = request.user.student
+
+    if Application.objects.filter(student=student, status=Application.Status.SELECTED).exists():
+        messages.error(request, "Вече си избрал стаж и не можеш да кандидатстваш за повече обяви.")
+        return redirect("student_offers")
 
     if Application.objects.filter(student=student, offer=offer).exists():
         messages.warning(request, "Вече си кандидатствал по тази обява.")

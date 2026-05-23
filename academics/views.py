@@ -247,7 +247,13 @@ def student_offers(request):
 
     applications = []
 
+    has_selected_internship = False
+
     if request.user.is_authenticated and hasattr(request.user, "student"):
+        has_selected_internship = Application.objects.filter(
+            student=request.user.student,
+            status=Application.Status.SELECTED
+        ).exists()
         applications = Application.objects.filter(
             student=request.user.student
         ).values_list("offer_id", flat=True)
@@ -261,8 +267,9 @@ def student_offers(request):
         "offers": page_obj,
         "locations": locations,
         "page_obj": page_obj,
-        "favorites": list(favorites),  # ✅ ТОВА ЛИПСВАШЕ
+        "favorites": list(favorites),
         "applied_offers": list(applications),
+        "has_selected_internship": has_selected_internship,
     }
 
     return render(request, "student/offers.html", context)
@@ -466,9 +473,13 @@ def saved_offers(request):
     applications = Application.objects.filter(
         student=request.user.student
     ).values_list("offer_id", flat=True)
+    has_selected_internship = Application.objects.filter(
+        student=request.user.student,
+        status=Application.Status.SELECTED
+    ).exists()
 
     return render(request, "student/saved.html", {
         "offers": offers,
-        "applied_offers": list(applications)
+        "applied_offers": list(applications),
+        "has_selected_internship": has_selected_internship,
     })
-

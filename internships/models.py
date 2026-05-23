@@ -128,7 +128,6 @@ class Application(models.Model):
     def __str__(self):
         return f"{self.student} -> {self.offer}"
 
-
 class Report(models.Model):
     class ApprovalStatus(models.TextChoices):
         PENDING = "PENDING", "Чака одобрение"
