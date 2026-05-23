@@ -19,6 +19,7 @@ urlpatterns = [
     path("reports/", student_reports, name="student_reports"),
     path("favorite/<int:offer_id>/", views.toggle_favorite, name="toggle_favorite"),
     path("saved/", views.saved_offers, name="saved_offers"),
+    path("reports/save-daily-log/", views.save_daily_log, name="save_daily_log"),
 ]
 
 if settings.DEBUG:

@@ -50,6 +50,18 @@
             <select id="applicationsLocation">
                 <option value="">Всички</option>
             </select>
+
+            <label>Статус</label>
+            <select id="applicationsStatus">
+                <option value="">Всички</option>
+                <option value="Waiting">В изчакване</option>
+                <option value="Seen">Прочетена</option>
+                <option value="Approved">Одобрена</option>
+                <option value="Offer">Оферта</option>
+                <option value="Rejected">Отхвърлена</option>
+                <option value="RejectedByStudent">Отхвърлена от теб</option>
+                <option value="Selected">Избрана</option>
+            </select>
         </div>
 
     {% if applications %}
@@ -66,6 +78,7 @@
                  data-workspace="{{ app.offer.workspace_type }}"
                  data-salary="{{ app.offer.salary_type }}"
                  data-location="{{ app.offer.location.id }}"
+                 data-status="{{ app.status }}"
                  {% if app.offer.end_date >= today %}
                  onclick="window.location.href='{% url 'offer_detail' app.offer.id %}'"
                  {% endif %}>
@@ -181,6 +194,7 @@ const applicationsField = document.getElementById("applicationsField");
 const applicationsWorkspace = document.getElementById("applicationsWorkspace");
 const applicationsSalary = document.getElementById("applicationsSalary");
 const applicationsLocation = document.getElementById("applicationsLocation");
+const applicationsStatus = document.getElementById("applicationsStatus");
 const applicationCards = Array.from(document.querySelectorAll("#applicationsList .offer-card"));
 
 function populateApplicationLocations() {
@@ -209,6 +223,7 @@ function applyApplicationFilters() {
     const workspaceValue = applicationsWorkspace.value;
     const salaryValue = applicationsSalary.value;
     const locationValue = applicationsLocation.value;
+    const statusValue = applicationsStatus.value;
 
     applicationCards.forEach(card => {
         const searchBlob = `${card.dataset.title} ${card.dataset.company} ${card.dataset.description}`;
@@ -217,13 +232,14 @@ function applyApplicationFilters() {
         const matchesWorkspace = !workspaceValue || card.dataset.workspace === workspaceValue;
         const matchesSalary = !salaryValue || card.dataset.salary === salaryValue;
         const matchesLocation = !locationValue || card.dataset.location === locationValue;
+        const matchesStatus = !statusValue || card.dataset.status === statusValue;
 
-        card.style.display = (matchesSearch && matchesField && matchesWorkspace && matchesSalary && matchesLocation) ? "" : "none";
+        card.style.display = (matchesSearch && matchesField && matchesWorkspace && matchesSalary && matchesLocation && matchesStatus) ? "" : "none";
     });
 }
 
 populateApplicationLocations();
-[applicationsSearch, applicationsField, applicationsWorkspace, applicationsSalary, applicationsLocation].forEach(el => {
+[applicationsSearch,applicationsField,applicationsWorkspace,applicationsSalary,applicationsLocation,applicationsStatus].forEach(el => {
     el.addEventListener("input", applyApplicationFilters);
     el.addEventListener("change", applyApplicationFilters);
 });

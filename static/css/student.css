@@ -2583,3 +2583,44 @@ button[disabled] {
     display: flex;
     justify-content: flex-start;
 }
+
+
+.report-input-locked {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1 !important;
+    cursor: not-allowed;
+    font-weight: 600;
+}
+
+.report-input-locked:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.report-error-field {
+    border: 1px solid #ef4444 !important;
+    background: #fef2f2 !important;
+}
+
+.daily-log-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.btn-remove-day {
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+}
+
+.btn-remove-day:hover {
+    background: #fef2f2;
+}
+
+.daily-log-error-message {
+    color: #dc2626;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 12px;
+}

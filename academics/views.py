@@ -16,6 +16,7 @@ from django.db.utils import OperationalError, ProgrammingError
 from django.contrib import messages
 from companies.models import Location
 from accounts.models import StudentCV
+from internships.models import InternshipDailyLog
 from academics.models import (
     Student,
     Mentor,
@@ -346,7 +347,27 @@ def student_reports(request):
     student = request.user.student
     workflow_enabled = report_workflow_enabled()
     reports = Report.objects.filter(student=student).order_by("-submitted_at")
-    has_uploaded_report = reports.exists()
+    latest_report = reports.first()
+
+    has_uploaded_report = False
+
+    if latest_report:
+
+        if (
+                latest_report.company_status != Report.ApprovalStatus.REJECTED
+                and latest_report.mentor_status != Report.ApprovalStatus.REJECTED
+        ):
+            has_uploaded_report = True
+    saved_logs = InternshipDailyLog.objects.filter(
+        student=student,
+        status=InternshipDailyLog.Status.DRAFT
+    )
+
+    saved_total_hours = sum(
+        float(log.hours)
+        for log in saved_logs
+    )
+
     if not workflow_enabled:
         reports = reports.only("id", "student_id", "report_file", "grade", "comments", "submitted_at")
     report_type = request.GET.get("type", "internship")
@@ -363,11 +384,59 @@ def student_reports(request):
         action = request.POST.get("action")
 
         if action == "upload_report":
-            if has_uploaded_report:
-                messages.error(request, "Вече имаш подаден доклад. Не можеш да качваш втори.")
+            latest_report = reports.first()
+
+            can_edit_rejected_report = (
+                    latest_report
+                    and (
+                            latest_report.company_status == Report.ApprovalStatus.REJECTED
+                            or latest_report.mentor_status == Report.ApprovalStatus.REJECTED
+                    )
+            )
+
+            if has_uploaded_report and not can_edit_rejected_report:
+                messages.error(
+                    request,
+                    "Вече имаш подаден доклад."
+                )
                 return redirect(f"{request.path}?type={report_type}")
 
             report_file = request.FILES.get("report_file")
+
+            required_fields = []
+
+            if report_type == "employment_contract":
+                required_fields = [
+                    request.POST.get("company_eik"),
+                    request.POST.get("employment_description"),
+                    request.POST.get("employment_start_date"),
+                    request.POST.get("employment_end_date"),
+                ]
+
+            elif report_type == "internship":
+                required_fields = [
+                    request.POST.get("mentor_full_name"),
+                    request.POST.get("mentor_department"),
+                    request.POST.get("internship_track"),
+                    request.POST.get("internship_from"),
+                    request.POST.get("internship_to"),
+                    request.POST.get("internship_goals"),
+                    request.POST.get("daily_date_1"),
+                    request.POST.get("daily_hours_1"),
+                    request.POST.get("daily_task_1"),
+                ]
+
+            contact_fields = [
+                request.POST.get("contact_name"),
+                request.POST.get("contact_email"),
+                request.POST.get("contact_phone"),
+            ]
+
+            required_fields.extend(contact_fields)
+
+            if any(not field or not str(field).strip() for field in required_fields):
+                messages.error(request, "Всички полета са задължителни.")
+                return redirect(f"{request.path}?type={report_type}")
 
             if report_type == "employment_contract" and not approved_application:
                 messages.error(request, "Нямате одобрен стаж, за който да подадете отчет.")
@@ -389,19 +458,85 @@ def student_reports(request):
                     messages.error(request, "Общият брой часове за стаж към университета трябва да е между 150 и 155.")
                     return redirect(f"{request.path}?type={report_type}")
 
-            Report.objects.create(
-                student=student,
-                mentor=student.mentor,
-                company=approved_application.offer.company if approved_application else None,
-                report_file=report_file,
-                **(
-                    {
-                        "company_status": Report.ApprovalStatus.PENDING,
-                        "mentor_status": Report.ApprovalStatus.PENDING,
-                    }
-                    if workflow_enabled
-                    else {}
+            report_data = {
+                "report_type": report_type,
+
+                "mentor_full_name": request.POST.get("mentor_full_name", ""),
+                "mentor_department": request.POST.get("mentor_department", ""),
+                "internship_track": request.POST.get("internship_track", ""),
+
+                "internship_from": request.POST.get("internship_from") or None,
+                "internship_to": request.POST.get("internship_to") or None,
+
+                "internship_goals": request.POST.get("internship_goals", ""),
+
+                "company_eik": request.POST.get("company_eik", ""),
+
+                "employment_start_date": request.POST.get("employment_start_date") or None,
+                "employment_end_date": request.POST.get("employment_end_date") or None,
+
+                "employment_description": request.POST.get("employment_description", ""),
+
+                "contact_name": request.POST.get("contact_name", ""),
+                "contact_email": request.POST.get("contact_email", ""),
+                "contact_phone": request.POST.get("contact_phone", ""),
+
+                "internship_total_hours":
+                    request.POST.get("internship_total_hours") or None,
+            }
+
+            if can_edit_rejected_report:
+
+                report = latest_report
+
+                report.report_file = report_file
+
+                for key, value in report_data.items():
+                    setattr(report, key, value)
+
+                report.company_status = Report.ApprovalStatus.PENDING
+                report.mentor_status = Report.ApprovalStatus.PENDING
+
+                report.submitted_at = timezone.now()
+
+                report.save()
+
+
+            else:
+
+                report = Report.objects.create(
+
+                    student=student,
+
+                    mentor=student.mentor,
+
+                    company=approved_application.offer.company if approved_application else None,
+
+                    report_file=report_file,
+
+                    **report_data,
+
+                    **(
+
+                        {
+
+                            "company_status": Report.ApprovalStatus.PENDING,
+
+                            "mentor_status": Report.ApprovalStatus.PENDING,
+
+                        }
+
+                        if workflow_enabled
+
+                        else {}
+
+                    )
+
                 )
+
+            saved_logs.update(
+                status=InternshipDailyLog.Status.SUBMITTED,
+                report=report
             )
             if workflow_enabled:
                 messages.success(request, "Докладът е качен успешно и чака одобрение от фирмата.")
@@ -425,6 +560,9 @@ def student_reports(request):
         "report_type": report_type,
         "report_workflow_enabled": workflow_enabled,
         "has_uploaded_report": has_uploaded_report,
+        "saved_logs": saved_logs,
+        "saved_total_hours": saved_total_hours,
+        "latest_report": latest_report,
     })
 
 @login_required
@@ -482,4 +620,35 @@ def saved_offers(request):
         "offers": offers,
         "applied_offers": list(applications),
         "has_selected_internship": has_selected_internship,
+    })
+
+@login_required
+@require_POST
+def save_daily_log(request):
+
+    if request.user.role.name != "STUDENT":
+        return JsonResponse({"success": False}, status=403)
+
+    student = request.user.student
+
+    date = request.POST.get("date")
+    hours = request.POST.get("hours")
+    task = request.POST.get("task")
+
+    if not date or not hours or not task:
+        return JsonResponse({
+            "success": False,
+            "message": "Всички полета са задължителни."
+        })
+
+    InternshipDailyLog.objects.create(
+        student=student,
+        date=date,
+        hours=hours,
+        task=task,
+        status=InternshipDailyLog.Status.DRAFT
+    )
+
+    return JsonResponse({
+        "success": True
     })

@@ -20,23 +20,23 @@
                 Минималният необходим обем за успешен стаж е <strong>150 часа</strong>.
             </p>
             <table class="report-guide-table">
-                <thead>
-                    <tr>
-                        <th>Тип стаж</th>
-                        <th>Задължително доказателство</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Основен трудов договор</td>
-                        <td>Прикачен трудов договор от работодателя</td>
-                    </tr>
-                    <tr>
-                        <td>Стаж към университета</td>
-                        <td>Прикачена служебна бележка за проведен стаж</td>
-                    </tr>
-                </tbody>
-            </table>
+            <thead>
+                <tr>
+                    <th>Тип стаж</th>
+                    <th>Задължително доказателство</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Основен трудов договор</td>
+                    <td>Прикачен трудов договор от работодателя</td>
+                </tr>
+                <tr>
+                    <td>Стаж към университета</td>
+                    <td>Прикачена служебна бележка за проведен стаж</td>
+                </tr>
+            </tbody>
+        </table>
         </section>
 
         <div class="internship-type-tabs">
@@ -49,33 +49,34 @@
         </div>
 
         <section class="report-form-card">
+            <form method="post" enctype="multipart/form-data" class="report-upload-form">
             <h3 class="report-section-title">Данни за практическото обучение</h3>
 
             {% if report_type == "internship" %}
                 <div class="report-grid">
                     <div class="report-field full">
                         <label>Имена на ментор</label>
-                        <input type="text" name="mentor_full_name" placeholder="Напр. доц. д-р Иван Иванов">
+                        <input type="text" name="mentor_full_name" value="{{ latest_report.mentor_full_name|default:'' }}" placeholder="Напр. доц. д-р Иван Иванов" required>
                     </div>
 
                     <div class="report-field">
                         <label>Катедра</label>
-                        <input type="text" name="mentor_department" placeholder="Напр. Софтуерни и интернет технологии">
+                        <input type="text" name="mentor_department" value="{{ latest_report.mentor_department|default:'' }}" placeholder="Напр. Софтуерни и интернет технологии" required>
                     </div>
 
                     <div class="report-field">
                         <label>Дисциплина / направление</label>
-                        <input type="text" name="internship_track" placeholder="Напр. Анализ на данни">
+                        <input type="text" name="internship_track" value="{{ latest_report.internship_track|default:'' }}" placeholder="Напр. Анализ на данни" required>
                     </div>
 
                     <div class="report-field">
                         <label>От</label>
-                        <input type="date" name="internship_from">
+                        <input type="date" name="internship_from" value="{{ latest_report.internship_from|date:'Y-m-d' }}" required>
                     </div>
 
                     <div class="report-field">
                         <label>До</label>
-                        <input type="date" name="internship_to">
+                        <input type="date" name="internship_to" value="{{ latest_report.internship_to|date:'Y-m-d' }}" required >
                     </div>
 
                     <div class="report-field">
@@ -85,13 +86,20 @@
 
                     <div class="report-field">
                         <label>Общо отчетени часове (автоматично)</label>
-                        <input type="text" id="internship-hours-total-display" value="0" readonly>
-                        <input type="hidden" id="internship-hours-total" name="internship_total_hours" value="0">
+                        <input type="text"
+                               id="internship-hours-total-display"
+                               value="{{ saved_total_hours|default:'0' }}"
+                               readonly>
+
+                        <input type="hidden"
+                               id="internship-hours-total"
+                               name="internship_total_hours"
+                               value="{{ saved_total_hours|default:'0' }}">
                     </div>
 
                     <div class="report-field full">
                         <label>Цели на практическото обучение</label>
-                        <textarea rows="4" name="internship_goals" placeholder="Опишете целите и основните задачи по време на стажа..."></textarea>
+                        <textarea rows="4" name="internship_goals" placeholder="Опишете целите и основните задачи по време на стажа..." required></textarea>
                     </div>
                 </div>
 
@@ -108,26 +116,95 @@
                                 </tr>
                             </thead>
                             <tbody id="daily-log-body">
-                                <tr class="daily-log-row">
-                                    <td><input type="date" name="daily_date_1"></td>
-                                    <td><input type="number" class="daily-hours-input" name="daily_hours_1" min="0" max="12" step="0.5" placeholder="0"></td>
-                                    <td><textarea name="daily_task_1" rows="2" placeholder="Опиши извършената дейност..."></textarea></td>
+
+                                {% for log in saved_logs %}
+                                <tr class="daily-log-row" data-saved="true">
+
+                                    <td>
+                                        <input type="date"
+                                               name="daily_date_{{ forloop.counter }}"
+                                               value="{{ log.date|date:'Y-m-d' }}"
+                                               required>
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                               class="daily-hours-input"
+                                               name="daily_hours_{{ forloop.counter }}"
+                                               min="0"
+                                               max="12"
+                                               step="0.5"
+                                               value="{{ log.hours }}"
+                                               placeholder="0"
+                                               required>
+                                    </td>
+
+                                    <td>
+                                        <textarea name="daily_task_{{ forloop.counter }}"
+                                                  rows="2"
+                                                  placeholder="Опиши извършената дейност..."
+                                                  required>{{ log.task }}</textarea>
+                                    </td>
+
                                 </tr>
-                                <tr class="daily-log-row">
-                                    <td><input type="date" name="daily_date_2"></td>
-                                    <td><input type="number" class="daily-hours-input" name="daily_hours_2" min="0" max="12" step="0.5" placeholder="0"></td>
-                                    <td><textarea name="daily_task_2" rows="2" placeholder="Опиши извършената дейност..."></textarea></td>
+
+                                {% empty %}
+
+                                <tr class="daily-log-row" data-saved="false">
+
+                                    <td>
+                                        <input type="date"
+                                               name="daily_date_1"
+                                               required>
+                                    </td>
+
+                                    <td>
+                                        <input type="number"
+                                               class="daily-hours-input"
+                                               name="daily_hours_1"
+                                               min="0"
+                                               max="12"
+                                               step="0.5"
+                                               placeholder="0"
+                                               required>
+                                    </td>
+
+                                    <td>
+                                        <textarea name="daily_task_1"
+                                                  rows="2"
+                                                  placeholder="Опиши извършената дейност..."
+                                                  required></textarea>
+                                    </td>
+
                                 </tr>
-                                <tr class="daily-log-row">
-                                    <td><input type="date" name="daily_date_3"></td>
-                                    <td><input type="number" class="daily-hours-input" name="daily_hours_3" min="0" max="12" step="0.5" placeholder="0"></td>
-                                    <td><textarea name="daily_task_3" rows="2" placeholder="Опиши извършената дейност..."></textarea></td>
-                                </tr>
+
+                                {% endfor %}
+
                             </tbody>
                         </table>
                     </div>
-                    <div class="daily-log-actions">
-                        <button type="button" id="add-daily-row-btn" class="btn-outline">+ Добави ден</button>
+                    <div class="daily-log-buttons">
+                        <button type="button"
+                                id="add-daily-row-btn"
+                                class="btn-outline">
+                            + Добави ден
+                        </button>
+
+                        <button type="button"
+                                id="remove-daily-row-btn"
+                                class="btn-outline btn-remove-day">
+                            − Премахни ден
+                        </button>
+
+                        <button type="button"
+                                id="save-daily-log-btn"
+                                class="btn-primary">
+                            Запази ден
+                        </button>
+
+                        <p id="daily-log-error-message"
+                           class="daily-log-error-message">
+                        </p>
                     </div>
                     <p id="hours-limit-message" class="report-guide-note report-guide-warning">
                         Надвишен е лимитът от 155 часа. Намали часовете в дневника.
@@ -137,32 +214,42 @@
                 <div class="report-grid">
                     <div class="report-field full">
                         <label>Работодател / организация</label>
-                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.company.name }}{% endif %}" placeholder="Име на работодател">
+                        <input type="text"
+                           value="{% if approved_application %}{{ approved_application.offer.company.name }}{% endif %}"
+                           readonly
+                           class="report-input-locked">
                     </div>
 
                     <div class="report-field">
                         <label>ЕИК на работодател</label>
-                        <input type="text" placeholder="Въведете ЕИК">
+                        <input type="text"
+       name="company_eik" value="{{ latest_report.company_eik|default:'' }}" placeholder="Въведете ЕИК" required>
                     </div>
 
                     <div class="report-field">
                         <label>Длъжност по договор</label>
-                        <input type="text" value="{% if approved_application %}{{ approved_application.offer.title }}{% endif %}" placeholder="Junior Developer">
+                        <input type="text"
+                           value="{% if approved_application %}{{ approved_application.offer.title }}{% endif %}"
+                           readonly
+                           class="report-input-locked">
                     </div>
 
                     <div class="report-field">
                         <label>Начална дата</label>
-                        <input type="date" value="{% if approved_application %}{{ approved_application.offer.start_date|date:'Y-m-d' }}{% endif %}">
+                        <input type="date" name="employment_start_date" value="{{ latest_report.employment_start_date|date:'Y-m-d' }}" required>
                     </div>
 
                     <div class="report-field">
                         <label>Крайна дата</label>
-                        <input type="date" value="{% if approved_application %}{{ approved_application.offer.end_date|date:'Y-m-d' }}{% endif %}">
+                        <input type="date"
+                           name="employment_end_date"
+                           value="{% if approved_application %}{{ approved_application.offer.end_date|date:'Y-m-d' }}{% endif %}"
+                           required>
                     </div>
 
                     <div class="report-field full">
                         <label>Описание на изпълняваните дейности</label>
-                        <textarea rows="4" placeholder="Опишете дейностите по трудов договор..."></textarea>
+                        <textarea name="employment_description">{{ latest_report.employment_description|default:'' }}</textarea>
                     </div>
                 </div>
             {% endif %}
@@ -172,20 +259,20 @@
                 <div class="report-grid">
                     <div class="report-field">
                         <label>Имена</label>
-                        <input type="text" value="{% if report_type != 'internship' and approved_application %}{{ approved_application.offer.company.contact_person }}{% endif %}" placeholder="{% if report_type == 'internship' %}Име на преподавател{% else %}Име на представител{% endif %}">
+                        <input type="text" name="contact_name" value="{% if latest_report %}{{ latest_report.contact_name }}{% elif report_type != 'internship' and approved_application %}{{ approved_application.offer.company.contact_person }}{% endif %}" required>
                     </div>
                     <div class="report-field">
                         <label>Имейл</label>
-                        <input type="email" value="{% if report_type != 'internship' and approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.email }}{% endif %}" placeholder="{% if report_type == 'internship' %}teacher@tu-varna.bg{% else %}contact@company.com{% endif %}">
+                        <input type="email" name="contact_email" value="{% if latest_report %}{{ latest_report.contact_email }}{% elif report_type != 'internship' and approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.email }}{% endif %}" required>
                     </div>
                     <div class="report-field">
                         <label>Телефон</label>
-                        <input type="text" value="{% if report_type != 'internship' and approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.phone }}{% endif %}" placeholder="+359...">
+                        <input type="text" name="contact_phone" value="{% if latest_report %}{{ latest_report.contact_phone }}{% elif report_type != 'internship' and approved_application and approved_application.offer.company.user %}{{ approved_application.offer.company.user.phone }}{% endif %}" required>
                     </div>
                 </div>
             </div>
 
-            <form method="post" enctype="multipart/form-data" class="report-upload-form">
+
                 {% csrf_token %}
                 <input type="hidden" name="action" value="upload_report">
                 <input type="hidden" name="report_type" value="{{ report_type }}">
@@ -249,11 +336,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector(".report-upload-form");
     const dailyLogBody = document.getElementById("daily-log-body");
     const addDailyRowBtn = document.getElementById("add-daily-row-btn");
+    const removeDailyRowBtn = document.getElementById("remove-daily-row-btn");
+    const dailyLogErrorMessage = document.getElementById("daily-log-error-message");
     const totalDisplay = document.getElementById("internship-hours-total-display");
     const totalHidden = document.getElementById("internship-hours-total");
     const limitMessage = document.getElementById("hours-limit-message");
+    const saveDailyLogBtn =
+    document.getElementById("save-daily-log-btn");
     const maxHours = 155;
-    let rowCount = 3;
+    let rowCount = dailyLogBody.querySelectorAll(".daily-log-row").length;
 
     function getHoursInputs() {
         return dailyLogBody ? dailyLogBody.querySelectorAll(".daily-hours-input") : [];
@@ -290,14 +381,58 @@ document.addEventListener("DOMContentLoaded", function () {
             rowCount += 1;
             const row = document.createElement("tr");
             row.className = "daily-log-row";
+            row.dataset.saved = "false";
             row.innerHTML = `
-                <td><input type="date" name="daily_date_${rowCount}"></td>
-                <td><input type="number" class="daily-hours-input" name="daily_hours_${rowCount}" min="0" max="12" step="0.5" placeholder="0"></td>
-                <td><textarea name="daily_task_${rowCount}" rows="2" placeholder="Опиши извършената дейност..."></textarea></td>
+                <td>
+                    <input type="date"
+                           name="daily_date_${rowCount}"
+                           required>
+                </td>
+
+                <td>
+                    <input type="number"
+                           class="daily-hours-input"
+                           name="daily_hours_${rowCount}"
+                           min="0"
+                           max="12"
+                           step="0.5"
+                           placeholder="0"
+                           required>
+                </td>
+
+                <td>
+                    <textarea name="daily_task_${rowCount}"
+                              rows="2"
+                              placeholder="Опиши извършената дейност..."
+                              required></textarea>
+                </td>
             `;
+            dailyLogErrorMessage.textContent = "";
             dailyLogBody.appendChild(row);
         });
     }
+
+    if (removeDailyRowBtn && dailyLogBody) {
+
+    removeDailyRowBtn.addEventListener("click", function () {
+
+        const rows = dailyLogBody.querySelectorAll(".daily-log-row");
+
+        if (rows.length <= 1) {
+            dailyLogErrorMessage.textContent =
+                "Трябва да има поне един ден в дневника.";
+
+            return;
+        }
+
+        rows[rows.length - 1].remove();
+        dailyLogErrorMessage.textContent = "";
+
+        rowCount -= 1;
+
+        recalcTotal();
+    });
+}
 
     recalcTotal();
 
@@ -318,6 +453,123 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    const requiredFields = document.querySelectorAll(
+    '.report-form-card input[required], .report-form-card textarea[required]'
+);
+
+requiredFields.forEach(field => {
+    field.addEventListener("input", () => {
+        field.classList.remove("report-error-field");
+    });
+});
+
+if (form) {
+    form.addEventListener("submit", function (event) {
+
+        let hasEmptyFields = false;
+
+        requiredFields.forEach(field => {
+
+            if (!field.value.trim()) {
+
+                hasEmptyFields = true;
+
+                field.classList.add("report-error-field");
+
+            } else {
+                field.classList.remove("report-error-field");
+            }
+
+        });
+
+        if (hasEmptyFields) {
+            event.preventDefault();
+            alert("Всички полета са задължителни.");
+            return;
+        }
+    });
+}
+
+if (saveDailyLogBtn) {
+
+    saveDailyLogBtn.addEventListener("click", async function () {
+
+        const rows = document.querySelectorAll(".daily-log-row");
+
+        let savedHours = 0;
+
+        for (const row of rows) {
+
+            if (row.dataset.saved === "true") {
+                continue;
+            }
+
+            const date =
+                row.querySelector('input[type="date"]').value;
+
+            const hours =
+                row.querySelector(".daily-hours-input").value;
+
+            const task =
+                row.querySelector("textarea").value;
+
+            if (!date || !hours || !task) {
+
+                dailyLogErrorMessage.style.color = "#dc2626";
+
+                dailyLogErrorMessage.textContent =
+                    "Попълни всички полета.";
+
+                return;
+            }
+
+            const formData = new FormData();
+
+            formData.append("date", date);
+            formData.append("hours", hours);
+            formData.append("task", task);
+
+            formData.append(
+                "csrfmiddlewaretoken",
+                document.querySelector(
+                    '[name=csrfmiddlewaretoken]'
+                ).value
+            );
+
+            const response = await fetch(
+                "/student/reports/save-daily-log/",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+            const data = await response.json();
+
+            if (!data.success) {
+
+                dailyLogErrorMessage.style.color = "#dc2626";
+
+                dailyLogErrorMessage.textContent =
+                    data.message;
+
+                return;
+            }
+
+            row.dataset.saved = "true";
+
+            savedHours += parseFloat(hours || 0);
+        }
+
+        recalcTotal();
+
+        dailyLogErrorMessage.style.color = "#16a34a";
+
+        dailyLogErrorMessage.textContent =
+            "Всички дни са запазени успешно.";
+    });
+}
 });
 </script>
 {% endif %}

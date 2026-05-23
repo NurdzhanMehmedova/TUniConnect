@@ -151,12 +151,74 @@ class Report(models.Model):
     )
     submitted_at = models.DateTimeField(auto_now_add=True)
 
+    report_type = models.CharField(max_length=50, blank=True)
+
+    mentor_full_name = models.CharField(max_length=255, blank=True)
+    mentor_department = models.CharField(max_length=255, blank=True)
+
+    internship_track = models.CharField(max_length=255, blank=True)
+
+    internship_from = models.DateField(null=True, blank=True)
+    internship_to = models.DateField(null=True, blank=True)
+
+    internship_goals = models.TextField(blank=True)
+
+    company_eik = models.CharField(max_length=50, blank=True)
+
+    employment_start_date = models.DateField(null=True, blank=True)
+    employment_end_date = models.DateField(null=True, blank=True)
+
+    employment_description = models.TextField(blank=True)
+
+    contact_name = models.CharField(max_length=255, blank=True)
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=50, blank=True)
+
+    internship_total_hours = models.DecimalField(
+        max_digits=5,
+        decimal_places=1,
+        null=True,
+        blank=True
+    )
+
     class Meta:
         verbose_name = "Доклад"
         verbose_name_plural = "Доклади"
 
     def __str__(self):
         return f"Report - {self.student}"
+
+class InternshipDailyLog(models.Model):
+
+    class Status(models.TextChoices):
+        DRAFT = "DRAFT", "Чернова"
+        SUBMITTED = "SUBMITTED", "Изпратен"
+
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    report = models.ForeignKey(
+        Report,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    date = models.DateField()
+    hours = models.DecimalField(max_digits=4, decimal_places=1)
+    task = models.TextField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["date"]
+
+    def __str__(self):
+        return f"{self.student} - {self.date}"
 
 class Favorite(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

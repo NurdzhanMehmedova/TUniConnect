@@ -32,7 +32,7 @@
                     <tr>
                         <td>{{ report.student.user.first_name }} {{ report.student.user.last_name }}</td>
                         <td>{{ report.submitted_at|date:"d.m.Y" }}</td>
-                        <td><a href="{{ report.report_file.url }}" target="_blank" class="btn-primary">Преглед</a></td>
+                        <td><a href="{{ report.report_file.url }}" download class="btn-primary">Преглед</a></td>
                         {% if report_workflow_enabled %}
                             <td>{{ report.get_company_status_display }}</td>
                             <td>{{ report.get_mentor_status_display }}</td>
