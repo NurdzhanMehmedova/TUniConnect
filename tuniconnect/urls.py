@@ -6,6 +6,7 @@ from academics.views import get_specialties
 from django.conf import settings
 from django.conf.urls.static import static
 from accounts.admin_dashboards import admin_overview_dashboard, admin_quality_dashboard
+from .admin_backup import admin_backup_now
 
 # ================= API VIEWSETS =================
 
@@ -87,6 +88,7 @@ urlpatterns = [
     # Admin dashboards (must be before admin.site.urls catch-all)
     path('admin/dashboards/overview/', admin_overview_dashboard, name='admin_overview_dashboard'),
     path('admin/dashboards/tracking/', admin_quality_dashboard, name='admin_quality_dashboard'),
+    path( "admin/backup/", admin_backup_now, name="admin_backup_now"),
 
     # Admin
     path('admin/', admin.site.urls),

@@ -53,6 +53,19 @@
                 <option value="">Всички</option>
             </select>
 
+            <label>Статус</label>
+            <select id="companyApplicationsStatus">
+                <option value="">Всички</option>
+
+                <option value="Waiting">Чакащи</option>
+                <option value="Seen">Видяно</option>
+                <option value="Approved">Одобрена</option>
+                <option value="Offer">Изпратена оферта</option>
+                <option value="Rejected">Отхвърлена</option>
+                <option value="RejectedByStudent">Отхвърлена от студента</option>
+                <option value="Selected">Приета оферта</option>
+            </select>
+
             <button type="button" class="btn-primary">Филтрирай</button>
         </div>
 
@@ -80,7 +93,8 @@
                      data-workspace="{{ app.offer.workspace_type }}"
                      data-salary="{{ app.offer.salary_type }}"
                      data-location="{{ app.offer.location.id }}"
-                     data-location-name="{{ app.offer.location.display_name|default:app.offer.location }}">
+                     data-location-name="{{ app.offer.location.display_name|default:app.offer.location }}"
+                     data-status="{{ app.status }}">
 
                     <div class="offer-logo">
                         <img src="{% if app.offer.company.logo %}{{ app.offer.company.logo.url }}?v={{ app.offer.company.id }}{% else %}{{ app.offer.company.image_url|default:'/static/images/logo_placeholder.png' }}{% endif %}" alt="{{ app.offer.company.name }}">
@@ -127,6 +141,7 @@ const companyApplicationsField = document.getElementById("companyApplicationsFie
 const companyApplicationsWorkspace = document.getElementById("companyApplicationsWorkspace");
 const companyApplicationsSalary = document.getElementById("companyApplicationsSalary");
 const companyApplicationsLocation = document.getElementById("companyApplicationsLocation");
+const companyApplicationsStatus = document.getElementById("companyApplicationsStatus");
 const companyApplicationCards = Array.from(document.querySelectorAll("#companyApplicationsList .offer-card"));
 
 function populateCompanyApplicationLocations() {
@@ -153,6 +168,7 @@ function applyCompanyApplicationFilters() {
     const workspaceValue = companyApplicationsWorkspace.value;
     const salaryValue = companyApplicationsSalary.value;
     const locationValue = companyApplicationsLocation.value;
+    const statusValue = companyApplicationsStatus.value;
 
     companyApplicationCards.forEach(card => {
         const searchBlob = `${card.dataset.title} ${card.dataset.company} ${card.dataset.description} ${card.dataset.student}`;
@@ -161,12 +177,19 @@ function applyCompanyApplicationFilters() {
         const matchesWorkspace = !workspaceValue || card.dataset.workspace === workspaceValue;
         const matchesSalary = !salaryValue || card.dataset.salary === salaryValue;
         const matchesLocation = !locationValue || card.dataset.location === locationValue;
-        card.style.display = matchesSearch && matchesField && matchesWorkspace && matchesSalary && matchesLocation ? "" : "none";
+        const matchesStatus = !statusValue || card.dataset.status === statusValue;
+        card.style.display = matchesSearch && matchesField && matchesWorkspace && matchesSalary && matchesLocation && matchesStatus ? "" : "none";
     });
 }
 
 populateCompanyApplicationLocations();
-[companyApplicationsSearch, companyApplicationsField, companyApplicationsWorkspace, companyApplicationsSalary, companyApplicationsLocation].forEach(el => {
+[
+    companyApplicationsSearch,
+    companyApplicationsField,
+    companyApplicationsWorkspace,
+    companyApplicationsSalary,
+    companyApplicationsLocation,
+    companyApplicationsStatus].forEach(el => {
     el.addEventListener("input", applyCompanyApplicationFilters);
     el.addEventListener("change", applyCompanyApplicationFilters);
 });

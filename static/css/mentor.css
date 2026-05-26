@@ -574,3 +574,60 @@
     align-items: flex-start;   /* маха вертикалния център */
     justify-content: center;
 }
+
+/* ===== MENTOR FILTERS (SAME AS STUDENT/COMPANY) ===== */
+
+.mentor-filter-card {
+    margin-top: 18px;
+}
+
+/* reuse exact student/company filter design */
+
+.mentor-filter-card .filters-card {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(10px);
+
+    padding: 20px;
+    border-radius: 18px;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mentor-filter-card .filters-card label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.mentor-filter-card .filters-card select,
+.mentor-filter-card .filters-card input {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+    border: 1px solid #cfd8e3;
+
+    background: #f8fafc;
+
+    font-size: 14px;
+
+    transition: 0.2s;
+    box-sizing: border-box;
+}
+
+.mentor-filter-card .filters-card select:focus,
+.mentor-filter-card .filters-card input:focus {
+    outline: none;
+    border-color: #6366f1;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.mentor-filter-card .filters-card input::placeholder {
+    color: #94a3b8;
+}

@@ -3,7 +3,8 @@ from urllib import request
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-
+from django.core.mail import EmailMessage
+from audit.models import UserAudit
 from companies.forms import InternOfferForm
 from .models import User, Role, StudentCV
 from academics.models import (
@@ -32,9 +33,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
-from internships.models import Report, Application, Favorite
-from internships.models import InternOffer
-from django.shortcuts import render, redirect
+from internships.models import Report, Favorite
 from django.contrib.auth.decorators import login_required
 from internships.models import InternOffer, Application
 import os
@@ -105,6 +104,13 @@ def login_view(request):
 
             login(request, user)
 
+            UserAudit.objects.create(
+                user=user,
+                role=user.role.name,
+                action="LOGIN",
+                description="User logged into the system"
+            )
+
             # ако е временна парола
             if user.must_change_password:
                 return redirect("change_password")
@@ -112,6 +118,12 @@ def login_view(request):
             return redirect_by_role(user)
 
         else:
+            UserAudit.objects.create(
+                user=None,
+                role="Anonymous",
+                action="LOGIN",
+                description="Failed login attempt"
+            )
             messages.error(request, "Грешно потребителско име или парола.")
 
     return render(request, "login.html", {"form": form})
@@ -150,6 +162,13 @@ def register_view(request):
             user = form.save(commit=False)
             user.password = make_password(form.cleaned_data["password"])
             user.save()
+
+            UserAudit.objects.create(
+                user=user,
+                role=user.role.name,
+                action="CREATE",
+                description="User account created"
+            )
 
             role_name = user.role.name
 
@@ -190,6 +209,13 @@ def register_view(request):
 # ================= LOGOUT =================
 
 def logout_view(request):
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="LOGOUT",
+        description="User logged out"
+    )
+
     logout(request)
     return redirect("home")
 
@@ -477,6 +503,12 @@ def mentor_approve_internship(request, application_id):
 
     application.status = Application.Status.SEEN
     application.save(update_fields=["status"])
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="APPROVE_APPLICATION",
+        description=f"Mentor approved internship #{application.id}"
+    )
     messages.success(request, "Стажът е одобрен от ментора.")
     return redirect(f"{reverse('mentor_dashboard')}?section=applications")
 
@@ -502,6 +534,12 @@ def mentor_approve_report(request, report_id):
 
     report.mentor_status = Report.ApprovalStatus.APPROVED
     report.save(update_fields=["mentor_status"])
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="APPROVE_APPLICATION",
+        description=f"Mentor approved report #{report.id}"
+    )
     messages.success(request, "Докладът е одобрен от ментора.")
 
     return redirect(f"{reverse('mentor_dashboard')}?section=reports")
@@ -540,6 +578,13 @@ def approve_application(request, application_id):
     application.status = Application.Status.APPROVED
     application.save()
 
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="APPROVE_APPLICATION",
+        description=f"Approved application #{application.id}"
+    )
+
     messages.success(request, "Практиката е одобрена.")
 
     return redirect("mentor_applications")
@@ -555,6 +600,12 @@ def reject_application(request, application_id):
 
     application.status = Application.Status.REJECTED
     application.save()
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="REJECT_APPLICATION",
+        description=f"Rejected application #{application.id}"
+    )
 
     messages.error(request, "Практиката е отхвърлена.")
 
@@ -776,6 +827,12 @@ def company_approve_report(request, report_id):
 
     report.company_status = Report.ApprovalStatus.APPROVED
     report.save(update_fields=["company_status"])
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="APPROVE_APPLICATION",
+        description=f"Approved report #{report.id}"
+    )
     messages.success(request, "Докладът е одобрен от фирмата.")
 
     return redirect("company_applications")
@@ -793,6 +850,12 @@ def company_reject_report(request, report_id):
     report.company_status = Report.ApprovalStatus.REJECTED
     report.mentor_status = Report.ApprovalStatus.PENDING
     report.save(update_fields=["company_status", "mentor_status"])
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="REJECT_APPLICATION",
+        description=f"Rejected report #{report.id}"
+    )
     messages.warning(request, "Докладът е върнат за корекция от фирмата.")
 
     return redirect("company_applications")
@@ -839,6 +902,13 @@ def company_application_detail(request, application_id):
             application.status = Application.Status.OFFER
             application.rejection_reason = ""  # чистим ако има старо
             application.save()
+
+            UserAudit.objects.create(
+                user=request.user,
+                role=request.user.role.name,
+                action="APPROVE_APPLICATION",
+                description=f"Approved application #{application.id}"
+            )
 
             # ✉️ EMAIL
             send_mail(
@@ -923,6 +993,13 @@ def create_offer(request):
             offer.status = InternOffer.Status.DRAFT
             offer.save()
 
+            UserAudit.objects.create(
+                user=request.user,
+                role=request.user.role.name,
+                action="CREATE_OFFER",
+                description=f"Created offer: {offer.title}"
+            )
+
             return redirect("company_offers")
 
     else:
@@ -958,6 +1035,13 @@ def company_reject_application(request, application_id):
 
     application.status = Application.Status.REJECTED
     application.save()
+
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="REJECT_APPLICATION",
+        description=f"Rejected application #{application.id}"
+    )
 
     return redirect("company_applications")
 
@@ -1030,6 +1114,13 @@ def apply_for_offer(request, offer_id):
                 status=Application.Status.WAITING
             )
 
+            UserAudit.objects.create(
+                user=request.user,
+                role=request.user.role.name,
+                action="APPLY",
+                description=f"Applied for offer: {offer.title}"
+            )
+
         # ✅ ако качва файл
         else:
             file = request.FILES.get("cv_file")
@@ -1041,6 +1132,13 @@ def apply_for_offer(request, offer_id):
                 motivation_letter=motivation,
                 motivation_file=motivation_file if motivation_type == "file" else None,
                 status=Application.Status.WAITING
+            )
+
+            UserAudit.objects.create(
+                user=request.user,
+                role=request.user.role.name,
+                action="APPLY",
+                description=f"Applied for offer: {offer.title}"
             )
 
         return redirect("student_offers")
@@ -1150,7 +1248,6 @@ def offer_detail(request, offer_id):
         "has_selected_internship": has_selected_internship,
     })
 
-    from django.core.mail import EmailMessage
 
 
 def contact_submit(request):
@@ -1237,6 +1334,13 @@ def edit_offer(request, pk):
         form = InternOfferForm(request.POST, instance=offer)
         if form.is_valid():
             form.save()
+
+            UserAudit.objects.create(
+                user=request.user,
+                role=request.user.role.name,
+                action="UPDATE_OFFER",
+                description=f"Updated offer: {offer.title}"
+            )
             return redirect("company_offers")  # или как ти се казва страницата
     else:
         form = InternOfferForm(instance=offer)
@@ -1292,6 +1396,13 @@ def quick_apply(request, offer_id):
         status=Application.Status.WAITING
     )
 
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="APPLY",
+        description=f"Quick applied for offer: {offer.title}"
+    )
+
     messages.success(request, "Кандидатства успешно 🚀")
     return redirect('offer_detail', offer_id=offer.id)
 
@@ -1322,6 +1433,12 @@ def company_profile(request):
             company.banner = request.FILES["banner"]
 
         company.save()
+        UserAudit.objects.create(
+            user=request.user,
+            role=request.user.role.name,
+            action="UPDATE_PROFILE",
+            description="Updated company profile"
+        )
         return redirect("company_profile")
 
     return render(request, "company/profile.html", {
@@ -1390,11 +1507,3 @@ def company_public_offers(request, company_id):
         "locations": locations,
         "page_obj": page_obj,
     })
-
-    if not report_workflow_enabled():
-            messages.error(request, "Липсват миграции за workflow на доклади. Изпълни migrate.")
-            return redirect("company_applications")
-
-    if not report_workflow_enabled():
-        messages.error(request, "Липсват миграции за workflow на доклади. Изпълни migrate.")
-        return redirect("company_applications")

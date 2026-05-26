@@ -521,3 +521,136 @@ select:focus {
 .home-page .navbar-modern .nav-dropdown .dropdown-menu a {
     color: #0f172a !important;
 }
+
+.footer-modern{
+    background: linear-gradient(135deg,#0f172a,#111827);
+    color:white;
+    margin-top:80px;
+    padding-top:60px;
+}
+
+.footer-container{
+    width:90%;
+    max-width:1400px;
+    margin:auto;
+
+    display:grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap:60px;
+
+    padding-bottom:50px;
+}
+
+.footer-brand{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.footer-logo{
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    font-size:28px;
+    font-weight:700;
+}
+
+.footer-logo img{
+    width:55px;
+    height:55px;
+    object-fit:contain;
+
+    transform:none !important;
+}
+
+.footer-description{
+    color:#cbd5e1;
+    line-height:1.8;
+    max-width:350px;
+}
+
+.footer-column{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.footer-column h4{
+    color:white;
+    margin-bottom:10px;
+    font-size:20px;
+}
+
+.footer-column a{
+    color:#cbd5e1;
+    text-decoration:none;
+    transition:.25s;
+}
+
+.footer-column a:hover{
+    color:#38bdf8;
+    transform:translateX(4px);
+}
+
+.footer-column p{
+    color:#cbd5e1;
+    line-height:1.7;
+}
+
+.footer-socials{
+    display:flex;
+    gap:14px;
+    margin-top:10px;
+}
+
+.footer-socials a{
+    width:45px;
+    height:45px;
+
+    border-radius:50%;
+    background:rgba(255,255,255,.08);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:white;
+    font-size:18px;
+
+    transition:.3s;
+}
+
+.footer-socials a:hover{
+    background:linear-gradient(135deg,#6366f1,#0ea5e9);
+    transform:translateY(-4px) scale(1.05);
+}
+
+.footer-bottom{
+    border-top:1px solid rgba(255,255,255,.1);
+
+    text-align:center;
+
+    padding:24px;
+
+    color:#94a3b8;
+
+    font-size:15px;
+}
+
+@media(max-width:1000px){
+
+    .footer-container{
+        grid-template-columns:1fr 1fr;
+    }
+
+}
+
+@media(max-width:700px){
+
+    .footer-container{
+        grid-template-columns:1fr;
+        gap:40px;
+    }
+
+}

@@ -93,21 +93,23 @@
             </nav>
         </details>
 
-        <details class="side-group">
-            <summary>Други</summary>
+        <details class="side-group" open>
+            <summary>Одит и сигурност</summary>
 
             <nav>
-                <a href="{% url 'admin_overview_dashboard' %}">
-                    Оперативен дашборд
+
+                <a href="{% url 'admin:audit_useraudit_changelist' %}">
+                    Потребителски операции
                 </a>
 
-                <a href="{% url 'admin_quality_dashboard' %}">
-                    Качествен дашборд
+                <a href="{% url 'admin:audit_adminaudit_changelist' %}">
+                    Админ операции
                 </a>
 
                 <a href="{% url 'admin:admin_logentry_changelist' %}">
-                    Одит журнал
+                    Django Админ Одит
                 </a>
+
             </nav>
         </details>
 
@@ -194,6 +196,28 @@
 
             </a>
 
+            <a class="kpi-card kpi-card--purple"
+               href="{% url 'admin:audit_useraudit_changelist' %}">
+
+                <span>Одит</span>
+
+                <strong>User Audit</strong>
+
+                <small>Действия на потребители</small>
+
+            </a>
+
+            <a class="kpi-card kpi-card--blue"
+               href="{% url 'admin:audit_adminaudit_changelist' %}">
+
+                <span>Администрация</span>
+
+                <strong>Admin Audit</strong>
+
+                <small>Админ действия и backup-и</small>
+
+            </a>
+
         </section>
 
         <section class="admin-shortcuts">
@@ -222,8 +246,16 @@
                     ✏️ Скорошни редакции
                 </a>
 
-                <a href="{% url 'admin:auth_group_add' %}">
-                    🔐 Нова група/роля
+                <a href="{% url 'admin_backup_now' %}">
+                    💾 Backup
+                </a>
+
+                <a href="{% url 'admin:audit_useraudit_changelist' %}">
+                    👤 Потребителски операции
+                </a>
+
+                <a href="{% url 'admin:audit_adminaudit_changelist' %}">
+                    🛡️ Админ Одит
                 </a>
 
             </div>

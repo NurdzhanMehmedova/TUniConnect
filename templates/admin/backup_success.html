@@ -1,0 +1,42 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>✅ Backup Created Successfully</h1>
+
+<div style="margin-top:20px">
+
+    <p><strong>Файл:</strong> {{ backup_name }}</p>
+
+    <p><strong>Път:</strong></p>
+    <code>{{ backup_path }}</code>
+
+    <p><strong>Размер:</strong> {{ backup_size }} MB</p>
+
+    <p><strong>Дата:</strong> {{ created_at }}</p>
+
+</div>
+
+<hr>
+
+<h2>Database Tables</h2>
+
+<ul>
+    {% for table in tables %}
+        <li>{{ table }}</li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<h2>mysqldump Output</h2>
+
+<pre>
+{{ output }}
+</pre>
+
+<a href="/admin/" class="button">
+    ← Back to Admin
+</a>
+
+{% endblock %}

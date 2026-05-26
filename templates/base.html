@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>{% block title %}TUniConnect{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     {% block extra_css %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -100,7 +101,7 @@
 </header>
 
 <main class="main-content">
-    {% if messages %}
+    {% if messages and request.resolver_match.url_name not in 'login register password_reset password_reset_done password_reset_confirm password_reset_complete' %}
         <div class="alert-container">
             <div id="messageModal" class="message-modal-backdrop hidden" aria-hidden="true">
                 <div class="message-modal" role="dialog" aria-modal="true" aria-labelledby="message-modal-title">
@@ -121,11 +122,85 @@
 </main>
 
 <footer class="footer-modern">
+
     <div class="footer-container">
-        <div class="footer-left">
-            © 2026 TUniConnect Internship Management System
+
+        <!-- LEFT -->
+        <div class="footer-brand">
+
+            <div class="footer-logo">
+                <img src="{% static 'images/TU Varna.png' %}" alt="TU Varna">
+                <span>TUniConnect</span>
+            </div>
+
+            <p class="footer-description">
+                Internship Management System към Технически университет – Варна.<br>
+                Свързваме студенти, ментори и компании.
+            </p>
+
         </div>
+
+        <!-- QUICK LINKS -->
+        <div class="footer-column">
+
+            <h4>Навигация</h4>
+
+            <a href="{% url 'home' %}">Начало</a>
+            <a href="{% url 'student_offers' %}">Активни обяви</a>
+            <a href="{% url 'about' %}">За нас</a>
+            <a href="/#contact">Контакти</a>
+
+        </div>
+
+        <!-- CONTACT -->
+        <div class="footer-column">
+
+            <h4>Контакти</h4>
+
+            <p>📍 ул. „Студентска“ 1, Варна</p>
+            <p>📞 052 383 333</p>
+            <p>📧 tuniconnect1962@gmail.com</p>
+
+        </div>
+
+        <!-- SOCIAL -->
+        <div class="footer-column">
+
+            <h4>Социални мрежи</h4>
+
+            <div class="footer-socials">
+
+                <a href="https://www.facebook.com/tuvarna"
+                   target="_blank">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+
+                <a href="https://www.instagram.com/tu_varna/"
+                   target="_blank">
+                    <i class="fab fa-instagram"></i>
+                </a>
+
+                <a href="https://www.linkedin.com/school/technical-university-of-varna/"
+                   target="_blank">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+
+                <a href="https://www.youtube.com/@TechnicalUniversityVarna"
+                   target="_blank">
+                    <i class="fab fa-youtube"></i>
+                </a>
+
+            </div>
+
+        </div>
+
     </div>
+
+    <!-- BOTTOM -->
+    <div class="footer-bottom">
+        © 2026 TUniConnect Internship Management System
+    </div>
+
 </footer>
 
 <script>

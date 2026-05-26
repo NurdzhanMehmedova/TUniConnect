@@ -44,6 +44,46 @@ class="{% if section == 'assign' %}active{% endif %}">
 
 </div>
 
+{% if section == "applications" %}
+
+<div class="sidebar-card mentor-filter-card">
+
+    <h3>Филтри</h3>
+
+    <div class="filters-card">
+
+        <label>Статус</label>
+        <select id="mentorStatusFilter">
+            <option value="">Всички</option>
+            <option value="Waiting">Чакащи</option>
+            <option value="Seen">Видяно</option>
+            <option value="Approved">Одобрен</option>
+            <option value="Offer">Оферта</option>
+            <option value="Rejected">Отхвърлен</option>
+            <option value="RejectedByStudent">Отхвърлено от студента</option>
+            <option value="Selected">Избрано от студент</option>
+        </select>
+
+        <label>Студент</label>
+        <input
+            type="text"
+            id="mentorStudentFilter"
+            placeholder="Търси студент"
+        >
+
+        <label>Компания</label>
+        <input
+            type="text"
+            id="mentorCompanyFilter"
+            placeholder="Търси компания"
+        >
+
+    </div>
+
+</div>
+
+{% endif %}
+
 </aside>
 
 <!-- MAIN CONTENT -->
@@ -214,7 +254,14 @@ class="{% if section == 'assign' %}active{% endif %}">
 </thead>
 <tbody>
 {% for app in applications %}
-<tr>
+
+<tr
+    class="mentor-application-row"
+    data-status="{{ app.status }}"
+    data-student="{{ app.student.user.first_name|lower }} {{ app.student.user.last_name|lower }}"
+    data-company="{{ app.offer.company.name|lower }}"
+>
+
 <td>{{ app.student.user.first_name }} {{ app.student.user.last_name }}</td>
 <td>{{ app.offer.company.name }}</td>
 <td>{{ app.offer.title }}</td>
@@ -518,6 +565,59 @@ document.addEventListener("DOMContentLoaded", () => {
             hideResults(facultyResults);
         }
     });
+});
+
+    /* ===== MENTOR APPLICATION FILTERS ===== */
+
+const mentorStatusFilter = document.getElementById("mentorStatusFilter");
+const mentorStudentFilter = document.getElementById("mentorStudentFilter");
+const mentorCompanyFilter = document.getElementById("mentorCompanyFilter");
+
+const mentorApplicationRows = Array.from(
+    document.querySelectorAll(".mentor-application-row")
+);
+
+function applyMentorApplicationFilters() {
+
+    if (!mentorApplicationRows.length) return;
+
+    const statusValue = mentorStatusFilter?.value || "";
+    const studentValue = mentorStudentFilter?.value.trim().toLowerCase() || "";
+    const companyValue = mentorCompanyFilter?.value.trim().toLowerCase() || "";
+
+    mentorApplicationRows.forEach(row => {
+
+        const matchesStatus =
+            !statusValue ||
+            row.dataset.status === statusValue;
+
+        const matchesStudent =
+            !studentValue ||
+            row.dataset.student.includes(studentValue);
+
+        const matchesCompany =
+            !companyValue ||
+            row.dataset.company.includes(companyValue);
+
+        row.style.display =
+            matchesStatus &&
+            matchesStudent &&
+            matchesCompany
+                ? ""
+                : "none";
+    });
+}
+
+[
+    mentorStatusFilter,
+    mentorStudentFilter,
+    mentorCompanyFilter
+].forEach(el => {
+
+    if (!el) return;
+
+    el.addEventListener("input", applyMentorApplicationFilters);
+    el.addEventListener("change", applyMentorApplicationFilters);
 });
 </script>
 
