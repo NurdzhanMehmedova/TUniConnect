@@ -310,17 +310,37 @@
                 <div class="report-history-list">
                     {% for report in reports %}
                         <article class="report-history-item">
+
                             <div>
                                 <strong>Доклад #{{ forloop.counter }}</strong>
                                 <p>Качен на {{ report.submitted_at|date:"d.m.Y" }}</p>
                             </div>
+
                             <div class="report-history-meta">
-                                <span>Оценка: {{ report.grade|default:"—" }}</span>
+
+                                <div>
+                                    Оценка:
+                                    {% if report.final_grade %}
+                                        {{ report.final_grade }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </div>
+
                                 {% if report_workflow_enabled %}
                                     <span>Фирма: {{ report.get_company_status_display }}</span>
                                     <span>Ментор: {{ report.get_mentor_status_display }}</span>
                                 {% endif %}
+
+                                <a href="{{ report.report_file.url }}"
+                                   download
+                                   class="report-download-btn">
+
+                                    Изтегли
+                                </a>
+
                             </div>
+
                         </article>
                     {% endfor %}
                 </div>

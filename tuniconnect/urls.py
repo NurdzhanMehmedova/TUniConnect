@@ -38,11 +38,12 @@ from accounts.views_frontend import (
     mentor_dashboard,
     mentor_applications,
     approve_application,
-    reject_application, company_dashboard, company_offers, edit_offer, create_offer, company_applications, company_reports,
+    reject_application, company_dashboard, company_offers, edit_offer, create_offer, company_applications,
+    company_reports,
     company_application_detail,
     company_approve_application,
     company_reject_application, quick_apply, mentor_approve_internship, company_approve_report,
-    company_reject_report, mentor_approve_report
+    company_reject_report, mentor_approve_report, mentor_grade_report
 )
 
 # ================= FRONTEND =================
@@ -139,6 +140,7 @@ urlpatterns = [
     path("offers/<int:offer_id>/apply/", views_frontend.apply_for_offer, name="apply_for_offer"),
     path('offer/<int:pk>/edit/', views_frontend.edit_offer, name='edit_offer'),
     path('offers/<int:offer_id>/quick-apply/', quick_apply, name='quick_apply'),
+    path("mentor/reports/<int:report_id>/grade/", mentor_grade_report, name="mentor_grade_report"),
 
 
     # Password Reset (временна парола)

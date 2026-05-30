@@ -514,6 +514,9 @@ def mentor_approve_internship(request, application_id):
 
 @login_required
 def mentor_approve_report(request, report_id):
+    if request.method != "POST":
+        return redirect(f"{reverse('mentor_dashboard')}?section=reports")
+
     if request.user.role.name != "MENTOR":
         return redirect("home")
 
@@ -533,7 +536,18 @@ def mentor_approve_report(request, report_id):
         return redirect(f"{reverse('mentor_dashboard')}?section=reports")
 
     report.mentor_status = Report.ApprovalStatus.APPROVED
-    report.save(update_fields=["mentor_status"])
+
+    grade = request.POST.get("final_grade")
+
+    if grade:
+        report.final_grade = int(grade)
+
+    report.save(
+        update_fields=[
+            "mentor_status",
+            "final_grade"
+        ]
+    )
     UserAudit.objects.create(
         user=request.user,
         role=request.user.role.name,
@@ -541,6 +555,22 @@ def mentor_approve_report(request, report_id):
         description=f"Mentor approved report #{report.id}"
     )
     messages.success(request, "Докладът е одобрен от ментора.")
+
+    return redirect(f"{reverse('mentor_dashboard')}?section=reports")
+
+@login_required
+def mentor_grade_report(request, report_id):
+
+    if request.method != "POST":
+        return redirect(f"{reverse('mentor_dashboard')}?section=reports")
+
+    report = get_object_or_404(Report, id=report_id)
+
+    report.final_grade = int(request.POST["final_grade"])
+
+    report.save(update_fields=["final_grade"])
+
+    messages.success(request, "Оценката е записана.")
 
     return redirect(f"{reverse('mentor_dashboard')}?section=reports")
 

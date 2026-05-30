@@ -149,6 +149,13 @@ class Report(models.Model):
         choices=ApprovalStatus.choices,
         default=ApprovalStatus.PENDING
     )
+
+    final_grade = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Окончателна оценка"
+    )
+
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     report_type = models.CharField(max_length=50, blank=True)
