@@ -203,7 +203,7 @@
                     <div class="progress-card success progress-card-modern">
                         <p>✔ Качен отчет</p>
                         <p class="progress-sub-status">
-                            Фирма: {{ report.get_company_status_display }} •
+                           {% if report.company %}Фирма: {{ report.get_company_status_display }} •{% endif %}
                             Ментор: {{ report.get_mentor_status_display }}
                         </p>
                     </div>

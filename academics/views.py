@@ -494,7 +494,11 @@ def student_reports(request):
                 for key, value in report_data.items():
                     setattr(report, key, value)
 
-                report.company_status = Report.ApprovalStatus.PENDING
+                report.company_status = (
+                    Report.ApprovalStatus.APPROVED
+                    if report_type == "internship"
+                    else Report.ApprovalStatus.PENDING
+                )
                 report.mentor_status = Report.ApprovalStatus.PENDING
 
                 report.submitted_at = timezone.now()
@@ -505,33 +509,23 @@ def student_reports(request):
             else:
 
                 report = Report.objects.create(
-
                     student=student,
-
                     mentor=student.mentor,
-
                     company=approved_application.offer.company if approved_application else None,
-
                     report_file=report_file,
-
                     **report_data,
-
                     **(
-
                         {
-
-                            "company_status": Report.ApprovalStatus.PENDING,
-
+                            "company_status": (
+                                Report.ApprovalStatus.APPROVED
+                                if report_type == "internship"
+                                else Report.ApprovalStatus.PENDING
+                            ),
                             "mentor_status": Report.ApprovalStatus.PENDING,
-
                         }
-
                         if workflow_enabled
-
                         else {}
-
                     )
-
                 )
 
             saved_logs.update(
@@ -539,7 +533,10 @@ def student_reports(request):
                 report=report
             )
             if workflow_enabled:
-                messages.success(request, "Докладът е качен успешно и чака одобрение от фирмата.")
+                if report_type == "internship":
+                    messages.success(request, "Докладът е качен успешно и чака одобрение от ментора.")
+                else:
+                    messages.success(request, "Докладът е качен успешно и чака одобрение от фирмата.")
             else:
                 messages.warning(request, "Докладът е качен, но е нужна миграция за фирмено/менторско одобрение.")
             return redirect(f"{request.path}?type={report_type}")

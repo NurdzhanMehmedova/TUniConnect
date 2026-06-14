@@ -328,7 +328,7 @@
                                 </div>
 
                                 {% if report_workflow_enabled %}
-                                    <span>Фирма: {{ report.get_company_status_display }}</span>
+                                    {% if report.company %}<span>Фирма: {{ report.get_company_status_display }}</span>{% endif %}
                                     <span>Ментор: {{ report.get_mentor_status_display }}</span>
                                 {% endif %}
 

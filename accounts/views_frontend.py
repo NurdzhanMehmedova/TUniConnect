@@ -51,8 +51,6 @@ def report_workflow_enabled():
     except (OperationalError, ProgrammingError):
         return False
 
-
-
 def home(request):
     context = {
         "total_students": Student.objects.count(),
@@ -281,17 +279,17 @@ def password_reset_request(request):
         send_mail(
             "Временна парола - TUniConnect",
             f"""
-Здравейте,
-
-Вашата временна парола е:
-
-{temp_password}
-
-Влезте в системата и я сменете веднага.
-
-Поздрави,
-TUniConnect
-""",
+            Здравейте,
+            
+            Вашата временна парола е:
+            
+            {temp_password}
+            
+            Влезте в системата и я сменете веднага.
+            
+            Поздрави,
+            TUniConnect
+            """,
             settings.DEFAULT_FROM_EMAIL,
             [email],
         )
@@ -535,8 +533,11 @@ def mentor_approve_report(request, report_id):
         messages.error(request, "Първо фирмата трябва да одобри доклада.")
         return redirect(f"{reverse('mentor_dashboard')}?section=reports")
 
-    report.mentor_status = Report.ApprovalStatus.APPROVED
+    if report.mentor_status == Report.ApprovalStatus.REJECTED:
+        messages.error(request, "Докладът вече е върнат за корекция.")
+        return redirect(f"{reverse('mentor_dashboard')}?section=reports")
 
+    report.mentor_status = Report.ApprovalStatus.APPROVED
     grade = request.POST.get("final_grade")
 
     if grade:
@@ -555,6 +556,42 @@ def mentor_approve_report(request, report_id):
         description=f"Mentor approved report #{report.id}"
     )
     messages.success(request, "Докладът е одобрен от ментора.")
+
+    return redirect(f"{reverse('mentor_dashboard')}?section=reports")
+
+@login_required
+def mentor_reject_report(request, report_id):
+    if request.method != "POST":
+        return redirect(f"{reverse('mentor_dashboard')}?section=reports")
+
+    if request.user.role.name != "MENTOR":
+        return redirect("home")
+
+    if not report_workflow_enabled():
+        messages.error(request, "Липсват миграции за workflow на доклади. Изпълни migrate.")
+        return redirect(f"{reverse('mentor_dashboard')}?section=reports")
+
+    mentor = Mentor.objects.filter(user=request.user).first()
+    report = get_object_or_404(
+        Report.objects.select_related("student"),
+        id=report_id,
+        student__mentor=mentor
+    )
+
+    if report.company_status != Report.ApprovalStatus.APPROVED:
+        messages.error(request, "Първо фирмата трябва да одобри доклада.")
+        return redirect(f"{reverse('mentor_dashboard')}?section=reports")
+
+    report.mentor_status = Report.ApprovalStatus.REJECTED
+    report.final_grade = None
+    report.save(update_fields=["mentor_status", "final_grade"])
+    UserAudit.objects.create(
+        user=request.user,
+        role=request.user.role.name,
+        action="REJECT_APPLICATION",
+        description=f"Mentor rejected report #{report.id}"
+    )
+    messages.warning(request, "Докладът е върнат за корекция от ментора.")
 
     return redirect(f"{reverse('mentor_dashboard')}?section=reports")
 
@@ -817,8 +854,6 @@ def company_applications(request):
         "report_workflow_enabled": workflow_enabled,
     })
 
-
-
 @login_required
 def company_reports(request):
 
@@ -944,18 +979,18 @@ def company_application_detail(request, application_id):
             send_mail(
                 "Промяна в кандидатура - TUniConnect",
                 f"""
-    Здравей, {student_name},
-
-    Твоята кандидатура за:
-    {application.offer.title}
-
-    е ОДОБРЕНА!
-
-    Влез в системата за повече информация.
-
-    Поздрави,
-    TUniConnect
-    """,
+            Здравей, {student_name},
+        
+            Твоята кандидатура за:
+            {application.offer.title}
+        
+            е ОДОБРЕНА!
+        
+            Влез в системата за повече информация.
+        
+            Поздрави,
+            TUniConnect
+            """,
                 settings.DEFAULT_FROM_EMAIL,
                 [student_email],
             )
@@ -976,21 +1011,21 @@ def company_application_detail(request, application_id):
             send_mail(
                 "Промяна в кандидатура - TUniConnect",
                 f"""
-    Здравей, {student_name},
-
-    Твоята кандидатура за:
-    {application.offer.title}
-
-    е ОТХВЪРЛЕНА.
-
-    Причина:
-    {reason}
-
-    Можеш да разгледаш други обяви в платформата.
-
-    Поздрави,
-    TUniConnect
-    """,
+                Здравей, {student_name},
+            
+                Твоята кандидатура за:
+                {application.offer.title}
+            
+                е ОТХВЪРЛЕНА.
+            
+                Причина:
+                {reason}
+            
+                Можеш да разгледаш други обяви в платформата.
+            
+                Поздрави,
+                TUniConnect
+                """,
                 settings.DEFAULT_FROM_EMAIL,
                 [student_email],
             )
@@ -1128,7 +1163,7 @@ def apply_for_offer(request, offer_id):
                 messages.error(request, "Нямате попълнено CV.")
                 return redirect(request.path)
 
-        # ✅ ако ползва CV от профила
+        # кандидатстване със CV от профила
         if cv_type == "profile":
             cv, created = StudentCV.objects.get_or_create(student=student)
 
@@ -1371,7 +1406,7 @@ def edit_offer(request, pk):
                 action="UPDATE_OFFER",
                 description=f"Updated offer: {offer.title}"
             )
-            return redirect("company_offers")  # или как ти се казва страницата
+            return redirect("company_offers")
     else:
         form = InternOfferForm(instance=offer)
 
@@ -1491,7 +1526,6 @@ def company_public_profile(request, company_id):
         "offers": offers_qs[:6],
         "has_more_offers": offers_qs.count() > 6,
     })
-
 
 def company_public_offers(request, company_id):
     company = get_object_or_404(Company, id=company_id)
